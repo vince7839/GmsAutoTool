@@ -23,20 +23,17 @@ void MainWindow::newTest()
 void MainWindow::startTest(QString toolPath)
 {
     QMessageBox::warning(this,"",toolPath);
-   // QProcess::execute("sh /media/sf_虚拟机共享/CTS_7.0_r10/android-cts/tools/cts-tradefed");
-
-    //QProcess::execute("gnome-terminal");
 
     QProcess*p=new QProcess(this);
 
     QStringList arg;
-    arg<<"-x"<<"bash"<<"-c"<<"/media/sf_虚拟机共享/CTS_7.0_r10/android-cts/tools/cts-tradefed";
+   // arg<<"-x"<<"bash"<<"-c"<<"/media/sf_虚拟机共享/CTS_7.0_r10/android-cts/tools/cts-tradefed";
+    arg<<"-x"<<"bash"<<"-c"<<"-v"<<"/home/liaowenxing/expect.exp";
     p->execute(QString("gnome-terminal"),arg);
-     //  p->open(QIODevice::ReadWrite);
+
     p->start();
 
-   // qDebug()<<p->readAllStandardOutput();
-   // p->write("ls");
+
 }
 
 MainWindow::MainWindow(QWidget *parent) :

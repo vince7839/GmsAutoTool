@@ -9,8 +9,10 @@
 #include<QDebug>
 SqlConnection::SqlConnection()
 {
+    //QString dbPath="/media/sf_虚拟机共享/AutoTool.db";
+    QString dbPath="/home/liaowenxing/QtProject/GmsAutoTool.db";
     db=QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName("/media/sf_虚拟机共享/AutoTool.db");
+    db.setDatabaseName(dbPath);
 
 }
 
