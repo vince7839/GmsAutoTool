@@ -4,13 +4,17 @@
 
 class SqlConnection
 {
+
 public:
-    SqlConnection();
+    static SqlConnection* getInstance();
     ~SqlConnection();
     bool connect();
+    void close();
     QList<QMap<QString,QString> > execSql(QString);
 private:
     QSqlDatabase db;
+    SqlConnection();
+    static SqlConnection* mConn;
 };
 
 #endif // SQLCONNECTION_H

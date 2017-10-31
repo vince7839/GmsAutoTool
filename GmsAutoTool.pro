@@ -29,15 +29,24 @@ SOURCES += \
     mainwindow.cpp \
     addtoolwidget.cpp \
     sqlconnection.cpp \
-    addtestwidget.cpp
+    addtestwidget.cpp \
+    resultwidget.cpp \
+    toolwidget.cpp \
+    testwidget.cpp
 
 HEADERS += \
     mainwindow.h \
     addtoolwidget.h \
     sqlconnection.h \
-    addtestwidget.h
+    addtestwidget.h \
+    resultwidget.h \
+    toolwidget.h \
+    testwidget.h
 
 FORMS += \
     mainwindow.ui \
     addtoolwidget.ui \
-    addtestwidget.ui
+    addtestwidget.ui \
+    resultwidget.ui \
+    toolwidget.ui \
+    testwidget.ui

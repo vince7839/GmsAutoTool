@@ -30,9 +30,9 @@ void AddTestWidget::updateToolBox()
 {
     ui->cb_tool->clear();
     QList<QMap<QString,QString> >toolList;
-    SqlConnection conn;
-    if(conn.connect()){
-        toolList=conn.execSql(QString("select * from Tool where type='%1' and platform='%2'")
+    SqlConnection *conn=SqlConnection::getInstance();
+    if(conn->connect()){
+        toolList=conn->execSql(QString("select * from Tool where type='%1' and platform='%2'")
                               .arg(ui->cbox_test->currentText())
                               .arg(ui->cb_platform->currentText().mid(0,1)));
 
@@ -44,12 +44,12 @@ void AddTestWidget::updateToolBox()
 
 void AddTestWidget::startClicked()
 {
-    SqlConnection conn;
-    if(conn.connect()){
-       QList<QMap<QString,QString> > res=conn.execSql(QString("select path from Tool where name='%1'")
+    SqlConnection *conn=SqlConnection::getInstance();
+    if(conn->connect()){
+       QList<QMap<QString,QString> > res=conn->execSql(QString("select path from Tool where name='%1'")
                     .arg(ui->cb_tool->currentText()));
        emit postStart(res.at(0).value("path"));
-        destroy();
+        close();
     }
     else{
         QMessageBox::warning(this,QString::fromUtf8(""),QString::fromUtf8(""));
