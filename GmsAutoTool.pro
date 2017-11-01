@@ -32,7 +32,8 @@ SOURCES += \
     addtestwidget.cpp \
     resultwidget.cpp \
     toolwidget.cpp \
-    testwidget.cpp
+    testwidget.cpp \
+    parseresultwidget.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -41,7 +42,8 @@ HEADERS += \
     addtestwidget.h \
     resultwidget.h \
     toolwidget.h \
-    testwidget.h
+    testwidget.h \
+    parseresultwidget.h
 
 FORMS += \
     mainwindow.ui \
@@ -49,4 +51,5 @@ FORMS += \
     addtestwidget.ui \
     resultwidget.ui \
     toolwidget.ui \
-    testwidget.ui
+    testwidget.ui \
+    parseresultwidget.ui

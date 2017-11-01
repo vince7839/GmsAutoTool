@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ResultWidget</class>
- <widget class="QWidget" name="ResultWidget">
+ <class>ParseResultWidget</class>
+ <widget class="QWidget" name="ParseResultWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -13,15 +13,20 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QTableWidget" name="result_table_widget">
+  <widget class="QTreeWidget" name="result_tree_widget">
    <property name="geometry">
     <rect>
      <x>10</x>
      <y>10</y>
      <width>381</width>
-     <height>271</height>
+     <height>281</height>
     </rect>
    </property>
+   <column>
+    <property name="text">
+     <string notr="true">1</string>
+    </property>
+   </column>
   </widget>
  </widget>
  <resources/>

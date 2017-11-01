@@ -3,12 +3,16 @@
 #include "sqlconnection.h"
 #include "QDebug"
 #include "QDir"
+#include "parseresultwidget.h"
 
 ResultWidget::ResultWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ResultWidget)
 {
     ui->setupUi(this);
+    connect(ui->result_table_widget,SIGNAL(itemDoubleClicked(QTableWidgetItem*)),this,SLOT(tableItemClicked(QTableWidgetItem*)));
+
+    ui->result_table_widget->setEditTriggers(QAbstractItemView::NoEditTriggers);
 }
 
 ResultWidget::~ResultWidget()
@@ -66,6 +70,13 @@ void ResultWidget::updateContent()
         }
        updateResultTable();
 
+}
+
+void ResultWidget::tableItemClicked(QTableWidgetItem*item)
+{
+    ParseResultWidget *w=new ParseResultWidget;
+    w->showResult(item->text());
+    w->show();
 }
 
 
