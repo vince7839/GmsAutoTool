@@ -74,9 +74,10 @@ void ResultWidget::updateContent()
 
 void ResultWidget::tableItemClicked(QTableWidgetItem*item)
 {
-    ParseResultWidget *w=new ParseResultWidget;
-    w->showResult(item->text());
-    w->show();
+    if(parseWidget == NULL)
+          parseWidget=new ParseResultWidget;
+    parseWidget->showResult(item->text());
+    parseWidget->activateWindow();
 }
 
 

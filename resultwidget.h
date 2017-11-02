@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include"QTableWidgetItem"
+#include "parseresultwidget.h"
 namespace Ui {
 class ResultWidget;
 }
@@ -20,6 +21,7 @@ public:
 private:
     Ui::ResultWidget *ui;
     QList<QMap<QString,QString> > mXmlList;
+    ParseResultWidget* parseWidget=NULL;
 };
 
 #endif // RESULTWIDGET_H
