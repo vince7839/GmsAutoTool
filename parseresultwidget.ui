@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>675</width>
+    <height>418</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,9 +17,9 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>10</y>
-     <width>381</width>
-     <height>281</height>
+     <y>40</y>
+     <width>651</width>
+     <height>371</height>
     </rect>
    </property>
    <column>
@@ -27,6 +27,58 @@
      <string notr="true">1</string>
     </property>
    </column>
+  </widget>
+  <widget class="QLabel" name="label_checked_count">
+   <property name="geometry">
+    <rect>
+     <x>106</x>
+     <y>10</y>
+     <width>111</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="cbox_select_all">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>10</y>
+     <width>92</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>全选</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btn_new_plan">
+   <property name="geometry">
+    <rect>
+     <x>260</x>
+     <y>10</y>
+     <width>89</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>新建PLAN</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btn_solution">
+   <property name="geometry">
+    <rect>
+     <x>390</x>
+     <y>10</y>
+     <width>89</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>查看分析</string>
+   </property>
   </widget>
  </widget>
  <resources/>

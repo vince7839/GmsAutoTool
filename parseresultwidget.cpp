@@ -3,21 +3,64 @@
 #include "QDomDocument"
 #include "QFile"
 #include "QDebug"
+#include "plandialog.h"
 
 void ParseResultWidget::treeCheckedChange(QTreeWidgetItem*item,int)
 {
-    Qt::CheckState state=item->checkState(0);//必须要先取出来 因为后面改变子节点的时候会反过来修改父节点的状态,实时获取会导致只能勾选一个子节点
+    Qt::CheckState state=item->checkState(COLUMN_INDEX_NAME);//必须要先取出来 因为后面改变子节点的时候会反过来修改父节点的状态,实时获取会导致只能勾选一个子节点
 
     if(state!= Qt::PartiallyChecked)
     {
         for(int i=0;i<item->childCount();i++)
         {
-           item->child(i)->setCheckState(0,state);
+           item->child(i)->setCheckState(COLUMN_INDEX_NAME,state);
         }
     }
 
    if( item->parent()!=NULL ) changeState(item->parent());
-    // qDebug()<<"checked change";
+
+   if(item->childCount() == 0)
+   {
+       if(state == Qt::Checked)
+           checkedList.append(item->text(COLUMN_INDEX_NAME));
+       else
+           checkedList.removeAll(item->text(COLUMN_INDEX_NAME));
+
+       ui->label_checked_count->setText(QString("已勾选:%1").arg(checkedList.size()));
+       ui->btn_new_plan->setEnabled( !checkedList.isEmpty() );
+   }
+
+}
+
+void ParseResultWidget::selectAll(int state)
+{
+    for(int i=0;i<ui->result_tree_widget->topLevelItemCount();i++)
+    {
+        ui->result_tree_widget->topLevelItem(i)->setCheckState(COLUMN_INDEX_NAME
+                                                    ,(Qt::CheckState)state);
+    }
+}
+
+void ParseResultWidget::newPlan()
+{
+    qDebug()<<checkedList;
+    PlanDialog* w=new PlanDialog;
+    w->setModal(true);
+    w->setPlan(checkedList);
+
+    if(w->exec())
+        writePlanXml();
+}
+
+void ParseResultWidget::enableSolutionBtn()
+{
+    ui->btn_solution->setDisabled(ui->result_tree_widget->selectedItems().isEmpty()
+                                  || ui->result_tree_widget->selectedItems().at(0)->childCount() != 0 );
+}
+
+void ParseResultWidget::showSolution()
+{
+
 }
 
 
@@ -58,6 +101,7 @@ void ParseResultWidget::showResult(QString xmlPath)
     doc.setContent(new QFile(xmlPath));
     moduleToCaseMap.clear();
     caseToTestMap.clear();
+    checkedList.clear();
     parseXml(doc.namedItem("Result"));
     updateTreeWidget();
     show();
@@ -65,11 +109,11 @@ void ParseResultWidget::showResult(QString xmlPath)
 
 void ParseResultWidget::changeState(QTreeWidgetItem*item)
 {
-    Qt::CheckState preItemState=item->child(0)->checkState(0);
+    Qt::CheckState preItemState=item->child(0)->checkState(COLUMN_INDEX_NAME);
     Qt::CheckState newState;
     for(int j=0;j<item->childCount();j++)
     {
-       if(item->child(j)->checkState(0) == preItemState)
+       if(item->child(j)->checkState(COLUMN_INDEX_NAME) == preItemState)
            {
             if(j == item->childCount()-1 )
                 newState=preItemState;
@@ -82,10 +126,16 @@ void ParseResultWidget::changeState(QTreeWidgetItem*item)
          }
 
     }
-    item->setCheckState(0,newState);
-   //每次改变只需要知会自己的父节点,因为父节点自己会触发信号执行这个函数,不需要层层往上
-    // if(item->parent() !=NULL )changeState(item->parent());
+    item->setCheckState(COLUMN_INDEX_NAME,newState);
+   //每次改变只需要知会自己的父节点,因为父节点自己会触发信号执行这个函数,不需要层层递归往上
+
 }
+
+void ParseResultWidget::writePlanXml()
+{
+
+}
+
 
 ParseResultWidget::ParseResultWidget(QWidget *parent) :
     QWidget(parent),
@@ -94,6 +144,18 @@ ParseResultWidget::ParseResultWidget(QWidget *parent) :
     ui->setupUi(this);
     connect(ui->result_tree_widget,SIGNAL(itemChanged(QTreeWidgetItem*,int))
             ,this,SLOT(treeCheckedChange(QTreeWidgetItem*,int)));
+    connect(ui->cbox_select_all,SIGNAL(stateChanged(int)),this,SLOT(selectAll(int)));
+
+    connect(ui->btn_new_plan,SIGNAL(clicked(bool)),this,SLOT(newPlan()));
+
+    connect(ui->btn_solution,SIGNAL(clicked(bool)),this,SLOT(showSolution()));
+
+    connect(ui->result_tree_widget,SIGNAL(itemSelectionChanged()),this,SLOT(enableSolutionBtn()));
+
+    ui->result_tree_widget->setColumnCount(2);
+    ui->result_tree_widget->setHeaderLabels(QStringList()<<QString::fromUtf8("名称")
+                                            <<QString::fromUtf8("数量"));
+    ui->btn_solution->setDisabled(true);
 
 }
 
@@ -109,24 +171,29 @@ void ParseResultWidget::updateTreeWidget()
     ui->result_tree_widget->clear();
     foreach(QString moduleName,moduleToCaseMap.uniqueKeys())
     {
+        int testCountInModule=0;
         QTreeWidgetItem*moduleItem=new QTreeWidgetItem(QStringList()<<moduleName);
         ui->result_tree_widget->addTopLevelItem(moduleItem);
-        moduleItem->setCheckState(0,Qt::Unchecked);
+        moduleItem->setCheckState(COLUMN_INDEX_NAME,Qt::Unchecked);
 
         foreach(QString caseName,moduleToCaseMap.values(moduleName))
         {
             QTreeWidgetItem* caseItem=new QTreeWidgetItem(QStringList()<<caseName);
-            caseItem->setCheckState(0,Qt::Unchecked);
+            caseItem->setCheckState(COLUMN_INDEX_NAME,Qt::Unchecked);
             moduleItem->addChild(caseItem);
 
             foreach (QString testName,caseToTestMap.values(caseName))
             {
                 QTreeWidgetItem* testItem=new QTreeWidgetItem(QStringList()<<testName);
-                testItem->setCheckState(0,Qt::Unchecked);
+                testItem->setCheckState(COLUMN_INDEX_NAME,Qt::Unchecked);
                 caseItem->addChild(testItem);
             }
 
+            int testCountInCase=caseItem->childCount();
+            testCountInModule += testCountInCase;
+            caseItem->setText(COLUMN_INDEX_COUNT,QString("%1").arg(testCountInCase));
         }
-
+        moduleItem->setText(COLUMN_INDEX_COUNT,QString("%1").arg(testCountInModule));
     }
+
 }

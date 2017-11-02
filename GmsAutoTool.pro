@@ -33,7 +33,8 @@ SOURCES += \
     resultwidget.cpp \
     toolwidget.cpp \
     testwidget.cpp \
-    parseresultwidget.cpp
+    parseresultwidget.cpp \
+    plandialog.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -43,7 +44,8 @@ HEADERS += \
     resultwidget.h \
     toolwidget.h \
     testwidget.h \
-    parseresultwidget.h
+    parseresultwidget.h \
+    plandialog.h
 
 FORMS += \
     mainwindow.ui \
@@ -52,4 +54,5 @@ FORMS += \
     resultwidget.ui \
     toolwidget.ui \
     testwidget.ui \
-    parseresultwidget.ui
+    parseresultwidget.ui \
+    plandialog.ui
