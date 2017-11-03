@@ -30,7 +30,7 @@ QDomNode AddSolutionWidget::getNodeByAttr(QDomNode node,QString attrValue)
     QDomNode childNode;
     for(int i=0;i<node.childNodes().size();i++)
     {
-        if(node.attributes().namedItem("name").nodeValue() == attrValue)
+        if(node.childNodes().at(i).attributes().namedItem("name").nodeValue() == attrValue)
             childNode=node.childNodes().at(i);
     }
 
@@ -39,8 +39,6 @@ QDomNode AddSolutionWidget::getNodeByAttr(QDomNode node,QString attrValue)
 
 void AddSolutionWidget::writeXml()
 {
-
-
     QDomDocument doc;
     QFile file("/home/liaowenxing/solution.xml");
     if( file.open(QIODevice::ReadWrite) )
@@ -54,8 +52,8 @@ void AddSolutionWidget::writeXml()
     {
          moduleNode=doc.createElement("Module");
          moduleNode.setAttribute("name",testInfo.value("module"));
-
          rootNode.appendChild(moduleNode);
+    qDebug()<<"new module";
     }
 
     QDomElement caseNode=getNodeByAttr(moduleNode,testInfo.value("case")).toElement();
@@ -65,6 +63,7 @@ void AddSolutionWidget::writeXml()
         caseNode=doc.createElement("TestCase");
         caseNode.setAttribute("name",testInfo.value("case"));
         moduleNode.appendChild(caseNode);
+    qDebug()<<"new case";
     }
 
     QDomElement testNode=getNodeByAttr(caseNode,testInfo.value("test")).toElement();
@@ -74,15 +73,20 @@ void AddSolutionWidget::writeXml()
         testNode=doc.createElement("Test");
         testNode.setAttribute("name",testInfo.value("test"));
         caseNode.appendChild(testNode);
+    qDebug()<<"new test";
     }
 
-    testNode.setAttribute("project",ui->lineEdit_project->text());
-    testNode.setAttribute("tool",ui->lineEdit_tool->text());
-    testNode.setAttribute("time",ui->dateTimeEdit->text());
-    testNode.setAttribute("editor",ui->lineEdit_editor->text());
-    testNode.setAttribute("analysis",ui->plainTextEdit_analysis->document()->toPlainText());
-    testNode.setAttribute("solution",ui->plainTextEdit_solution->document()->toPlainText());
+    QDomElement answerNode=doc.createElement("Answer");
 
+    answerNode.setAttribute("project",ui->lineEdit_project->text());
+    answerNode.setAttribute("tool",ui->lineEdit_tool->text());
+    answerNode.setAttribute("time",ui->dateTimeEdit->text());
+    answerNode.setAttribute("editor",ui->lineEdit_editor->text());
+    answerNode.setAttribute("analysis",ui->plainTextEdit_analysis->document()->toPlainText());
+    answerNode.setAttribute("solution",ui->plainTextEdit_solution->document()->toPlainText());
+
+    testNode.appendChild(answerNode);
+    file.resize(0);
     QTextStream out(&file);
 
     doc.save(out,4);
