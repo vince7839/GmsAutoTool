@@ -57,8 +57,8 @@
   <widget class="QPushButton" name="btn_new_plan">
    <property name="geometry">
     <rect>
-     <x>260</x>
-     <y>10</y>
+     <x>430</x>
+     <y>0</y>
      <width>89</width>
      <height>25</height>
     </rect>
@@ -70,14 +70,27 @@
   <widget class="QPushButton" name="btn_solution">
    <property name="geometry">
     <rect>
-     <x>390</x>
-     <y>10</y>
+     <x>550</x>
+     <y>0</y>
      <width>89</width>
      <height>25</height>
     </rect>
    </property>
    <property name="text">
     <string>查看分析</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btn_expand">
+   <property name="geometry">
+    <rect>
+     <x>290</x>
+     <y>0</y>
+     <width>89</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
    </property>
   </widget>
  </widget>

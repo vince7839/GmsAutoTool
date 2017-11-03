@@ -5,6 +5,7 @@
 #include <QDomNode>
 #include <QMultiMap>
 #include<QTreeWidgetItem>
+#include<solutionwidget.h>
 
 namespace Ui {
 class ParseResultWidget;
@@ -19,6 +20,7 @@ private slots:
     void newPlan();
     void enableSolutionBtn();
     void showSolution();
+    void expandTree();
 public:    
     void parseXml(QDomNode);
     void parseNode(QDomNode);
@@ -34,6 +36,7 @@ private:
     QMultiMap<QString,QString> moduleToCaseMap,caseToTestMap;
     const int COLUMN_INDEX_NAME=0,COLUMN_INDEX_COUNT=1;
     QStringList checkedList;
+    SolutionWidget* solutionWidget=NULL;
 };
 
 #endif // PARSERESULTWIDGET_H

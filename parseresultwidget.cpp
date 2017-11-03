@@ -4,6 +4,7 @@
 #include "QFile"
 #include "QDebug"
 #include "plandialog.h"
+#include "solutionwidget.h"
 
 void ParseResultWidget::treeCheckedChange(QTreeWidgetItem*item,int)
 {
@@ -60,6 +61,37 @@ void ParseResultWidget::enableSolutionBtn()
 
 void ParseResultWidget::showSolution()
 {
+   QString testName=ui->result_tree_widget->currentItem()->text(COLUMN_INDEX_NAME);
+   QString caseName=caseToTestMap.key(testName);
+   QString moduleName=moduleToCaseMap.key(caseName);
+
+   QMap<QString,QString> map;
+   map.insert("module",moduleName);
+   map.insert("case",caseName);
+   map.insert("test",testName);
+
+   if(solutionWidget == NULL)
+            solutionWidget=new SolutionWidget;
+
+   solutionWidget->showSolution(map);
+   solutionWidget->activateWindow();
+
+
+}
+
+void ParseResultWidget::expandTree()
+{
+    static bool isExpand=false;
+
+    if( !isExpand )
+    {
+        ui->result_tree_widget->expandAll();
+        ui->btn_expand->setText(QString::fromUtf8("收起▲"));
+    }else{
+        ui->result_tree_widget->collapseAll();
+        ui->btn_expand->setText(QString::fromUtf8("展开▼"));
+    }
+         isExpand = !isExpand;
 
 }
 
@@ -104,6 +136,8 @@ void ParseResultWidget::showResult(QString xmlPath)
     checkedList.clear();
     parseXml(doc.namedItem("Result"));
     updateTreeWidget();
+    ui->result_tree_widget->collapseAll();
+    ui->btn_expand->setText(QString::fromUtf8("展开▼"));
     show();
 }
 
@@ -152,11 +186,13 @@ ParseResultWidget::ParseResultWidget(QWidget *parent) :
 
     connect(ui->result_tree_widget,SIGNAL(itemSelectionChanged()),this,SLOT(enableSolutionBtn()));
 
+    connect(ui->btn_expand,SIGNAL(clicked(bool)),this,SLOT(expandTree()));
+
     ui->result_tree_widget->setColumnCount(2);
     ui->result_tree_widget->setHeaderLabels(QStringList()<<QString::fromUtf8("名称")
                                             <<QString::fromUtf8("数量"));
     ui->btn_solution->setDisabled(true);
-
+   // ui->result_tree_widget->collapseAll();
 }
 
 ParseResultWidget::~ParseResultWidget()
