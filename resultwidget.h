@@ -18,6 +18,8 @@ public:
     explicit ResultWidget(QWidget *parent = 0);
     ~ResultWidget();
     void updateResultTable();
+    void getResultInfo();
+    QString parseTime(QString);
 private:
     Ui::ResultWidget *ui;
     QList<QMap<QString,QString> > mXmlList;

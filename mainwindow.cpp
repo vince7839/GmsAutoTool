@@ -3,6 +3,7 @@
 #include "toolwidget.h"
 #include "testwidget.h"
 #include "resultwidget.h"
+#include<QTime>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
