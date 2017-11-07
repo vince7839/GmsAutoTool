@@ -17,6 +17,9 @@ public:
     explicit TestWidget(QWidget *parent = 0);
     ~TestWidget();
 
+private slots:
+    void on_pushButton_clicked();
+
 private:
     Ui::TestWidget *ui;
 };

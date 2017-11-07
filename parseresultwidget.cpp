@@ -5,6 +5,8 @@
 #include "QDebug"
 #include "plandialog.h"
 #include "solutionwidget.h"
+#include "QDir"
+#include"QProcess"
 
 void ParseResultWidget::treeCheckedChange(QTreeWidgetItem*item,int)
 {
@@ -47,11 +49,17 @@ void ParseResultWidget::newPlan()
     qDebug()<<checkedList;
     PlanDialog* w=new PlanDialog;
     w->setModal(true);
-    w->setPlan(checkedList);
+
+    QDir dir(mResultPath+"/../../../subplans");
+    QString planDirPath=dir.absolutePath();
+    w->setPlanInfo(checkedList,planDirPath);
 
     if(w->exec())
-        writePlanXml();
-}
+    {
+       writePlanXml(w->getPlanName());
+       execPlan(w->getPlanName());
+    }
+    }
 
 void ParseResultWidget::enableSolutionBtn()
 {
@@ -129,6 +137,7 @@ void ParseResultWidget::parseNode(QDomNode node)
 
 void ParseResultWidget::showResult(QString xmlPath)
 {
+    mResultPath=xmlPath;
     QDomDocument doc;
     doc.setContent(new QFile(xmlPath));
     moduleToCaseMap.clear();
@@ -138,6 +147,8 @@ void ParseResultWidget::showResult(QString xmlPath)
     updateTreeWidget();
     ui->result_tree_widget->collapseAll();
     ui->btn_expand->setText(QString::fromUtf8("展开▼"));
+    ui->result_tree_widget->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+
     show();
 }
 
@@ -165,9 +176,43 @@ void ParseResultWidget::changeState(QTreeWidgetItem*item)
 
 }
 
-void ParseResultWidget::writePlanXml()
+void ParseResultWidget::writePlanXml(QString planName)
 {
+    QDir dir(mResultPath+"/../../../subplans"); //有.的路径是相对路径,可以转化为绝对路径,这种方式更方便不用自己组装字符串
+    if( !dir.exists())
+    {
+        dir.mkdir(dir.absolutePath());
+     //   qDebug()<<"mkdir "<<dir.absolutePath();
+    }
+    QFile file(dir.absolutePath()+"/"+planName+".xml");
+    QDomDocument doc;
+    QDomElement rootNode = doc.createElement("SubPlan");
+    rootNode.setAttribute("version","2.0");
 
+    for(QString test:checkedList)
+    {
+      QString caseName=caseToTestMap.key(test);
+      QString moduleName=moduleToCaseMap.key(caseName);
+      QDomElement entryNode=doc.createElement("Entry");
+      entryNode.setAttribute("include",moduleName+" "+caseName+"#"+test);
+      rootNode.appendChild(entryNode);
+    }
+     doc.appendChild(rootNode);
+    file.open(QIODevice::WriteOnly);
+    QTextStream out(&file);
+    out<<"<?xml version='1.0' encoding='UTF-8' standalone='no' ?>\n";
+    doc.save(out,4);
+    file.close();
+    //qDebug()<<dir.absolutePath();
+}
+
+void ParseResultWidget::execPlan(QString planName)
+{
+    QProcess *p=new QProcess(this);
+    QStringList arg;
+    arg<<"-x"<<"bash"<<"-c"<<"-v"<<QString("/home/liaowenxing/plan.exp run cts --plan %1").arg(planName);
+    p->execute(QString("gnome-terminal"),arg);
+   // qDebug()<<planPath;
 }
 
 

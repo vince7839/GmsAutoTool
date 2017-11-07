@@ -18,6 +18,7 @@ ResultWidget::ResultWidget(QWidget *parent) :
 
     ui->result_table_widget->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->result_table_widget->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    // ui->result_table_widget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->result_table_widget->horizontalHeader()->setEnabled(false);
 
     ui->result_table_widget->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -53,7 +54,7 @@ void ResultWidget::updateResultTable()
        ui->result_table_widget->setItem(i,6,new QTableWidgetItem(mXmlList.at(i).value("end_time")));
    }
 
-    ui->result_table_widget->setFixedSize(ui->result_table_widget->size());
+   // ui->result_table_widget->setFixedSize(ui->result_table_widget->size());
 }
 
 void ResultWidget::getResultInfo()
@@ -124,6 +125,7 @@ void ResultWidget::updateContent()
                             QMap<QString,QString> map;
                             map.insert("result_path",i.absoluteFilePath());
                             map.insert("result_name",i.fileName());
+
                             mXmlList.append(map);
                         }
                     }

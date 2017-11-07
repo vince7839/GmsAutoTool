@@ -36,3 +36,13 @@ TestWidget::~TestWidget()
 {
     delete ui;
 }
+
+void TestWidget::on_pushButton_clicked()
+{
+    QProcess *p=new QProcess(this);
+    QStringList arg;
+   // arg<<"-x"<<"bash"<<"-c"<<"/media/sf_虚拟机共享/CTS_7.0_r10/android-cts/tools/cts-tradefed";
+    arg<<"-x"<<"bash"<<"-c"<<"-v"<<"/home/liaowenxing/plan.exp aaa bbb";
+    p->execute(QString("gnome-terminal"),arg);
+
+}

@@ -4,6 +4,7 @@
 #include <QWidget>
 #include"QTableWidgetItem"
 #include "parseresultwidget.h"
+#include "QLinkedList"
 namespace Ui {
 class ResultWidget;
 }
@@ -24,6 +25,7 @@ private:
     Ui::ResultWidget *ui;
     QList<QMap<QString,QString> > mXmlList;
     ParseResultWidget* parseWidget=NULL;
+
 };
 
 #endif // RESULTWIDGET_H
