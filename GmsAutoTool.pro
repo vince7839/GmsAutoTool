@@ -36,7 +36,8 @@ SOURCES += \
     parseresultwidget.cpp \
     plandialog.cpp \
     solutionwidget.cpp \
-    addsolutionwidget.cpp
+    addsolutionwidget.cpp \
+    loadresultthread.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -49,7 +50,8 @@ HEADERS += \
     parseresultwidget.h \
     plandialog.h \
     solutionwidget.h \
-    addsolutionwidget.h
+    addsolutionwidget.h \
+    loadresultthread.h
 
 FORMS += \
     mainwindow.ui \

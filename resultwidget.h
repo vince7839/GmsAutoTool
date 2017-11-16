@@ -15,16 +15,18 @@ class ResultWidget : public QWidget
 public slots:
     void updateContent();
     void tableItemClicked(QTableWidgetItem *);
+    void updateResultTable(QList<QMap<QString,QString> >);
 public:
     explicit ResultWidget(QWidget *parent = 0);
     ~ResultWidget();
-    void updateResultTable();
+
     void getResultInfo();
     QString parseTime(QString);
 private:
     Ui::ResultWidget *ui;
-    QList<QMap<QString,QString> > mXmlList;
+    QList<QMap<QString,QString> > mResultList;
     ParseResultWidget* parseWidget=NULL;
+    QThread*mLoadThread;
 
 };
 

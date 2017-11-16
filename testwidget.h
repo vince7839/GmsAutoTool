@@ -2,6 +2,7 @@
 #define TESTWIDGET_H
 
 #include <QWidget>
+#include<QProcess>
 
 namespace Ui {
 class TestWidget;
@@ -13,6 +14,7 @@ class TestWidget : public QWidget
 public slots:
     void newTest();
     void startTest(QString);
+    void printOutput();
 public:
     explicit TestWidget(QWidget *parent = 0);
     ~TestWidget();
@@ -22,6 +24,7 @@ private slots:
 
 private:
     Ui::TestWidget *ui;
+    QProcess *pa;
 };
 
 #endif // TESTWIDGET_H

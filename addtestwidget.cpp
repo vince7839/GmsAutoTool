@@ -10,15 +10,17 @@ AddTestWidget::AddTestWidget(QWidget *parent) :
 {
     ui->setupUi(this);
     connect(ui->cbox_test,SIGNAL(currentIndexChanged(QString)),this,SLOT(updateToolBox()));
-    connect(ui->cb_platform,SIGNAL(currentIndexChanged(QString)),this,SLOT(updateToolBox()));
     connect(ui->btn_start_test,SIGNAL(clicked(bool)),this,SLOT(startClicked()));
-    QStringList testList,platList;
+    setWindowModality(Qt::ApplicationModal);
+    setWindowTitle(QString::fromUtf8("新建测试"));
 
+    QStringList testList;
     testList<<"CTS"<<"GTS";
-    platList<<"Jelly Bean(4.1/4.2/4.3)"<<"KitKat(4.4)"<<"Lollipop(5.0)"<<"Marshmallow(6.0)"<<"Nougat(7.0)"<<"Oreo(8.0)";
-    ui->cbox_test->addItems(testList);
-    ui->cb_platform->addItems(platList);
-    updateToolBox();
+
+     ui->cbox_test->addItems(testList);
+
+     updateToolBox();
+     setFixedSize(sizeHint());
 }
 
 AddTestWidget::~AddTestWidget()
@@ -32,9 +34,8 @@ void AddTestWidget::updateToolBox()
     QList<QMap<QString,QString> >toolList;
     SqlConnection *conn=SqlConnection::getInstance();
     if(conn->connect()){
-        toolList=conn->execSql(QString("select * from Tool where type='%1' and platform='%2'")
-                              .arg(ui->cbox_test->currentText())
-                              .arg(ui->cb_platform->currentText().mid(0,1)));
+        toolList=conn->execSql(QString("select * from Tool where type='%1'")
+                        .arg(ui->cbox_test->currentText()));
 
     }
 
@@ -59,6 +60,6 @@ void AddTestWidget::startClicked()
 void AddTestWidget::toolFilter()
 {
    QString testType=ui->cb_tool->currentText();
-   QString plat=ui->cb_platform->currentText().mid(0,1);
+
 
 }
