@@ -16,12 +16,12 @@ public slots:
     void updateContent();
     void tableItemClicked(QTableWidgetItem *);
     void updateResultTable(QList<QMap<QString,QString> >);
+    void deleteResult();
+    void enableDelBtn();
 public:
     explicit ResultWidget(QWidget *parent = 0);
     ~ResultWidget();
 
-    void getResultInfo();
-    QString parseTime(QString);
 private:
     Ui::ResultWidget *ui;
     QList<QMap<QString,QString> > mResultList;

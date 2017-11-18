@@ -5,6 +5,7 @@
 #include "toolwidget.h"
 #include "testwidget.h"
 #include "resultwidget.h"
+#include "extendwidget.h"
 
 namespace Ui {
 class MainWindow;
@@ -21,9 +22,10 @@ public:
 
 private:
     Ui::MainWindow *ui;
-    ToolWidget* toolTab;
-    TestWidget* testTab;
-    ResultWidget* resultTab;
+    ToolWidget* toolWidget;
+    TestWidget* testWidget;
+    ResultWidget* resultWidget;
+    ExtendWidget*extendWidget;
 
 };
 

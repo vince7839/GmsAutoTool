@@ -13,86 +13,69 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QTreeWidget" name="result_tree_widget">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>40</y>
-     <width>651</width>
-     <height>371</height>
-    </rect>
-   </property>
-   <column>
-    <property name="text">
-     <string notr="true">1</string>
-    </property>
-   </column>
-  </widget>
-  <widget class="QLabel" name="label_checked_count">
-   <property name="geometry">
-    <rect>
-     <x>106</x>
-     <y>10</y>
-     <width>111</width>
-     <height>20</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string/>
-   </property>
-  </widget>
-  <widget class="QCheckBox" name="cbox_select_all">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>10</y>
-     <width>92</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>全选</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="btn_new_plan">
-   <property name="geometry">
-    <rect>
-     <x>430</x>
-     <y>0</y>
-     <width>89</width>
-     <height>25</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>新建PLAN</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="btn_solution">
-   <property name="geometry">
-    <rect>
-     <x>550</x>
-     <y>0</y>
-     <width>89</width>
-     <height>25</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>查看分析</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="btn_expand">
-   <property name="geometry">
-    <rect>
-     <x>290</x>
-     <y>0</y>
-     <width>89</width>
-     <height>25</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string/>
-   </property>
-  </widget>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QCheckBox" name="cbox_select_all">
+       <property name="text">
+        <string>全选</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_checked_count">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btn_expand">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btn_new_plan">
+       <property name="text">
+        <string>新建PLAN</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btn_solution">
+       <property name="text">
+        <string>查看分析</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QTreeWidget" name="result_tree_widget">
+     <column>
+      <property name="text">
+       <string notr="true">1</string>
+      </property>
+     </column>
+    </widget>
+   </item>
+  </layout>
  </widget>
  <resources/>
  <connections/>

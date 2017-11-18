@@ -33,6 +33,7 @@ void ParseResultWidget::treeCheckedChange(QTreeWidgetItem*item,int)
        ui->btn_new_plan->setEnabled( !checkedList.isEmpty() );
    }
 
+    setWindowTitle(QString::fromUtf8("失败条目"));
 }
 
 void ParseResultWidget::selectAll(int state)

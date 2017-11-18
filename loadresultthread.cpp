@@ -7,21 +7,32 @@
 #include<QDomDocument>
 #include<QDomNode>
 #include<QDateTime>
+#include<QMetaType>
+
+void LoadResultThread::loadAsType(QString type)
+{
+    qDebug()<<"load type:"<<type;
+    mType=type;
+    start();
+}
 
 LoadResultThread::LoadResultThread()
 {
-
+    qRegisterMetaType<QList<QMap<QString,QString> > >("result_list");
 }
 
 void LoadResultThread::parseResultPath()
 {
     mResultList.clear();
     QList<QMap<QString,QString> > list;
-
+    QString query="select path from Tool";
+    if(mType!=QString::fromUtf8("全部"))
+        query += QString(" where type = '%1'").arg(mType);
+    qDebug()<<query;
     SqlConnection *conn=SqlConnection::getInstance();
 
     if(conn->connect()){
-        list=conn->execSql("select path from Tool");
+        list=conn->execSql(query);
 
     }
 
@@ -50,11 +61,13 @@ void LoadResultThread::parseResultPath()
             }
         }
     }
-   parseResultInfo();
+
+    parseResultInfo();
 }
 
 void LoadResultThread::parseResultInfo()
 {
+
     for(int i=0;i<mResultList.size();i++)
     {
         QMap<QString,QString> map=mResultList.at(i);
@@ -63,6 +76,7 @@ void LoadResultThread::parseResultInfo()
         QDomNode resultNode=doc.namedItem("Result");
         QDomNode buildNode=resultNode.namedItem("Build");
         QDomNode summaryNode=resultNode.namedItem("Summary");
+
         map.insert("test_type",resultNode.attributes().namedItem("suite_name").nodeValue());
 
         map.insert("tool_version",resultNode.attributes().namedItem("suite_version").nodeValue());
@@ -75,10 +89,10 @@ void LoadResultThread::parseResultInfo()
 
         map.insert("execute_module",QString("%1/%2").arg(summaryNode.attributes().namedItem("modules_done").nodeValue())
                                                     .arg(summaryNode.attributes().namedItem("modules_total").nodeValue()));
-
         map.insert("failed_count",summaryNode.attributes().namedItem("failed").nodeValue());
 
         mResultList.replace(i,map);
+
     }
 }
 
@@ -86,12 +100,12 @@ QString LoadResultThread::getFormatTime(QString msec)
 {
     QDateTime t;
     t.setMSecsSinceEpoch(msec.toLongLong());
-
     return t.toString("yyyy/MM/dd HH:mm");
 }
-void LoadResultThread::run(){
 
+void LoadResultThread::run(){
     qDebug()<<"run";
     parseResultPath();
-   // loadReady(mResultList);
+    //qSort(mResultList);
+    loadReady(mResultList);
 }

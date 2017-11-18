@@ -57,7 +57,7 @@ void ToolWidget::updateToolList()
         item->setText(map.value("name"));
         QString iconPath="img/cts_icon";
 
-        if(map.value("type")=="gts")
+        if(map.value("type")=="GTS")
             iconPath="img/gts_icon";
 
         item->setIcon(QIcon(QPixmap(iconPath)));
@@ -65,7 +65,7 @@ void ToolWidget::updateToolList()
         ui->tool_listWidget->addItem(item);
     }
 
-    ui->tool_listWidget->setFlow(QListView::TopToBottom);
+   // ui->tool_listWidget->setFlow(QListView::TopToBottom);
 }
 
 ToolWidget::ToolWidget(QWidget *parent) :
@@ -82,7 +82,10 @@ ToolWidget::ToolWidget(QWidget *parent) :
     ui->tool_listWidget->setViewMode(QListView::IconMode);
     ui->tool_listWidget->setIconSize(QSize(100,100));
     ui->tool_listWidget->setFocusPolicy(Qt::NoFocus);
-
+    ui->tool_listWidget->setMovement(QListView::Static);
+    ui->tool_listWidget->setResizeMode(QListView::Adjust);
+    ui->tool_listWidget->setFlow(QListView::LeftToRight);
+   // ui->tool_listWidget->setWrapping(false);
     ui->tool_listWidget->setSelectionMode(QAbstractItemView::SingleSelection);
 
     updateToolList();

@@ -9,6 +9,7 @@
 #include<QDomNode>
 #include<QDateTime>
 #include<loadresultthread.h>
+#include<QProcess>
 
 ResultWidget::ResultWidget(QWidget *parent) :
     QWidget(parent),
@@ -16,15 +17,23 @@ ResultWidget::ResultWidget(QWidget *parent) :
 {
     ui->setupUi(this);
     connect(ui->result_table_widget,SIGNAL(itemDoubleClicked(QTableWidgetItem*)),this,SLOT(tableItemClicked(QTableWidgetItem*)));
+    connect(ui->btn_delete,SIGNAL(clicked()),this,SLOT(deleteResult()));
+    connect(ui->result_table_widget,SIGNAL(itemSelectionChanged()),this,SLOT(enableDelBtn()));
 
     ui->result_table_widget->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    ui->result_table_widget->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    // ui->result_table_widget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    //ui->result_table_widget->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    ui->result_table_widget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->result_table_widget->horizontalHeader()->setEnabled(false);
-
     ui->result_table_widget->setSelectionBehavior(QAbstractItemView::SelectRows);
     mLoadThread=new LoadResultThread;
-    connect(mLoadThread,SIGNAL(loadReady()),this,SLOT(updateResultTable(QList<QMap<QString,QString> >)));
+    connect(mLoadThread,SIGNAL(loadReady(QList<QMap<QString,QString> >)),this,SLOT(updateResultTable(QList<QMap<QString,QString> >)));
+    connect(ui->cBox_resultType,SIGNAL(currentTextChanged(QString)),mLoadThread,SLOT(loadAsType(QString)));
+
+    ui->btn_delete->setDisabled(true);
+
+    QStringList array;
+    array<<"CTS"<<"GTS"<<QString::fromUtf8("全部");
+    ui->cBox_resultType->addItems(array);
 }
 
 ResultWidget::~ResultWidget()
@@ -34,6 +43,7 @@ ResultWidget::~ResultWidget()
 
 void ResultWidget::updateResultTable(QList<QMap<QString,QString> >resultList)
 {
+    qDebug()<<"ready size:"<<resultList.size();
     mResultList=resultList;
   // ui->result_table_widget->clear();
    ui->result_table_widget->setRowCount(resultList.size());
@@ -44,30 +54,55 @@ void ResultWidget::updateResultTable(QList<QMap<QString,QString> >resultList)
                                <<QString::fromUtf8("测试产品")<<QString::fromUtf8("执行模块")
                                <<QString::fromUtf8("失败项")<<QString::fromUtf8("开始时间")
                                <<QString::fromUtf8("结束时间"));
+
+   QStringList keys;
+   keys<<"test_type"<<"tool_version"<<"product"<<"execute_module"<<"failed_count"<<"start_time"<<"end_time";
+
    for(int i=0;i<resultList.size();i++)
    {
-       ui->result_table_widget->setItem(i,0,new QTableWidgetItem(resultList.at(i).value("test_type")));
+       for(int j=0;j<keys.size();j++)
+       {
+           QTableWidgetItem* item=new QTableWidgetItem(resultList.at(i).value(keys.at(j)));
+           item->setTextAlignment(Qt::AlignHCenter);
+           ui->result_table_widget->setItem(i,j,item);
+       }
 
-       ui->result_table_widget->setItem(i,1,new QTableWidgetItem(resultList.at(i).value("tool_version")));
-       ui->result_table_widget->setItem(i,2,new QTableWidgetItem(resultList.at(i).value("product")));
-       ui->result_table_widget->setItem(i,3,new QTableWidgetItem(resultList.at(i).value("execute_module")));
-       ui->result_table_widget->setItem(i,4,new QTableWidgetItem(resultList.at(i).value("failed_count")));
-       ui->result_table_widget->setItem(i,5,new QTableWidgetItem(resultList.at(i).value("start_time")));
-       ui->result_table_widget->setItem(i,6,new QTableWidgetItem(resultList.at(i).value("end_time")));
    }
 
    // ui->result_table_widget->setFixedSize(ui->result_table_widget->size());
 }
 
+void ResultWidget::deleteResult()
+{
+    QList<QTableWidgetItem*> selectedItems=ui->result_table_widget->selectedItems();
+    foreach(QTableWidgetItem* item,selectedItems)
+    {
+        if(item->column()==0){
+            QString resultPath=mResultList.at(item->row()).value("result_path")+"/..";
+            QDir dir(resultPath);
+            QStringList args;
 
+            args<<dir.absolutePath()<<"-r";
+            QProcess::execute("rm",args);
 
+            QString zipPath=dir.absolutePath()+".zip";
+            args<<zipPath<<"-r";
+            QProcess::execute("rm",args);
 
+            qDebug()<<item->row();
+        }
+    }
+    updateContent();
+}
+
+void ResultWidget::enableDelBtn()
+{
+    ui->btn_delete->setDisabled(ui->result_table_widget->selectedItems().isEmpty());
+}
 
 void ResultWidget::updateContent()
 {
-
-       //updateResultTable();
-   // mLoadThread->start();
+    //mLoadThread->start();
 }
 
 void ResultWidget::tableItemClicked(QTableWidgetItem*item)

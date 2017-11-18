@@ -3,8 +3,7 @@
 #include"addtestwidget.h"
 #include"QProcess"
 #include "QDebug"
-#include"loadresultthread.h"
-#include<QThread>
+
 
 void TestWidget::newTest()
 {
@@ -16,9 +15,7 @@ void TestWidget::newTest()
 void TestWidget::startTest(QString toolPath)
 {
     //QMessageBox::warning(this,"",toolPath);
-
     QProcess*p=new QProcess(this);
-
     QStringList arg;
    // arg<<"-x"<<"bash"<<"-c"<<"/media/sf_虚拟机共享/CTS_7.0_r10/android-cts/tools/cts-tradefed";
     arg<<"-x"<<"bash"<<"-c"<<"-v"<<"/home/liaowenxing/expect.exp";
@@ -47,14 +44,14 @@ TestWidget::~TestWidget()
 
 void TestWidget::on_pushButton_clicked()
 {
-//    pa=new QProcess(this);
-   // connect(pa,SIGNAL(readyRead()),this,SLOT(printOutput()));
-   // QStringList arg;
+    pa=new QProcess(this);
+    pa->setReadChannelMode(QProcess::MergedChannels);
+    connect(pa,SIGNAL(readyReadStandardOutput()),this,SLOT(printOutput()));
+    QStringList arg;
    // arg<<"-x"<<"bash"<<"-c"<<"/media/sf_虚拟机共享/CTS_7.0_r10/android-cts/tools/cts-tradefed";
-    //arg<<"-x"<<"bash"<<"-c"<<"-v"<<"/home/liaowenxing/plan.exp run cts";
+    arg<<"-x"<<"bash"<<"-c"<<"-v"<<"/home/liaowenxing/e.exp;exec bash";
    // arg<<"-f"<<"plan.exp";
    // pa->execute(QString("ls"),arg);
-   // pa->execute(QString("gnome-terminal"),arg);
-QThread*t=new LoadResultThread;
-t->start();
+    pa->execute(QString("gnome-terminal"),arg);
+
 }

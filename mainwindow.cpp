@@ -12,15 +12,18 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     connect(ui->tabWidget,SIGNAL(currentChanged(int)),this,SLOT(updateTabContent(int)));
 
-    toolTab=new ToolWidget;
-    testTab=new TestWidget;
-    resultTab=new ResultWidget;
+    toolWidget=new ToolWidget;
+    testWidget=new TestWidget;
+    resultWidget=new ResultWidget;
+    extendWidget=new ExtendWidget;
 
-    ui->tabWidget->addTab(toolTab,"0");
-    ui->tabWidget->addTab(testTab,"1");
-    ui->tabWidget->addTab(resultTab,"2");
+    ui->tabWidget->addTab(toolWidget,"0");
+    ui->tabWidget->addTab(testWidget,"1");
+    ui->tabWidget->addTab(resultWidget,"2");
+    ui->tabWidget->addTab(extendWidget,"3");
+    //ui->tabWidget->setTabIcon(0,QIcon("img/tool.png"));
 
- }
+}
 
 MainWindow::~MainWindow()
 {
@@ -30,6 +33,6 @@ MainWindow::~MainWindow()
 void MainWindow::updateTabContent(int index)
 {
     if(index == 2){
-        resultTab->updateContent();
+        resultWidget->updateContent();
     }
 }
