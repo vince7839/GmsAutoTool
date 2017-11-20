@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include<QProcess>
+#include<QNetworkReply>
 
 namespace Ui {
 class TestWidget;
@@ -25,6 +26,8 @@ private slots:
 private:
     Ui::TestWidget *ui;
     QProcess *pa;
+     QNetworkReply *reply;
+    QByteArray b;
 };
 
 #endif // TESTWIDGET_H

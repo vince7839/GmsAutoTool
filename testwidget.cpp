@@ -3,6 +3,10 @@
 #include"addtestwidget.h"
 #include"QProcess"
 #include "QDebug"
+#include"QFile"
+#include"QNetworkAccessManager"
+#include"QNetworkReply"
+#include"QDesktopServices"
 
 
 void TestWidget::newTest()
@@ -26,7 +30,8 @@ void TestWidget::startTest(QString toolPath)
 
 void TestWidget::printOutput()
 {
-    qDebug()<<"output: "<<pa->readAll();
+    qDebug()<<"output: "<<reply->readAll();
+
 }
 
 TestWidget::TestWidget(QWidget *parent) :
@@ -44,14 +49,26 @@ TestWidget::~TestWidget()
 
 void TestWidget::on_pushButton_clicked()
 {
-    pa=new QProcess(this);
-    pa->setReadChannelMode(QProcess::MergedChannels);
-    connect(pa,SIGNAL(readyReadStandardOutput()),this,SLOT(printOutput()));
-    QStringList arg;
+   // pa=new QProcess(this);
+   // pa->setReadChannelMode(QProcess::MergedChannels);
+  //  connect(pa,SIGNAL(readyRead()),this,SLOT(printOutput()));
+   // QStringList arg;
    // arg<<"-x"<<"bash"<<"-c"<<"/media/sf_虚拟机共享/CTS_7.0_r10/android-cts/tools/cts-tradefed";
-    arg<<"-x"<<"bash"<<"-c"<<"-v"<<"/home/liaowenxing/e.exp;exec bash";
+   // arg<<"-x"<<"bash"<<"-c"<<"-v"<<"/home/liaowenxing/e.exp;exec bash";
    // arg<<"-f"<<"plan.exp";
    // pa->execute(QString("ls"),arg);
-    pa->execute(QString("gnome-terminal"),arg);
+    //pa->execute(QString("gnome-terminal"),arg);
+    //pa->execute("ls");
+//    QFile file("//192.168.0.31/bal/lwx/1.txt");
+//    file.open(QIODevice::ReadOnly|QIODevice::Text);
+//    qDebug()<<file.readAll();
+//    file.close();
+      QNetworkAccessManager *m=new QNetworkAccessManager;
+      QNetworkRequest *r=new QNetworkRequest;
+      r->setUrl(QUrl("http://www.baidu.com"));
+      reply=m->get(*r);
+       connect(reply,SIGNAL(readyRead()),this,SLOT(printOutput()));
+      //qDebug()<<reply->readAll();
+
 
 }
