@@ -34,6 +34,11 @@ void TestWidget::printOutput()
 
 }
 
+void TestWidget::printReply(QNetworkReply *r)
+{
+    qDebug()<<QString::fromUtf8(r->readAll());
+}
+
 TestWidget::TestWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::TestWidget)
@@ -64,10 +69,10 @@ void TestWidget::on_pushButton_clicked()
 //    qDebug()<<file.readAll();
 //    file.close();
       QNetworkAccessManager *m=new QNetworkAccessManager;
-      QNetworkRequest *r=new QNetworkRequest;
-      r->setUrl(QUrl("http://www.baidu.com"));
-      reply=m->get(*r);
-       connect(reply,SIGNAL(readyRead()),this,SLOT(printOutput()));
+      QNetworkRequest *r=new QNetworkRequest(QUrl("http://www.baidu.com"));
+
+       m->get(*r);
+       connect(m,SIGNAL(finished(QNetworkReply*)),this,SLOT(printReply(QNetworkReply*)));
       //qDebug()<<reply->readAll();
 
 

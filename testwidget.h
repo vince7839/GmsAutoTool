@@ -16,6 +16,7 @@ public slots:
     void newTest();
     void startTest(QString);
     void printOutput();
+    void printReply(QNetworkReply*);
 public:
     explicit TestWidget(QWidget *parent = 0);
     ~TestWidget();
