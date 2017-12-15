@@ -12,6 +12,9 @@ class ExtendWidget : public QWidget
     Q_OBJECT
 public slots:
     void configPC();
+    void pushFile();
+    void installAPK();
+    void sendBroadcast();
 public:
     explicit ExtendWidget(QWidget *parent = 0);
     ~ExtendWidget();

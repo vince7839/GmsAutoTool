@@ -38,7 +38,10 @@ SOURCES += \
     solutionwidget.cpp \
     addsolutionwidget.cpp \
     loadresultthread.cpp \
-    extendwidget.cpp
+    extendwidget.cpp \
+    configquery.cpp \
+    xmlutil.cpp \
+    logutil.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -53,7 +56,10 @@ HEADERS += \
     solutionwidget.h \
     addsolutionwidget.h \
     loadresultthread.h \
-    extendwidget.h
+    extendwidget.h \
+    configquery.h \
+    xmlutil.h \
+    logutil.h
 
 FORMS += \
     mainwindow.ui \

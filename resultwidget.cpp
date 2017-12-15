@@ -21,8 +21,8 @@ ResultWidget::ResultWidget(QWidget *parent) :
     connect(ui->result_table_widget,SIGNAL(itemSelectionChanged()),this,SLOT(enableDelBtn()));
 
     ui->result_table_widget->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    //ui->result_table_widget->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    ui->result_table_widget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->result_table_widget->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    //ui->result_table_widget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->result_table_widget->horizontalHeader()->setEnabled(false);
     ui->result_table_widget->setSelectionBehavior(QAbstractItemView::SelectRows);
     mLoadThread=new LoadResultThread;
