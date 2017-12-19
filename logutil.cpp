@@ -3,6 +3,7 @@
 #include"QMessageBox"
 #include"QDateTime"
 #include"QTextStream"
+#include<QDebug>
 
 QString LogUtil::LOG_PATH="log/log.txt";
 LogUtil::LogUtil()

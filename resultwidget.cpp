@@ -10,6 +10,8 @@
 #include<QDateTime>
 #include<loadresultthread.h>
 #include<QProcess>
+#include<QMenu>
+#include<onlinewidget.h>
 
 ResultWidget::ResultWidget(QWidget *parent) :
     QWidget(parent),
@@ -21,10 +23,10 @@ ResultWidget::ResultWidget(QWidget *parent) :
     connect(ui->result_table_widget,SIGNAL(itemSelectionChanged()),this,SLOT(enableDelBtn()));
 
     ui->result_table_widget->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->result_table_widget->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->result_table_widget->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     //ui->result_table_widget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    ui->result_table_widget->horizontalHeader()->setEnabled(false);
-    ui->result_table_widget->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->result_table_widget->horizontalHeader()->setEnabled(false);  
     mLoadThread=new LoadResultThread;
     connect(mLoadThread,SIGNAL(loadReady(QList<QMap<QString,QString> >)),this,SLOT(updateResultTable(QList<QMap<QString,QString> >)));
     connect(ui->cBox_resultType,SIGNAL(currentTextChanged(QString)),mLoadThread,SLOT(loadAsType(QString)));
@@ -39,6 +41,22 @@ ResultWidget::ResultWidget(QWidget *parent) :
 ResultWidget::~ResultWidget()
 {
     delete ui;
+}
+
+void ResultWidget::contextMenuEvent(QContextMenuEvent *e)
+{
+    QMenu*menu=new QMenu;
+    QAction*deleteAction=new QAction(QString::fromUtf8("删除"));
+    QAction*sendAction=new QAction(QString::fromUtf8("发送到"));
+    QAction*detailAction=new QAction(QString::fromUtf8("查看失败项"));
+    connect(deleteAction,SIGNAL(triggered(bool)),this,SLOT(deleteResult()));
+    connect(sendAction,SIGNAL(triggered(bool)),this,SLOT(sendReport()));
+    connect(detailAction,SIGNAL(triggered(bool)),this,SLOT(detailActionClicked()));
+    menu->addAction(deleteAction);
+    menu->addAction(sendAction);
+    menu->addAction(detailAction);
+    menu->exec(mapToGlobal(e->pos()));
+   // delete menu;
 }
 
 void ResultWidget::updateResultTable(QList<QMap<QString,QString> >resultList)
@@ -98,6 +116,18 @@ void ResultWidget::deleteResult()
 void ResultWidget::enableDelBtn()
 {
     ui->btn_delete->setDisabled(ui->result_table_widget->selectedItems().isEmpty());
+}
+
+void ResultWidget::sendReport()
+{
+    OnlineWidget*w=new OnlineWidget;
+    w->show();
+    qDebug()<<"sendReport()";
+}
+
+void ResultWidget::detailActionClicked()
+{
+    tableItemClicked(ui->result_table_widget->currentItem());
 }
 
 void ResultWidget::updateContent()

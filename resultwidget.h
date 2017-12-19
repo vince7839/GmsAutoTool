@@ -18,6 +18,8 @@ public slots:
     void updateResultTable(QList<QMap<QString,QString> >);
     void deleteResult();
     void enableDelBtn();
+    void sendReport();
+    void detailActionClicked();
 public:
     explicit ResultWidget(QWidget *parent = 0);
     ~ResultWidget();
@@ -27,6 +29,8 @@ private:
     QList<QMap<QString,QString> > mResultList;
     ParseResultWidget* parseWidget=NULL;
     QThread*mLoadThread;
+protected:
+    void contextMenuEvent(QContextMenuEvent*);
 
 };
 

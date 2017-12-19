@@ -41,7 +41,9 @@ SOURCES += \
     extendwidget.cpp \
     configquery.cpp \
     xmlutil.cpp \
-    logutil.cpp
+    logutil.cpp \
+    socketutil.cpp \
+    onlinewidget.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -59,7 +61,9 @@ HEADERS += \
     extendwidget.h \
     configquery.h \
     xmlutil.h \
-    logutil.h
+    logutil.h \
+    socketutil.h \
+    onlinewidget.h
 
 FORMS += \
     mainwindow.ui \
@@ -72,4 +76,5 @@ FORMS += \
     plandialog.ui \
     solutionwidget.ui \
     addsolutionwidget.ui \
-    extendwidget.ui
+    extendwidget.ui \
+    onlinewidget.ui

@@ -11,6 +11,7 @@ public:
     bool connect();
     void close();
     QList<QMap<QString,QString> > execSql(QString);
+    static QList<QMap<QString,QString> > RemoteExec(QString);
 private:
     QSqlDatabase db;
     SqlConnection();

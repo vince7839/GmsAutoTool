@@ -11,6 +11,8 @@
 #include"configquery.h"
 #include"xmlutil.h"
 #include"logutil.h"
+#include"sqlconnection.h"
+#include"socketutil.h"
 
 
 void TestWidget::newTest()
@@ -87,6 +89,9 @@ void TestWidget::on_pushButton_clicked()
 //       connect(m,SIGNAL(finished(QNetworkReply*)),this,SLOT(printReply(QNetworkReply*)));
 
        // qDebug()<<ConfigQuery::getCommand("N","all");
-    LogUtil::Log("lwx","hhhh");
+       // LogUtil::Log("lwx","hhhh");
+        QMap<QString,QString> map;
+        map.insert("1","11");
+        SocketUtil::getInstance()->sendAskOnline();
 
 }
