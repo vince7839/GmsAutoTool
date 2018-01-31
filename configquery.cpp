@@ -4,8 +4,10 @@
 #include<QFile>
 #include<QDebug>
 #include<xmlutil.h>
-QString ConfigQuery::CTS_CMD="CtsCommands";
-QString ConfigQuery::GTS_CMD="GtsCommands";
+QString ConfigQuery::CTS_CMD = "CtsCommands";
+QString ConfigQuery::GTS_CMD = "GtsCommands";
+quint16 ConfigQuery::TCP_PORT = 6666;
+bool ConfigQuery::IS_ALLOW_SCREEN = true;
 ConfigQuery::ConfigQuery()
 {
 

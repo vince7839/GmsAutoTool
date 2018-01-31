@@ -9,6 +9,8 @@ public:
     static QString getCommand(QString,QString,QString);
     static QString CTS_CMD;
     static QString GTS_CMD;
+    static quint16 TCP_PORT;
+    static bool IS_ALLOW_SCREEN;
 };
 
 #endif // CONFIGQUERY_H

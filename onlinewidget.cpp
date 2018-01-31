@@ -14,7 +14,7 @@ OnlineWidget::OnlineWidget(QWidget *parent) :
     ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
     mSocketUtil=SocketUtil::getInstance();
-    connect(mSocketUtil,SIGNAL(findOnline(QMap<QString,QString>)),this,SLOT(addOnline(QMap<QString,QString>)));
+    connect(mSocketUtil,SIGNAL(onUserFounded(QMap<QString,QVariant>)),this,SLOT(addOnline(QMap<QString,QString>)));
     mSocketUtil->sendAskOnline();
 }
 
