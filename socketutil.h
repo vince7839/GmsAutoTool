@@ -6,13 +6,15 @@
 #include<QTcpSocket>
 #include<QUdpSocket>
 #include<QPixmap>
+#include<QFile>
+
 class SocketUtil:public QObject
 {
     Q_OBJECT
 public:
     static SocketUtil *getInstance();
     void sendUdp(QMap<QString,QVariant>);
-    void msgDispatch(QMap<QString,QVariant>);
+    void handleMessage(QMap<QString,QVariant>);
     static QString getMyIP();
     void sendAskOnline();
     void sendTcp(QMap<QString, QVariant>);
@@ -22,26 +24,29 @@ public slots:
     void newConnect();
     void sendFile(QMap<QString,QVariant>);
 signals:
-    void onScreenRecved(QPixmap);
+    void onScreenFinished(QMap<QString,QVariant>);
     void onUserFounded(QMap<QString,QVariant>);
+    void onDocumentRecved(QMap<QString,QVariant>);
 private:
     SocketUtil();
     QTcpSocket *mTcpSocket;
     QTcpServer *mTcpServer;
     QUdpSocket *mUdpSocket;
-    bool is_server;
-    static SocketUtil* mSocketUtil;
+    bool mIsServer;
+    static SocketUtil* sSocketUtil;
     static const int UDP_PORT;
     static const int TCP_PORT;
     QString mServerIp;
 public:
-    static const QString MSG_FIND_SERVER;
-    static const QString MSG_ME_SERVER;
-    static const QString MSG_WHO_ONLINE;
-    static const QString MSG_ME_ONLINE;
-    static const QString MSG_EXPECT_SCREEN;
-    static const QString MSG_FILE_SCREEN;
-
+    static const int MSG_FIND_SERVER;
+    static const int MSG_ME_SERVER;
+    static const int MSG_WHO_ONLINE;
+    static const int MSG_ME_ONLINE;
+    static const int MSG_EXPECT_SCREEN;
+    static const int MSG_FILE_SCREEN;
+    static const int MSG_FILE_DOCUMENT;
+    static const int MSG_REFUSE_SCREEN;
+    static const int MSG_REFUSE_DOCUMENT;
 };
 
 #endif // SOCKETUTIL_H

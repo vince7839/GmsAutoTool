@@ -10,6 +10,7 @@ public:
     static QString CTS_CMD;
     static QString GTS_CMD;
     static quint16 TCP_PORT;
+    static quint16 UDP_PORT;
     static bool IS_ALLOW_SCREEN;
 };
 
