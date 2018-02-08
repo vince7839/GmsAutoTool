@@ -9,6 +9,7 @@
 #include<QApplication>
 #include<QDesktopWidget>
 #include<QFile>
+#include<QDir>
 
 const int SocketUtil::MSG_FIND_SERVER = 0;
 const int SocketUtil::MSG_ME_SERVER = 1;
@@ -25,21 +26,26 @@ SocketUtil::SocketUtil()
 {
 
     mUdpSocket=new QUdpSocket;
-    mUdpSocket->bind(ConfigQuery::UDP_PORT);
+    if( ! mUdpSocket->bind(ConfigQuery::UDP_PORT) ){
+        qDebug()<<"udp bind fail!";
+    }
     connect(mUdpSocket,SIGNAL(readyRead()),this,SLOT(recvUdp()));
+
+    mTcpSocketSelf = new QTcpSocket;
     QList<QMap<QString,QString> > list=SqlConnection::getInstance()->execSql("select * from Config");
     if( !list.isEmpty() )
     {
         mIsServer=list.at(0).value("is_server") == "true";
     }
-    //if(is_server){
-       mTcpServer=new QTcpServer;
-       connect(mTcpServer,SIGNAL(newConnection()),this,SLOT(newConnect()));
-       if( !mTcpServer->listen(QHostAddress::Any,ConfigQuery::TCP_PORT) )
-       {
-           QMessageBox::warning(0,QString::fromUtf8(""),QString::fromUtf8("tcp listen error!"));
-       }
-    //}
+
+    mTcpServer=new QTcpServer;
+    connect(mTcpServer,SIGNAL(newConnection()),this,SLOT(newConnect()));
+    if( !mTcpServer->listen(QHostAddress::Any,ConfigQuery::TCP_PORT) )
+    {
+        QMessageBox::warning(0,QString::fromUtf8(""),QString::fromUtf8("tcp listen error!"));
+    }
+
+    sendMeOnline();
 }
 
 SocketUtil* SocketUtil::getInstance()
@@ -65,9 +71,14 @@ void SocketUtil::sendUdp(QMap<QString, QVariant> msg)
 
 void SocketUtil::handleMessage(QMap<QString, QVariant> msg)
 {
+   if(/*msg.value("fromIP") == getMyIP()*/msg.value("key") == ConfigQuery::KEY)
+   {
+     qDebug()<<"recv myself message";
+    // return;
+   }
    QMap<QString,QVariant> map;
    map.insert("toIP",msg.value("fromIP"));
-
+   map.insert("key",ConfigQuery::KEY);
    switch(msg.value("type").toInt())
    {
     case MSG_FIND_SERVER:
@@ -86,13 +97,12 @@ void SocketUtil::handleMessage(QMap<QString, QVariant> msg)
           }
           break;
     case MSG_WHO_ONLINE:
-          map.insert("type",MSG_ME_ONLINE);
-          sendUdp(map);
+          sendMeOnline();
           break;
     case MSG_ME_ONLINE:
           emit onUserFounded(msg);
     case MSG_EXPECT_SCREEN:
-          if(ConfigQuery::IS_ALLOW_SCREEN)
+        /*  if(ConfigQuery::IS_ALLOW_SCREEN)
           {
               map.insert("type",MSG_FILE_SCREEN);
               mTcpSocket = new QTcpSocket;
@@ -104,7 +114,7 @@ void SocketUtil::handleMessage(QMap<QString, QVariant> msg)
           }else{
               map.insert("type",MSG_REFUSE_SCREEN);
               sendTcp(map);
-          }
+          }*/
    case MSG_FILE_SCREEN:
    case MSG_REFUSE_SCREEN:
        /* QPixmap pixmap;
@@ -113,6 +123,18 @@ void SocketUtil::handleMessage(QMap<QString, QVariant> msg)
         break;
    case MSG_FILE_DOCUMENT:
         emit onDocumentRecved(msg);
+        qDebug()<<"MSG_FILE_DOCUMENT";
+        QDir dir = QDir::current();
+        qDebug()<<dir.currentPath();
+        if( !dir.exists("FileRecv")){
+            qDebug()<<"the directory FileRecv does not exist";
+            dir.mkpath("FileRecv");
+        }
+        QByteArray byteArray = msg.value("data").toByteArray();
+        QFile file("FileRecv/"+msg.value("fileName").toString());
+        file.open(QIODevice::ReadWrite);
+        file.write(byteArray);
+        file.close();
         break;
    }
 }
@@ -140,32 +162,45 @@ void SocketUtil::sendAskOnline()
 
 void SocketUtil::sendTcp(QMap<QString, QVariant> param)
 {
+    qDebug()<<"sendTcp";
     QString type = param.value("type").toString();
     QByteArray block;
     QDataStream out(&block,QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_5_9);
-    out<<(quint64)0;
+    out<<(qint64)0;
     out<<param;
     out.device()->seek(0);
-    out<<(quint64)(block.size()-sizeof(quint64));
-    mTcpSocket->write(block);
+    out<<(qint64)(block.size()-sizeof(qint64));
+    mTcpSocketSelf->connectToHost("127.0.0.1",ConfigQuery::TCP_PORT);
+    if(mTcpSocketSelf->waitForConnected()){
+        qDebug()<<"tcp write";
+        mTcpSocketSelf->write(block);
+    }
+}
+
+void SocketUtil::sendMeOnline()
+{
+    QMap<QString,QVariant> map;
+    map.insert("type",MSG_ME_ONLINE);
+    sendUdp(map);
 }
 
 void SocketUtil::recvTcp()
 {
-    static quint64 blockSize=0;
+    qDebug()<<"recv Tcp";
+    static qint64 blockSize=0;
     QMap<QString,QVariant> msg;
-    QDataStream in(mTcpSocket);
+    QDataStream in(mTcpSocketClient);
     in.setVersion(QDataStream::Qt_5_9);
 
-    while( mTcpSocket->bytesAvailable() > 0)   //循环接收 保证消息不遗漏
+    while( mTcpSocketClient->bytesAvailable() > 0)   //循环接收 保证消息不遗漏
     {
         if(blockSize==0)
         {
-            if(mTcpSocket->bytesAvailable() < sizeof(quint64)) return;
+            if(mTcpSocketClient->bytesAvailable() < sizeof(qint64)) return;
             in>>blockSize;
         }
-        if(mTcpSocket->bytesAvailable()<blockSize) return;
+        if(mTcpSocketClient->bytesAvailable()<blockSize) return;
         in>>msg;
         blockSize=0;
         handleMessage(msg);
@@ -182,8 +217,10 @@ void SocketUtil::sendFile(QMap<QString, QVariant> param)
     }else if(MSG_FILE_DOCUMENT == type)
     {
        QFile file(param.value("path").toString());
-       QDataStream out(&file);
-       param.insert("data",out);
+       file.open(QIODevice::ReadOnly);
+       QByteArray byteArray = file.readAll();
+       param.insert("data",byteArray);
+       file.close();
     }
     sendTcp(param);
 }
@@ -206,5 +243,7 @@ void SocketUtil::recvUdp()
 
 void SocketUtil::newConnect()
 {
-    mTcpSocket = mTcpServer->nextPendingConnection();
+    qDebug()<<"new connect!";
+    mTcpSocketClient = mTcpServer->nextPendingConnection();
+    connect(mTcpSocketClient,SIGNAL(readyRead()),this,SLOT(recvTcp()));
 }

@@ -120,9 +120,11 @@ void ResultWidget::enableDelBtn()
 
 void ResultWidget::sendReport()
 {
+    qDebug()<<"sendReport():row->"<<ui->result_table_widget->currentRow();
     OnlineWidget*w=new OnlineWidget;
+    w->setReportInfo(mResultList.at(ui->result_table_widget->currentRow()));
     w->show();
-    qDebug()<<"sendReport()";
+    qDebug()<<"sendReport():"+mResultList.at(ui->result_table_widget->currentRow()).value("file_name");
 }
 
 void ResultWidget::detailActionClicked()

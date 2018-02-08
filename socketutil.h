@@ -18,8 +18,9 @@ public:
     static QString getMyIP();
     void sendAskOnline();
     void sendTcp(QMap<QString, QVariant>);
-    void recvTcp();
+    void sendMeOnline();
 public slots:
+    void recvTcp();
     void recvUdp();
     void newConnect();
     void sendFile(QMap<QString,QVariant>);
@@ -29,7 +30,8 @@ signals:
     void onDocumentRecved(QMap<QString,QVariant>);
 private:
     SocketUtil();
-    QTcpSocket *mTcpSocket;
+    QTcpSocket *mTcpSocketSelf;
+    QTcpSocket *mTcpSocketClient;
     QTcpServer *mTcpServer;
     QUdpSocket *mUdpSocket;
     bool mIsServer;

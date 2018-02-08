@@ -16,14 +16,18 @@ public:
     explicit OnlineWidget(QWidget *parent = 0);
     ~OnlineWidget();
     void updateTable();
-    const int COLUMN_COUNT=2;
+    void setReportInfo(QMap<QString,QString>);
+    const int COLUMN_COUNT = 2;
 public slots:
-    void addOnline(QMap<QString,QString>);
+    void addOnline(QMap<QString, QVariant>);
+    void sendReportToHost();
 
 private:
     Ui::OnlineWidget *ui;
     SocketUtil* mSocketUtil;
-    QList<QMap<QString,QString> > mOnlineList;
+    QList<QMap<QString,QVariant> > mOnlineList;
+    QString mReportPath;
+    QString mReportName;
 };
 
 #endif // ONLINEWIDGET_H

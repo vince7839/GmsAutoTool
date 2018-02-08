@@ -37,11 +37,12 @@ void LoadResultThread::parseResultPath()
     }
 
     for(int i=0;i<list.size();i++){
-        QString path=list.at(i).value("path");
-        path=path.left(path.lastIndexOf("/"));
-        path=path.left(path.lastIndexOf("/"))+QString("/results");
+        QString bashPath = list.at(i).value("path");
+        QString toolPath = bashPath.left(bashPath.lastIndexOf("/"));
+        QString ctsPath = toolPath.left(toolPath.lastIndexOf("/"));
+        QString resultPath = ctsPath + QString("/results");
       //  qDebug()<<path;
-        QDir resultDir(path);
+        QDir resultDir(resultPath);
 
         foreach(QFileInfo info,resultDir.entryInfoList()){
             if( info.isDir() && info.fileName()!="." && info.fileName()!= ".." ){
@@ -53,7 +54,8 @@ void LoadResultThread::parseResultPath()
                         QMap<QString,QString> map;
                         map.insert("result_path",i.absoluteFilePath());
                         map.insert("result_name",i.fileName());
-
+                        map.insert("zip_path",i.absolutePath()+QString(".zip"));
+                        map.insert("file_name",secondDir.dirName()+QString(".zip"));
                         mResultList.append(map);
                     }
                 }

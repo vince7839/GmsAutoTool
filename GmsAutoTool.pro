@@ -43,7 +43,8 @@ SOURCES += \
     xmlutil.cpp \
     logutil.cpp \
     socketutil.cpp \
-    onlinewidget.cpp
+    onlinewidget.cpp \
+    tabstyle.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -63,7 +64,8 @@ HEADERS += \
     xmlutil.h \
     logutil.h \
     socketutil.h \
-    onlinewidget.h
+    onlinewidget.h \
+    tabstyle.h
 
 FORMS += \
     mainwindow.ui \

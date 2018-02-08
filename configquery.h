@@ -12,6 +12,7 @@ public:
     static quint16 TCP_PORT;
     static quint16 UDP_PORT;
     static bool IS_ALLOW_SCREEN;
+    static QString KEY;
 };
 
 #endif // CONFIGQUERY_H
