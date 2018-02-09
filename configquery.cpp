@@ -9,7 +9,7 @@ QString ConfigQuery::CTS_CMD = "CtsCommands";
 QString ConfigQuery::GTS_CMD = "GtsCommands";
 quint16 ConfigQuery::TCP_PORT = 6666;
 quint16 ConfigQuery::UDP_PORT = 6667;
-bool ConfigQuery::IS_ALLOW_SCREEN = true;
+bool ConfigQuery::IS_ALLOW_SCREEN = false;
 QString ConfigQuery::KEY = QTime::currentTime().toString();
 
 ConfigQuery::ConfigQuery()

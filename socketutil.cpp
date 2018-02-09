@@ -10,6 +10,7 @@
 #include<QDesktopWidget>
 #include<QFile>
 #include<QDir>
+#include<screenwidget.h>
 
 const int SocketUtil::MSG_FIND_SERVER = 0;
 const int SocketUtil::MSG_ME_SERVER = 1;
@@ -20,6 +21,14 @@ const int SocketUtil::MSG_FILE_SCREEN = 5;
 const int SocketUtil::MSG_REFUSE_SCREEN = 6;
 const int SocketUtil::MSG_FILE_DOCUMENT = 7;
 const int SocketUtil::MSG_REFUSE_DOCUMENT = 8;
+
+const QString SocketUtil::KEY_FROM_IP = "fromIP";
+const QString SocketUtil::KEY_TO_IP = "toIP";
+const QString SocketUtil::KEY_MSG_TYPE = "type";
+const QString SocketUtil::KEY_DATA = "data";
+const QString SocketUtil::KEY_DATA_PATH = "path";
+const QString SocketUtil::KEY_HOST_NAME = "hostName";
+const QString SocketUtil::KEY_FILE_NAME = "fileName";
 SocketUtil* SocketUtil::sSocketUtil;
 
 SocketUtil::SocketUtil()
@@ -59,8 +68,8 @@ SocketUtil* SocketUtil::getInstance()
 
 void SocketUtil::sendUdp(QMap<QString, QVariant> msg)
 {
-    msg.insert("fromIP",getMyIP());
-    msg.insert("hostName",QHostInfo::localHostName());
+    msg.insert(KEY_FROM_IP,getMyIP());
+    msg.insert(KEY_HOST_NAME,QHostInfo::localHostName());
     QByteArray block;
     QDataStream out(&block,QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_5_9);
@@ -71,27 +80,28 @@ void SocketUtil::sendUdp(QMap<QString, QVariant> msg)
 
 void SocketUtil::handleMessage(QMap<QString, QVariant> msg)
 {
-   if(/*msg.value("fromIP") == getMyIP()*/msg.value("key") == ConfigQuery::KEY)
+    qDebug()<<"handleMessage:"<<msg.value(KEY_FROM_IP).toString()<<" "<<msg.value(KEY_MSG_TYPE);
+    if(/*msg.value("fromIP") == getMyIP()*/msg.value("key") == ConfigQuery::KEY)
    {
      qDebug()<<"recv myself message";
     // return;
    }
    QMap<QString,QVariant> map;
-   map.insert("toIP",msg.value("fromIP"));
+   map.insert(KEY_TO_IP,msg.value(KEY_FROM_IP));
    map.insert("key",ConfigQuery::KEY);
-   switch(msg.value("type").toInt())
+   switch(msg.value(KEY_MSG_TYPE).toInt())
    {
     case MSG_FIND_SERVER:
          if(mIsServer)
          {
-           map.insert("type",MSG_ME_SERVER);
+           map.insert(KEY_MSG_TYPE,MSG_ME_SERVER);
            sendUdp(map);
           }
           break;
     case MSG_ME_SERVER:
           if(mServerIp.isEmpty())
           {
-            mServerIp=msg.value("fromIP").toString();
+            mServerIp=msg.value(KEY_FROM_IP).toString();
           }else{
              //已找到一个服务器,仍有客户端回应自己是服务器
           }
@@ -101,24 +111,28 @@ void SocketUtil::handleMessage(QMap<QString, QVariant> msg)
           break;
     case MSG_ME_ONLINE:
           emit onUserFounded(msg);
+          break;
     case MSG_EXPECT_SCREEN:
-        /*  if(ConfigQuery::IS_ALLOW_SCREEN)
+          if(ConfigQuery::IS_ALLOW_SCREEN)
           {
-              map.insert("type",MSG_FILE_SCREEN);
-              mTcpSocket = new QTcpSocket;
-              mTcpSocket->connectToHost(msg.value("fromIP").toString(),ConfigQuery::TCP_PORT);
-              if(mTcpSocket->waitForConnected())
-              {
-                 sendFile(map);
-              }
+              map.insert(KEY_MSG_TYPE,MSG_FILE_SCREEN);
+              sendFile(map);
           }else{
-              map.insert("type",MSG_REFUSE_SCREEN);
+              map.insert(KEY_MSG_TYPE,MSG_REFUSE_SCREEN);
               sendTcp(map);
-          }*/
+          }
+          break;
    case MSG_FILE_SCREEN:
+       {
+        QPixmap pixmap;
+        QDataStream in(msg.value(KEY_DATA).toByteArray());
+        in >> pixmap;
+        ScreenWidget* w = new ScreenWidget;
+        w->showPixmap(pixmap);
+       }
+        break;
    case MSG_REFUSE_SCREEN:
-       /* QPixmap pixmap;
-        pixmap.loadFromData(msg.value("data").toByteArray());*/
+       QMessageBox::information(NULL,QString::fromUtf8("提示"),QString::fromUtf8("对方已设置不允许抓取屏幕!"));
         emit onScreenFinished(msg);
         break;
    case MSG_FILE_DOCUMENT:
@@ -130,8 +144,8 @@ void SocketUtil::handleMessage(QMap<QString, QVariant> msg)
             qDebug()<<"the directory FileRecv does not exist";
             dir.mkpath("FileRecv");
         }
-        QByteArray byteArray = msg.value("data").toByteArray();
-        QFile file("FileRecv/"+msg.value("fileName").toString());
+        QByteArray byteArray = msg.value(KEY_DATA).toByteArray();
+        QFile file("FileRecv/"+msg.value(KEY_FILE_NAME).toString());
         file.open(QIODevice::ReadWrite);
         file.write(byteArray);
         file.close();
@@ -156,14 +170,15 @@ QString SocketUtil::getMyIP()
 void SocketUtil::sendAskOnline()
 {
     QMap<QString,QVariant> map;
-    map.insert("type",MSG_WHO_ONLINE);
+    map.insert(KEY_MSG_TYPE,MSG_WHO_ONLINE);
     sendUdp(map);
 }
 
 void SocketUtil::sendTcp(QMap<QString, QVariant> param)
 {
-    qDebug()<<"sendTcp";
-    QString type = param.value("type").toString();
+    qDebug()<<"sendTcp:"<<param.value(KEY_TO_IP)<<" "<<param.value(KEY_MSG_TYPE);
+    param.insert(KEY_FROM_IP,getMyIP());
+    QString type = param.value(KEY_MSG_TYPE).toString();
     QByteArray block;
     QDataStream out(&block,QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_5_9);
@@ -171,7 +186,7 @@ void SocketUtil::sendTcp(QMap<QString, QVariant> param)
     out<<param;
     out.device()->seek(0);
     out<<(qint64)(block.size()-sizeof(qint64));
-    mTcpSocketSelf->connectToHost("127.0.0.1",ConfigQuery::TCP_PORT);
+    mTcpSocketSelf->connectToHost(param.value(KEY_TO_IP).toString(),ConfigQuery::TCP_PORT);
     if(mTcpSocketSelf->waitForConnected()){
         qDebug()<<"tcp write";
         mTcpSocketSelf->write(block);
@@ -181,8 +196,16 @@ void SocketUtil::sendTcp(QMap<QString, QVariant> param)
 void SocketUtil::sendMeOnline()
 {
     QMap<QString,QVariant> map;
-    map.insert("type",MSG_ME_ONLINE);
+    map.insert(KEY_MSG_TYPE,MSG_ME_ONLINE);
     sendUdp(map);
+}
+
+void SocketUtil::sendMessage(QString ip, int msgType)
+{
+    QMap<QString,QVariant> map;
+    map.insert(KEY_MSG_TYPE,MSG_EXPECT_SCREEN);
+    map.insert(KEY_TO_IP,ip);
+    sendTcp(map);
 }
 
 void SocketUtil::recvTcp()
@@ -209,19 +232,21 @@ void SocketUtil::recvTcp()
 
 void SocketUtil::sendFile(QMap<QString, QVariant> param)
 {
-    int type = param.value("type").toInt();
+    int type = param.value(KEY_MSG_TYPE).toInt();
+    QByteArray byteArray;
     if(MSG_FILE_SCREEN == type)
     {
        QPixmap pixmap = QPixmap::grabWindow(QApplication::desktop()->winId());
-       param.insert("data",pixmap);
+       QDataStream out(&byteArray,QIODevice::ReadWrite);
+       out << pixmap;
     }else if(MSG_FILE_DOCUMENT == type)
     {
-       QFile file(param.value("path").toString());
+       QFile file(param.value(KEY_DATA_PATH).toString());
        file.open(QIODevice::ReadOnly);
-       QByteArray byteArray = file.readAll();
-       param.insert("data",byteArray);
+       byteArray = file.readAll();
        file.close();
     }
+    param.insert(KEY_DATA,byteArray);
     sendTcp(param);
 }
 

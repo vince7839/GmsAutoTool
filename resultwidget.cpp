@@ -56,7 +56,6 @@ void ResultWidget::contextMenuEvent(QContextMenuEvent *e)
     menu->addAction(sendAction);
     menu->addAction(detailAction);
     menu->exec(mapToGlobal(e->pos()));
-   // delete menu;
 }
 
 void ResultWidget::updateResultTable(QList<QMap<QString,QString> >resultList)

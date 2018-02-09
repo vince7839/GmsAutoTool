@@ -21,6 +21,7 @@ public:
 public slots:
     void addOnline(QMap<QString, QVariant>);
     void sendReportToHost();
+    void getHostScreen();
 
 private:
     Ui::OnlineWidget *ui;
@@ -28,6 +29,8 @@ private:
     QList<QMap<QString,QVariant> > mOnlineList;
     QString mReportPath;
     QString mReportName;
+protected:
+    void contextMenuEvent(QContextMenuEvent*);
 };
 
 #endif // ONLINEWIDGET_H

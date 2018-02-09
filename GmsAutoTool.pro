@@ -44,7 +44,8 @@ SOURCES += \
     logutil.cpp \
     socketutil.cpp \
     onlinewidget.cpp \
-    tabstyle.cpp
+    tabstyle.cpp \
+    screenwidget.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -65,7 +66,8 @@ HEADERS += \
     logutil.h \
     socketutil.h \
     onlinewidget.h \
-    tabstyle.h
+    tabstyle.h \
+    screenwidget.h
 
 FORMS += \
     mainwindow.ui \
@@ -79,4 +81,5 @@ FORMS += \
     solutionwidget.ui \
     addsolutionwidget.ui \
     extendwidget.ui \
-    onlinewidget.ui
+    onlinewidget.ui \
+    screenwidget.ui

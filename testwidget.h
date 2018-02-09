@@ -4,6 +4,7 @@
 #include <QWidget>
 #include<QProcess>
 #include<QNetworkReply>
+#include<onlinewidget.h>
 
 namespace Ui {
 class TestWidget;
@@ -27,8 +28,9 @@ private slots:
 private:
     Ui::TestWidget *ui;
     QProcess *pa;
-     QNetworkReply *reply;
+    QNetworkReply *reply;
     QByteArray b;
+    OnlineWidget* onlineWidget;
 };
 
 #endif // TESTWIDGET_H

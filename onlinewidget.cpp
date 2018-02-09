@@ -3,6 +3,9 @@
 #include<socketutil.h>
 #include<QMap>
 #include<QDebug>
+#include<QMenu>
+#include<QAction>
+#include<QContextMenuEvent>
 OnlineWidget::OnlineWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::OnlineWidget)
@@ -44,7 +47,7 @@ void OnlineWidget::setReportInfo(QMap<QString,QString> info)
 
 void OnlineWidget::addOnline(QMap<QString,QVariant> msg)
 {
-  //if( msg.value("fromIP") != SocketUtil::getMyIP() )
+  if( /*msg.value("fromIP") != SocketUtil::getMyIP() &&*/ !mOnlineList.contains(msg))
   {
       mOnlineList.append(msg);
       updateTable();
@@ -60,4 +63,19 @@ void OnlineWidget::sendReportToHost()
     map.insert("type",SocketUtil::MSG_FILE_DOCUMENT);
     map.insert("fileName",mReportName);
     mSocketUtil->sendFile(map);
+}
+
+void OnlineWidget::getHostScreen()
+{
+   QString toIP = mOnlineList.at(ui->tableWidget->currentRow()).value("fromIP").toString();
+   mSocketUtil->sendMessage(toIP,SocketUtil::MSG_EXPECT_SCREEN);
+}
+
+void OnlineWidget::contextMenuEvent(QContextMenuEvent *e)
+{
+    QMenu*menu=new QMenu;
+    QAction*screenAction=new QAction(QString::fromUtf8("抓取屏幕"));
+    connect(screenAction,SIGNAL(triggered(bool)),this,SLOT(getHostScreen()));
+    menu->addAction(screenAction);
+    menu->exec(mapToGlobal(e->pos()));
 }

@@ -19,6 +19,8 @@ public:
     void sendAskOnline();
     void sendTcp(QMap<QString, QVariant>);
     void sendMeOnline();
+    void sendMessage(QMap<QString,QVariant>);
+    void sendMessage(QString,int);
 public slots:
     void recvTcp();
     void recvUdp();
@@ -49,6 +51,14 @@ public:
     static const int MSG_FILE_DOCUMENT;
     static const int MSG_REFUSE_SCREEN;
     static const int MSG_REFUSE_DOCUMENT;
+
+    static const QString KEY_FROM_IP;
+    static const QString KEY_TO_IP;
+    static const QString KEY_MSG_TYPE;
+    static const QString KEY_DATA_PATH;
+    static const QString KEY_HOST_NAME;
+    static const QString KEY_DATA;
+    static const QString KEY_FILE_NAME;
 };
 
 #endif // SOCKETUTIL_H

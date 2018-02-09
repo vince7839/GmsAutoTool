@@ -13,6 +13,11 @@
 #include"logutil.h"
 #include"sqlconnection.h"
 #include"socketutil.h"
+#include<QHBoxLayout>
+#include<QVBoxLayout>
+#include<onlinewidget.h>
+#include<QLabel>
+
 
 
 void TestWidget::newTest()
@@ -51,6 +56,23 @@ TestWidget::TestWidget(QWidget *parent) :
 {
     ui->setupUi(this);
     connect(ui->btn_new_test,SIGNAL(clicked(bool)),this,SLOT(newTest()));
+    onlineWidget = new OnlineWidget;
+
+    QHBoxLayout* hLayout = new QHBoxLayout;
+   // QSpacerItem* spacer = new QSpacerItem;
+    //hLayout->addSpacerItem(spacer);
+    hLayout->addStretch();
+    hLayout->addWidget(ui->pushButton);
+    hLayout->addWidget(ui->btn_new_test);
+
+    QHBoxLayout* hLayout2 = new QHBoxLayout;
+    hLayout2->addWidget(new QLabel("在线用户:"));
+    hLayout2->addStretch();
+    QVBoxLayout* vLayout = new QVBoxLayout;
+    vLayout->addLayout(hLayout);
+    vLayout->addLayout(hLayout2);
+    vLayout->addWidget(onlineWidget);
+    setLayout(vLayout);
 }
 
 TestWidget::~TestWidget()
