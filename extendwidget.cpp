@@ -5,6 +5,15 @@
 #include<QDebug>
 #include<QDir>
 #include<QMessageBox>
+#include<QGroupBox>
+#include<QHBoxLayout>
+#include<QLabel>
+#include<QPushButton>
+
+const int ExtendWidget::BTN_ID_CONFIG_PC = 0;
+const int ExtendWidget::BTN_ID_PUSH_FILE = 1;
+const int ExtendWidget::BTN_ID_INSTALL_APK = 2;
+const int ExtendWidget::BTN_ID_SEND_BROADCAST = 3;
 
 void ExtendWidget::configPC()
 {
@@ -104,18 +113,69 @@ void ExtendWidget::sendBroadcast()
 
 }
 
+void ExtendWidget::clickedHandle()
+{
+    QPushButton* clickedBtn = (QPushButton*)sender();
+    int btnId = mButtonMap.value(clickedBtn);
+    qDebug()<<"clickedHandle:"<<btnId;
+    switch(btnId)
+    {
+    case BTN_ID_CONFIG_PC:
+        configPC();
+        break;
+    case BTN_ID_PUSH_FILE:
+        pushFile();
+        break;
+    case BTN_ID_INSTALL_APK:
+        installAPK();
+        break;
+    case BTN_ID_SEND_BROADCAST:
+        sendBroadcast();
+        break;
+    }
+}
+
 ExtendWidget::ExtendWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ExtendWidget)
 {
     ui->setupUi(this);
-    connect(ui->btn_configPC,SIGNAL(clicked()),this,SLOT(configPC()));
-    connect(ui->btn_push,SIGNAL(clicked()),this,SLOT(pushFile()));
-    connect(ui->btn_install,SIGNAL(clicked()),this,SLOT(installAPK()));
-    connect(ui->btn_broadcast,SIGNAL(clicked()),this,SLOT(sendBroadcast()));
+    mScrollLayout = new QVBoxLayout;
+
+    QList<ModelData> modelList;
+    modelList.append(ModelData(QString::fromUtf8("一键配置"),QString::fromUtf8("一键配置电脑CTS环境")
+                               ,QString::fromUtf8("开始配置"),BTN_ID_CONFIG_PC));
+    modelList.append(ModelData(QString::fromUtf8("导入media文件"),QString::fromUtf8("导入测试所需的多媒体文件")
+                               ,QString::fromUtf8("选择文件"),BTN_ID_PUSH_FILE));
+    modelList.append(ModelData(QString::fromUtf8("安装APK"),QString::fromUtf8("将电脑中的APK安装到手机")
+                               ,QString::fromUtf8("选择APK"),BTN_ID_INSTALL_APK));
+    modelList.append(ModelData(QString::fromUtf8("发送测试广播"),QString::fromUtf8("某些情况需要特定广播触发")
+                               ,QString::fromUtf8("输入广播"),BTN_ID_SEND_BROADCAST));
+
+    for(int i = 0;i < modelList.size();i++)
+    {
+        addModel(modelList.at(i));
+    }
+    mScrollLayout->addStretch();
+    ui->scrollAreaWidgetContents->setLayout(mScrollLayout);
 }
 
 ExtendWidget::~ExtendWidget()
 {
     delete ui;
+}
+
+void ExtendWidget::addModel(ModelData model)
+{
+    QGroupBox* groupBox = new QGroupBox(model.title);
+    QHBoxLayout* hLayout = new QHBoxLayout;
+    QLabel* label = new QLabel(model.summary);
+    QPushButton *btn = new QPushButton(model.btnText);
+    mButtonMap.insert(btn,model.id);
+    connect(btn,SIGNAL(clicked()),this,SLOT(clickedHandle()));
+    hLayout->addWidget(label);
+    hLayout->addStretch();
+    hLayout->addWidget(btn);
+    groupBox->setLayout(hLayout);
+    mScrollLayout->addWidget(groupBox);
 }
