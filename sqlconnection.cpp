@@ -8,6 +8,9 @@
 #include<QSqlField>
 #include<QDebug>
 SqlConnection*SqlConnection::mConn;
+const QString SqlConnection::CONFIG = "Config";
+const QString SqlConnection::CONFIG_GRAB_SCREEN = "allow_grab_screen";
+const QString SqlConnection::CONFIG_SEND_FILE = "allow_send_file";
 SqlConnection::SqlConnection()
 {
     //QString dbPath="/media/sf_虚拟机共享/AutoTool.db";
@@ -86,4 +89,11 @@ QList<QMap<QString,QString> > SqlConnection::RemoteExec(QString str)
         }
        }
     return list;
+}
+
+void SqlConnection::putInt(QString table,QString projection,int value)
+{
+    QString query = QString("update %1 set %2 = %3 where id = %4")
+                    .arg(table).arg(projection).arg(value).arg(0);
+    execSql(query);
 }

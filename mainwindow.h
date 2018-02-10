@@ -7,6 +7,7 @@
 #include "resultwidget.h"
 #include "extendwidget.h"
 #include "onlinewidget.h"
+#include "settingswidget.h"
 
 namespace Ui {
 class MainWindow;
@@ -28,6 +29,7 @@ private:
     ResultWidget* resultWidget;
     ExtendWidget* extendWidget;
     OnlineWidget* onlineWidget;
+    SettingsWidget* settingsWidget;
 
 };
 

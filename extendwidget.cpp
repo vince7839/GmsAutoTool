@@ -9,11 +9,13 @@
 #include<QHBoxLayout>
 #include<QLabel>
 #include<QPushButton>
+#include<warningwidget.h>
 
 const int ExtendWidget::BTN_ID_CONFIG_PC = 0;
 const int ExtendWidget::BTN_ID_PUSH_FILE = 1;
 const int ExtendWidget::BTN_ID_INSTALL_APK = 2;
 const int ExtendWidget::BTN_ID_SEND_BROADCAST = 3;
+const int ExtendWidget::BTN_ID_SHOW_WARNING = 4;
 
 void ExtendWidget::configPC()
 {
@@ -132,7 +134,16 @@ void ExtendWidget::clickedHandle()
     case BTN_ID_SEND_BROADCAST:
         sendBroadcast();
         break;
+    case BTN_ID_SHOW_WARNING:
+        showWarning();
+        break;
     }
+}
+
+void ExtendWidget::showWarning()
+{
+    WarningWidget *w = WarningWidget::getInstance();
+    w->showAndReset();
 }
 
 ExtendWidget::ExtendWidget(QWidget *parent) :
@@ -151,6 +162,8 @@ ExtendWidget::ExtendWidget(QWidget *parent) :
                                ,QString::fromUtf8("选择APK"),BTN_ID_INSTALL_APK));
     modelList.append(ModelData(QString::fromUtf8("发送测试广播"),QString::fromUtf8("某些情况需要特定广播触发")
                                ,QString::fromUtf8("输入广播"),BTN_ID_SEND_BROADCAST));
+    modelList.append(ModelData(QString::fromUtf8("勿动提醒"),QString::fromUtf8("在屏幕显示\"CTS测试中\"横幅")
+                               ,QString::fromUtf8("开始显示"),BTN_ID_SHOW_WARNING));
 
     for(int i = 0;i < modelList.size();i++)
     {

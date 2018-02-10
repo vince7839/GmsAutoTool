@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<Config>
+<CtsCommands>
+    <Action name="all">
+        <Command platform="N">run cts</Command>
+    </Action>
+    <Action name="plan">
+        <Command platform="N">run cts --plan</Command>
+    </Action>
+</CtsCommands>
+
+<Server>
+   <Ip name="127">192.168.3.127</Ip>
+   <Ip name="31">192.168.0.31</Ip>
+</Server>
+
+
+
+</Config>
