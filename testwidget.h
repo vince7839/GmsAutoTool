@@ -5,12 +5,12 @@
 #include<QProcess>
 #include<QNetworkReply>
 #include<onlinewidget.h>
-
+#include<updatable.h>
 namespace Ui {
 class TestWidget;
 }
 
-class TestWidget : public QWidget
+class TestWidget : public QWidget,Updatable
 {
     Q_OBJECT
 public slots:
@@ -18,6 +18,7 @@ public slots:
     void startTest(QString);
     void printOutput();
     void printReply(QNetworkReply*);
+    void updateContent();
 public:
     explicit TestWidget(QWidget *parent = 0);
     ~TestWidget();
@@ -30,7 +31,6 @@ private:
     QProcess *pa;
     QNetworkReply *reply;
     QByteArray b;
-    OnlineWidget* onlineWidget;
 };
 
 #endif // TESTWIDGET_H

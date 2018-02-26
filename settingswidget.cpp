@@ -6,9 +6,9 @@
 #include <QButtonGroup>
 #include <configquery.h>
 #include <sqlconnection.h>
-const int SettingsWidget::SETTING_GRAB_SCREEN = 0;
-const int SettingsWidget::SETTING_SEND_FILE = 1;
-const int SettingsWidget::SETTING_TEXT_ONLY = 2;
+#include<QDebug>
+#include<QSettings>
+
 SettingsWidget::SettingsWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::SettingsWidget)
@@ -16,17 +16,23 @@ SettingsWidget::SettingsWidget(QWidget *parent) :
     ui->setupUi(this);
     mScrollLayout = new QVBoxLayout;
 
+    QStringList TWO_STATES_OPTIONS = QStringList()<<ConfigQuery::SETTING_LABEL_ON<<ConfigQuery::SETTING_LABEL_OFF;
+    QStringList NO_OPTION = QStringList();
     QList<SubSetting> remoteSettings;
-    remoteSettings.append(SubSetting(QString::fromUtf8("允许远程屏幕抓取"),QStringList()<<"打开"<<"关闭",SETTING_GRAB_SCREEN));
-    remoteSettings.append(SubSetting(QString::fromUtf8("允许远程发送文件"),QStringList()<<"打开"<<"关闭",SETTING_SEND_FILE));
+    remoteSettings.append(SubSetting(QString::fromUtf8("允许远程屏幕抓取")
+                                     ,TWO_STATES_OPTIONS,ConfigQuery::SETTING_GRAB_SCREEN));
+    remoteSettings.append(SubSetting(QString::fromUtf8("允许远程发送文件")
+                                     ,TWO_STATES_OPTIONS,ConfigQuery::SETTING_RECV_FILE));
     addRadioModels(QString::fromUtf8("远程"),remoteSettings);
 
     QList<SubSetting> versionSettings;
-    versionSettings.append(SubSetting(QString::fromUtf8("当前版本:")+ConfigQuery::VERSION,QStringList(),SETTING_TEXT_ONLY));
+    versionSettings.append(SubSetting(QString::fromUtf8("当前版本:")+ConfigQuery::VERSION,NO_OPTION,ConfigQuery::SETTING_NO_KEY));
     addRadioModels(QString::fromUtf8("版本号"),versionSettings);
 
     mScrollLayout->addStretch();
     ui->scrollAreaWidgetContents->setLayout(mScrollLayout);
+
+    initValues();
 }
 
 SettingsWidget::~SettingsWidget()
@@ -44,29 +50,46 @@ void SettingsWidget::addRadioModels(QString title,QList<SubSetting> subs)
             hLayout->addWidget(new QLabel(sub.summary));
             QStringList items = sub.items;
             QButtonGroup* btnGroup = new QButtonGroup;
-          //  mSignalMap.insert((QWidget*)btnGroup,sub.id);
-            connect(btnGroup,SIGNAL(buttonClicked(int)),this,SLOT(settingChanged()));
+
             for(int i = 0;i<items.size();i++)
             {
                 QRadioButton* btn = new QRadioButton(items.at(i));
+                mSignalMap.insert(btn,sub.key);
+                connect(btn,SIGNAL(clicked()),this,SLOT(settingChanged()));
+                btn->setObjectName(items.at(i));
                 hLayout->addWidget(btn);
                 btnGroup->addButton(btn);
+                
             }
             vLayout->addLayout(hLayout);
             groupBox->setLayout(vLayout);
         }
-    mScrollLayout->addWidget(groupBox);
+        mScrollLayout->addWidget(groupBox);
+}
+
+void SettingsWidget::initValues()
+{
+    QSettings settings("Sagereal","GmsAutoTool");
+    foreach(QRadioButton*btn,mSignalMap.keys()){
+        QString key = mSignalMap.value(btn);
+        btn->setChecked(settings.value(key).toString()==btn->objectName());
+        qDebug()<<"init:"<<key<<":"<<settings.value(key).toString();
+    }
 }
 
 void SettingsWidget::settingChanged()
 {
-    int settingId = mSignalMap.value((QWidget*)sender());
-    switch(settingId){
-    case SETTING_GRAB_SCREEN:
-       // QButtonGroup* btnGroup = (QButtonGroup*)sender();
-       // SqlConnection::getInstance()->putInt(SqlConnection::CONFIG,SqlConnection::CONFIG_GRAB_SCREEN,);
-        break;
-    case SETTING_SEND_FILE:
-        break;
-    }
+
+    QRadioButton* btn = (QRadioButton*)sender();
+    QString key = mSignalMap.value(btn);
+
+    QSettings settings("Sagereal","GmsAutoTool");
+    settings.setValue(key,btn->objectName());
+    qDebug()<<key<<":"<<btn->objectName();
+
+}
+
+void SettingsWidget::updateContent()
+{
+
 }

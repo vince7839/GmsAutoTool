@@ -4,14 +4,14 @@
 #include <QWidget>
 #include<socketutil.h>
 #include<QMap>
+#include<updatable.h>
 namespace Ui {
 class OnlineWidget;
 }
 
-class OnlineWidget : public QWidget
+class OnlineWidget : public QWidget,Updatable
 {
     Q_OBJECT
-
 public:
     explicit OnlineWidget(QWidget *parent = 0);
     ~OnlineWidget();
@@ -22,6 +22,7 @@ public slots:
     void addOnline(QMap<QString, QVariant>);
     void sendReportToHost();
     void getHostScreen();
+    void updateContent();
 
 private:
     Ui::OnlineWidget *ui;

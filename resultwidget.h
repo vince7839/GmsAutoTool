@@ -5,11 +5,13 @@
 #include"QTableWidgetItem"
 #include "parseresultwidget.h"
 #include "QLinkedList"
+#include<updatable.h>
+
 namespace Ui {
 class ResultWidget;
 }
 
-class ResultWidget : public QWidget
+class ResultWidget : public QWidget,Updatable
 {
     Q_OBJECT
 public slots:

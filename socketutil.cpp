@@ -113,7 +113,7 @@ void SocketUtil::handleMessage(QMap<QString, QVariant> msg)
           emit onUserFounded(msg);
           break;
     case MSG_EXPECT_SCREEN:
-          if(ConfigQuery::IS_ALLOW_SCREEN)
+          if(ConfigQuery::isAllowed(ConfigQuery::SETTING_GRAB_SCREEN))
           {
               map.insert(KEY_MSG_TYPE,MSG_FILE_SCREEN);
               sendFile(map);
@@ -136,20 +136,28 @@ void SocketUtil::handleMessage(QMap<QString, QVariant> msg)
         emit onScreenFinished(msg);
         break;
    case MSG_FILE_DOCUMENT:
-        emit onDocumentRecved(msg);
         qDebug()<<"MSG_FILE_DOCUMENT";
-        QDir dir = QDir::current();
-        qDebug()<<dir.currentPath();
-        if( !dir.exists("FileRecv")){
-            qDebug()<<"the directory FileRecv does not exist";
-            dir.mkpath("FileRecv");
+        if(ConfigQuery::isAllowed(ConfigQuery::SETTING_RECV_FILE)){
+            QDir dir = QDir::current();
+            qDebug()<<dir.currentPath();
+            if( !dir.exists("FileRecv")){
+                qDebug()<<"the directory FileRecv does not exist";
+                dir.mkpath("FileRecv");
+            }
+            QByteArray byteArray = msg.value(KEY_DATA).toByteArray();
+            QFile file("FileRecv/"+msg.value(KEY_FILE_NAME).toString());
+            file.open(QIODevice::ReadWrite);
+            file.write(byteArray);
+            file.close();
+            emit onDocumentRecved(msg);
+        }else{
+            map.insert(KEY_MSG_TYPE,MSG_REFUSE_DOCUMENT);
+            sendTcp(map);
         }
-        QByteArray byteArray = msg.value(KEY_DATA).toByteArray();
-        QFile file("FileRecv/"+msg.value(KEY_FILE_NAME).toString());
-        file.open(QIODevice::ReadWrite);
-        file.write(byteArray);
-        file.close();
         break;
+    case MSG_REFUSE_DOCUMENT:
+       QMessageBox::information(NULL,QString::fromUtf8("提示"),QString::fromUtf8("对方已设置不允许接收远程文件！"));
+       break;
    }
 }
 

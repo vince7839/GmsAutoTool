@@ -71,6 +71,11 @@ void OnlineWidget::getHostScreen()
    mSocketUtil->sendMessage(toIP,SocketUtil::MSG_EXPECT_SCREEN);
 }
 
+void OnlineWidget::updateContent()
+{
+
+}
+
 void OnlineWidget::contextMenuEvent(QContextMenuEvent *e)
 {
     QMenu*menu=new QMenu;

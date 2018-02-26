@@ -7,6 +7,8 @@
 #include <tabstyle.h>
 #include <QMenuBar>
 #include <configquery.h>
+#include <QSettings>
+#include<updatable.h>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -41,7 +43,10 @@ MainWindow::~MainWindow()
 
 void MainWindow::updateTabContent(int index)
 {
-    if(index == 2){
-        resultWidget->updateContent();
-    }
+    qDebug()<<index;
+    Updatable*u = (Updatable*)(ui->tabWidget->currentWidget());
+    u->updateContent();
+   /* if(index == 0){
+        ((ToolWidget*)(ui->tabWidget->currentWidget()))->updateContent();
+    }*/
 }

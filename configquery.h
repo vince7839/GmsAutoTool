@@ -15,6 +15,17 @@ public:
     static QString KEY;
     static QString TESTING_WARNING;
     static const QString VERSION;
+    static const QString SETTINGS;
+    static const QString SETTING_GRAB_SCREEN;
+    static const QString SETTING_RECV_FILE;
+    static const QString SETTING_NO_KEY;
+    static const QString SETTING_LABEL_ON;
+    static const QString SETTING_LABEL_OFF;
+    static const int ON;
+    static const int OFF;
+
+    static bool isAllowed(QString);
+    static QString getMacAddress();
 };
 
 #endif // CONFIGQUERY_H

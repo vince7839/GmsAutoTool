@@ -146,6 +146,11 @@ void ExtendWidget::showWarning()
     w->showAndReset();
 }
 
+void ExtendWidget::updateContent()
+{
+
+}
+
 ExtendWidget::ExtendWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ExtendWidget)

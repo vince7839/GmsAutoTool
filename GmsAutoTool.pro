@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui sql xml network
+QT       += core gui sql xml  network
 
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -47,7 +47,8 @@ SOURCES += \
     tabstyle.cpp \
     screenwidget.cpp \
     warningwidget.cpp \
-    settingswidget.cpp
+    settingswidget.cpp \
+    messagedialog.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -71,7 +72,9 @@ HEADERS += \
     tabstyle.h \
     screenwidget.h \
     warningwidget.h \
-    settingswidget.h
+    settingswidget.h \
+    messagedialog.h \
+    updatable.h
 
 FORMS += \
     mainwindow.ui \
@@ -88,4 +91,5 @@ FORMS += \
     onlinewidget.ui \
     screenwidget.ui \
     warningwidget.ui \
-    settingswidget.ui
+    settingswidget.ui \
+    messagedialog.ui

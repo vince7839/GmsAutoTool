@@ -6,6 +6,9 @@
 #include "QDebug"
 #include"QLabel"
 #include<QListWidget>
+#include<configquery.h>
+#include<QSettings>
+#include<QFile>
 
 void ToolWidget::openAddWidget()
 {
@@ -52,20 +55,35 @@ void ToolWidget::updateToolList()
 
     for(int i=0;i<toolList.size();i++)
     {
-        QMap<QString,QString>map=toolList.at(i);
-        QListWidgetItem*item=new QListWidgetItem;
+        QMap<QString,QString> map = toolList.at(i);
+        QListWidgetItem*item = new QListWidgetItem;
         item->setText(map.value("name"));
-        QString iconPath="img/cts_icon";
 
-        if(map.value("type")=="GTS")
-            iconPath="img/gts_icon";
+        QString iconPath = map.value("type") == "CTS" ? "img/cts_icon":"img/gts_icon";
 
-        item->setIcon(QIcon(QPixmap(iconPath)));
-        item->setData(Qt::UserRole,map.value("path"));
-        ui->tool_listWidget->addItem(item);
+        QString path = map.value("path");
+        if(QFile::exists(path)) {
+            qDebug()<<"tool exists";
+            item->setIcon(QIcon(QPixmap(iconPath)));
+            item->setData(Qt::UserRole,path);
+            ui->tool_listWidget->addItem(item);
+        }else{
+            QString msg = QString::fromUtf8("检测到工具%1不存在，是否删除？").arg(path);
+            if(QMessageBox::warning(0,QString::fromUtf8("警告"),msg
+                                    ,QMessageBox::Ok,QMessageBox::Cancel) == QMessageBox::Ok){
+                qDebug()<<"remove invalid tool";
+            }else{
+                qDebug()<<"not remove";
+            }
+        }
     }
+    // ui->tool_listWidget->setFlow(QListView::TopToBottom);
+}
 
-   // ui->tool_listWidget->setFlow(QListView::TopToBottom);
+void ToolWidget::updateContent()
+{
+    qDebug()<<"update";
+    updateToolList();
 }
 
 ToolWidget::ToolWidget(QWidget *parent) :
@@ -88,7 +106,14 @@ ToolWidget::ToolWidget(QWidget *parent) :
    // ui->tool_listWidget->setWrapping(false);
     ui->tool_listWidget->setSelectionMode(QAbstractItemView::SingleSelection);
 
-    updateToolList();
+    QSettings settings("Sagereal","GmsAutoTool");
+    QString mac = ConfigQuery::getMacAddress();
+    if(settings.value("MAC")!=mac)
+    {
+
+    }
+
+   // updateToolList();
 
 }
 

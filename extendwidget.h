@@ -5,12 +5,13 @@
 #include<QVBoxLayout>
 #include<QPushButton>
 #include<QMap>
+#include<updatable.h>
 
 namespace Ui {
 class ExtendWidget;
 }
 
-class ExtendWidget : public QWidget
+class ExtendWidget : public QWidget,Updatable
 {
     Q_OBJECT
 public:
@@ -34,6 +35,7 @@ public slots:
     void sendBroadcast();
     void clickedHandle();
     void showWarning();
+    void updateContent();
 public:
     explicit ExtendWidget(QWidget *parent = 0);
     ~ExtendWidget();
