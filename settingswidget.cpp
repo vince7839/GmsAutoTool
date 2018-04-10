@@ -79,14 +79,11 @@ void SettingsWidget::initValues()
 
 void SettingsWidget::settingChanged()
 {
-
     QRadioButton* btn = (QRadioButton*)sender();
     QString key = mSignalMap.value(btn);
-
     QSettings settings("Sagereal","GmsAutoTool");
     settings.setValue(key,btn->objectName());
     qDebug()<<key<<":"<<btn->objectName();
-
 }
 
 void SettingsWidget::updateContent()

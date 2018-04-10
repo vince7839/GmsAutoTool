@@ -11,7 +11,7 @@ namespace Ui {
 class ResultWidget;
 }
 
-class ResultWidget : public QWidget,Updatable
+class ResultWidget : public QWidget,public Updatable
 {
     Q_OBJECT
 public slots:

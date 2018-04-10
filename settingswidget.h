@@ -11,7 +11,7 @@ namespace Ui {
 class SettingsWidget;
 }
 
-class SettingsWidget : public QWidget,Updatable
+class SettingsWidget : public QWidget,public Updatable
 {
     Q_OBJECT
 private:

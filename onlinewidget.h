@@ -9,7 +9,7 @@ namespace Ui {
 class OnlineWidget;
 }
 
-class OnlineWidget : public QWidget,Updatable
+class OnlineWidget : public QWidget,public Updatable
 {
     Q_OBJECT
 public:

@@ -11,7 +11,7 @@ namespace Ui {
 class ExtendWidget;
 }
 
-class ExtendWidget : public QWidget,Updatable
+class ExtendWidget : public QWidget,public Updatable
 {
     Q_OBJECT
 public:

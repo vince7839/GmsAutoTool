@@ -8,6 +8,8 @@
 #include "extendwidget.h"
 #include "onlinewidget.h"
 #include "settingswidget.h"
+#include <QProcess>
+#include <QLabel>
 
 namespace Ui {
 class MainWindow;
@@ -18,9 +20,12 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 private slots:
     void updateTabContent(int);
+    void onProcessOutput();
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+public slots:
+    void setStatusText(QString);
 
 private:
     Ui::MainWindow *ui;
@@ -30,6 +35,8 @@ private:
     ExtendWidget* extendWidget;
     OnlineWidget* onlineWidget;
     SettingsWidget* settingsWidget;
+    QProcess* checkProcess;
+    QLabel* statusLabel;
 
 };
 

@@ -8,11 +8,11 @@ namespace Ui {
 class ToolWidget;
 }
 
-class ToolWidget : public QWidget,Updatable
+class ToolWidget : public QWidget,public Updatable
 {
     Q_OBJECT
 public:
-        void updateContent();
+    void updateContent();
 public slots:
     void openAddWidget();
     void enableDelBtn();

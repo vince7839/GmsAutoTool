@@ -68,13 +68,14 @@ void ToolWidget::updateToolList()
             item->setData(Qt::UserRole,path);
             ui->tool_listWidget->addItem(item);
         }else{
-            QString msg = QString::fromUtf8("检测到工具%1不存在，是否删除？").arg(path);
+           /* QString msg = QString::fromUtf8("检测到工具%1不存在，是否删除？").arg(path);
             if(QMessageBox::warning(0,QString::fromUtf8("警告"),msg
                                     ,QMessageBox::Ok,QMessageBox::Cancel) == QMessageBox::Ok){
-                qDebug()<<"remove invalid tool";
+
+            qDebug()<<"remove invalid tool:"<<path;
             }else{
                 qDebug()<<"not remove";
-            }
+            }*/
         }
     }
     // ui->tool_listWidget->setFlow(QListView::TopToBottom);
