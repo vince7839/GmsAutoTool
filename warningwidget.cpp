@@ -10,6 +10,7 @@ WarningWidget::WarningWidget(QWidget *parent) :
     ui(new Ui::WarningWidget)
 {
     ui->setupUi(this);
+    setWindowTitle(QString::fromUtf8("警告"));
     ui->label->setText(ConfigQuery::TESTING_WARNING);
     QFont ft;
     ft.setPointSize(70);

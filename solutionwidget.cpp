@@ -142,6 +142,7 @@ SolutionWidget::SolutionWidget(QWidget *parent) :
     ui(new Ui::SolutionWidget)
 {
     ui->setupUi(this);
+    setWindowTitle(QString::fromUtf8("解决方案"));
     connect(ui->btn_copy_module,SIGNAL(clicked(bool)),this,SLOT(copyText()));
     connect(ui->btn_copy_case,SIGNAL(clicked(bool)),this,SLOT(copyText()));
     connect(ui->btn_copy_test,SIGNAL(clicked(bool)),this,SLOT(copyText()));

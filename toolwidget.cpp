@@ -9,6 +9,8 @@
 #include<configquery.h>
 #include<QSettings>
 #include<QFile>
+#include<QMenu>
+#include<QContextMenuEvent>
 
 void ToolWidget::openAddWidget()
 {
@@ -66,6 +68,7 @@ void ToolWidget::updateToolList()
             qDebug()<<"tool exists";
             item->setIcon(QIcon(QPixmap(iconPath)));
             item->setData(Qt::UserRole,path);
+            item->setFlags(item->flags()|Qt::ItemIsEditable);
             ui->tool_listWidget->addItem(item);
         }else{
            /* QString msg = QString::fromUtf8("检测到工具%1不存在，是否删除？").arg(path);
@@ -79,6 +82,13 @@ void ToolWidget::updateToolList()
         }
     }
     // ui->tool_listWidget->setFlow(QListView::TopToBottom);
+}
+
+void ToolWidget::renameTool()
+{
+    qDebug()<<"rename tool";
+   QListWidgetItem*item = ui->tool_listWidget->currentItem();
+    ui->tool_listWidget->editItem(item);
 }
 
 void ToolWidget::updateContent()
@@ -104,7 +114,6 @@ ToolWidget::ToolWidget(QWidget *parent) :
     ui->tool_listWidget->setMovement(QListView::Static);
     ui->tool_listWidget->setResizeMode(QListView::Adjust);
     ui->tool_listWidget->setFlow(QListView::LeftToRight);
-   // ui->tool_listWidget->setWrapping(false);
     ui->tool_listWidget->setSelectionMode(QAbstractItemView::SingleSelection);
 
     QSettings settings("Sagereal","GmsAutoTool");
@@ -121,4 +130,13 @@ ToolWidget::ToolWidget(QWidget *parent) :
 ToolWidget::~ToolWidget()
 {
     delete ui;
+}
+
+void ToolWidget::contextMenuEvent(QContextMenuEvent *event)
+{
+    QMenu*menu=new QMenu;
+    QAction*renameAction=new QAction(QString::fromUtf8("重命名"));
+    connect(renameAction,SIGNAL(triggered(bool)),this,SLOT(renameTool()));
+    menu->addAction(renameAction);
+    menu->exec(mapToGlobal(event->pos()));
 }

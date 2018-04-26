@@ -9,6 +9,7 @@ AddSolutionWidget::AddSolutionWidget(QWidget *parent) :
     ui(new Ui::AddSolutionWidget)
 {
     ui->setupUi(this);
+    setWindowTitle(QString::fromUtf8("提交解决方案"));
     setWindowModality(Qt::ApplicationModal);
     connect(ui->btn_ok,SIGNAL(clicked(bool)),this,SLOT(writeXml()));
     connect(ui->btn_cancel,SIGNAL(clicked(bool)),this,SLOT(close()));

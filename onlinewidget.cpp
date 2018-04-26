@@ -11,9 +11,10 @@ OnlineWidget::OnlineWidget(QWidget *parent) :
     ui(new Ui::OnlineWidget)
 {
     ui->setupUi(this);
+    setWindowTitle(QString::fromUtf8("在线主机"));
     ui->tableWidget->setColumnCount(COLUMN_COUNT);
     ui->tableWidget->setHorizontalHeaderLabels(QStringList()<<QString::fromUtf8("主机名")<<QString::fromUtf8("IP"));
-    ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
     mSocketUtil=SocketUtil::getInstance();
@@ -33,8 +34,13 @@ void OnlineWidget::updateTable()
 
     for(int i=0;i<mOnlineList.size();i++)
     {
-       ui->tableWidget->setItem(i,0,new QTableWidgetItem(mOnlineList.at(i).value("hostName").toString()));
-       ui->tableWidget->setItem(i,1,new QTableWidgetItem(mOnlineList.at(i).value("fromIP").toString()));
+       QTableWidgetItem* host = new QTableWidgetItem(mOnlineList.at(i).value("hostName").toString());
+       host->setTextAlignment(Qt::AlignCenter);
+       ui->tableWidget->setItem(i,0,host);
+
+       QTableWidgetItem* ip = new QTableWidgetItem(mOnlineList.at(i).value("fromIP").toString());
+       ip->setTextAlignment(Qt::AlignCenter);
+       ui->tableWidget->setItem(i,1,ip);
     }
 }
 

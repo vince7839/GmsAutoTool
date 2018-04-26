@@ -21,6 +21,7 @@ public slots:
     void deleteResult();
     void enableDelBtn();
     void sendReport();
+    void openReport();
     void detailActionClicked();
 public:
     explicit ResultWidget(QWidget *parent = 0);

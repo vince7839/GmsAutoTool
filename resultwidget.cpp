@@ -46,12 +46,17 @@ ResultWidget::~ResultWidget()
 void ResultWidget::contextMenuEvent(QContextMenuEvent *e)
 {
     QMenu*menu=new QMenu;
+    QAction*openAction=new QAction(QString::fromUtf8("打开"));
     QAction*deleteAction=new QAction(QString::fromUtf8("删除"));
     QAction*sendAction=new QAction(QString::fromUtf8("发送到"));
     QAction*detailAction=new QAction(QString::fromUtf8("查看失败项"));
+
+    connect(openAction,SIGNAL(triggered(bool)),this,SLOT(openReport()));
     connect(deleteAction,SIGNAL(triggered(bool)),this,SLOT(deleteResult()));
     connect(sendAction,SIGNAL(triggered(bool)),this,SLOT(sendReport()));
     connect(detailAction,SIGNAL(triggered(bool)),this,SLOT(detailActionClicked()));
+
+    menu->addAction(openAction);
     menu->addAction(deleteAction);
     menu->addAction(sendAction);
     menu->addAction(detailAction);
@@ -124,6 +129,14 @@ void ResultWidget::sendReport()
     w->setReportInfo(mResultList.at(ui->result_table_widget->currentRow()));
     w->show();
     qDebug()<<"sendReport():"+mResultList.at(ui->result_table_widget->currentRow()).value("file_name");
+}
+
+void ResultWidget::openReport()
+{
+    QString resultPath = mResultList.at(ui->result_table_widget->currentRow()).value("result_path");
+    qDebug()<<"[ResultWidget]open report:"<<resultPath;
+    QProcess* p = new QProcess;
+    p->start("firefox",QStringList()<<resultPath);
 }
 
 void ResultWidget::detailActionClicked()

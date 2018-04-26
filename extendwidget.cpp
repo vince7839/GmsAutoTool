@@ -10,6 +10,7 @@
 #include<QLabel>
 #include<QPushButton>
 #include<warningwidget.h>
+#include<QProcess>
 
 const int ExtendWidget::BTN_ID_CONFIG_PC = 0;
 const int ExtendWidget::BTN_ID_PUSH_FILE = 1;
@@ -19,9 +20,23 @@ const int ExtendWidget::BTN_ID_SHOW_WARNING = 4;
 
 void ExtendWidget::configPC()
 {
-    QFile file;
-    bool adbExists=file.exists("/usr/bin/adb");
-    bool aaptExists=file.exists("/usr/bin/aapt");
+    bool adbExists = false;
+    bool aaptExists = false;
+    QProcess* p = new QProcess;
+    p->start("adb version");
+    if(p->waitForFinished()){
+        QString output = p->readAll();
+        qDebug()<<output;
+        adbExists = output.startsWith("Android Debug Bridge version");
+    }
+
+    p->start("aapt version");
+    if(p->waitForFinished()){
+        QString output = p->readAll();
+        qDebug()<<output;
+        aaptExists = output.startsWith("Android Asset Packaging Tool");
+    }
+
     if(adbExists && aaptExists)
     {
         QMessageBox::information(this,QString::fromUtf8("提示"),QString::fromUtf8("您已配置过系统环境,无需重新配置"));
@@ -32,10 +47,10 @@ void ExtendWidget::configPC()
     QString sdkPath=QFileDialog::getExistingDirectory(this,QString::fromUtf8("选择SDK文件夹"),"/home");
     QString cmd;
     if(!adbExists){
-        QString adbPath=sdkPath+"/platform-tools/adb";
-        if(!file.exists(adbPath))
+        QString adbPath = sdkPath + QString("/platform-tools/adb");
+        if(!QFile::exists(adbPath))
         {
-            QMessageBox::warning(this,QString::fromUtf8("错误"),QString::fromUtf8("找不到adb文件!"));
+            QMessageBox::warning(this,QString::fromUtf8("错误"),QString::fromUtf8("找不到adb工具!"));
             return;
         }
         cmd += "sudo ln -s "+adbPath+" /usr/bin/adb;echo 'link adb finish...';";
@@ -44,7 +59,7 @@ void ExtendWidget::configPC()
     }
 
     if(!aaptExists){
-        QString buildToolsPath=sdkPath+"/build-tools";
+        QString buildToolsPath = sdkPath + QString("/build-tools");
         QDir dir(buildToolsPath);
         QStringList versionList;
 
@@ -62,14 +77,14 @@ void ExtendWidget::configPC()
 
         std::sort(versionList.begin(),versionList.end());
         QString aaptPath=buildToolsPath+"/"+versionList.last()+"/aapt";
-        if(!file.exists(aaptPath))
+        if(!QFile::exists(aaptPath))
         {
             QMessageBox::warning(this,QString::fromUtf8("错误"),QString::fromUtf8("找不到aapt文件!"));
             return;
         }
         cmd += "sudo ln -s "+aaptPath+" /usr/bin/aapt;echo 'link aapt finish...'";
     }else{
-        cmd += "echo 'aappt does not need link,skip...';";
+        cmd += "echo 'aapt does not need link,skip...';";
     }
     cmd += "exec bash";
     qDebug()<<cmd;
