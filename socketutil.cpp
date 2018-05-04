@@ -72,7 +72,7 @@ void SocketUtil::sendUdp(QMap<QString, QVariant> msg)
     msg.insert(KEY_HOST_NAME,QHostInfo::localHostName());
     QByteArray block;
     QDataStream out(&block,QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_5_9);
+    out.setVersion(QDataStream::Qt_5_6);
     out<<msg;
     mUdpSocket->writeDatagram(block,QHostAddress::Broadcast,ConfigQuery::UDP_PORT) ;//也会给自己发一份
     qDebug()<<"sendUdp:"<<msg;
@@ -189,7 +189,7 @@ void SocketUtil::sendTcp(QMap<QString, QVariant> param)
     QString type = param.value(KEY_MSG_TYPE).toString();
     QByteArray block;
     QDataStream out(&block,QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_5_9);
+    out.setVersion(QDataStream::Qt_5_6);
     out<<(qint64)0;
     out<<param;
     out.device()->seek(0);
@@ -222,7 +222,7 @@ void SocketUtil::recvTcp()
     static qint64 blockSize=0;
     QMap<QString,QVariant> msg;
     QDataStream in(mTcpSocketClient);
-    in.setVersion(QDataStream::Qt_5_9);
+    in.setVersion(QDataStream::Qt_5_6);
 
     while( mTcpSocketClient->bytesAvailable() > 0)   //循环接收 保证消息不遗漏
     {
@@ -267,7 +267,7 @@ void SocketUtil::recvUdp()
       block.resize(mUdpSocket->pendingDatagramSize());
       mUdpSocket->readDatagram(block.data(),block.size());
       QDataStream in(&block,QIODevice::ReadOnly);
-      in.setVersion(QDataStream::Qt_5_9);
+      in.setVersion(QDataStream::Qt_5_6);
       in>>msg;
       handleMessage(msg);
       qDebug()<<"recvUdp:"<<msg;

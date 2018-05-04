@@ -22,7 +22,7 @@ public:
     QMap<QString,QString> getToolInfo(QString);
 private:
     Ui::AddToolWidget *ui;
-    QString path;
+    QString mToolPath;
 };
 
 #endif // ADDTOOLWIDGET_H

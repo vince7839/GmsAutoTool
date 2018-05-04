@@ -12,6 +12,7 @@
 #include<QProcess>
 #include<QMenu>
 #include<onlinewidget.h>
+#include<QContextMenuEvent>
 
 ResultWidget::ResultWidget(QWidget *parent) :
     QWidget(parent),
@@ -46,10 +47,10 @@ ResultWidget::~ResultWidget()
 void ResultWidget::contextMenuEvent(QContextMenuEvent *e)
 {
     QMenu*menu=new QMenu;
-    QAction*openAction=new QAction(QString::fromUtf8("打开"));
-    QAction*deleteAction=new QAction(QString::fromUtf8("删除"));
-    QAction*sendAction=new QAction(QString::fromUtf8("发送到"));
-    QAction*detailAction=new QAction(QString::fromUtf8("查看失败项"));
+    QAction*openAction=new QAction(QString::fromUtf8("打开"),menu);
+    QAction*deleteAction=new QAction(QString::fromUtf8("删除"),menu);
+    QAction*sendAction=new QAction(QString::fromUtf8("发送到"),menu);
+    QAction*detailAction=new QAction(QString::fromUtf8("查看失败项"),menu);
 
     connect(openAction,SIGNAL(triggered(bool)),this,SLOT(openReport()));
     connect(deleteAction,SIGNAL(triggered(bool)),this,SLOT(deleteResult()));

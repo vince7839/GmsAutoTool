@@ -5,6 +5,8 @@
 #include"QMessageBox"
 #include<QDomDocument>
 #include<QDomNode>
+#include<QDir>
+#include<QDebug>
 
 AddToolWidget::AddToolWidget(QWidget *parent) :
     QWidget(parent),
@@ -41,17 +43,28 @@ QMap<QString, QString> AddToolWidget::getToolInfo(QString path)
 
 void AddToolWidget::openFileDialog()
 {
-    path=QFileDialog::getOpenFileName(this, QString::fromUtf8("选择脚本"), ".", QString::fromUtf8("脚本文件(cts-tradefed gts-tradefed)"));
-    ui->lineEdit_path->setText(path);
+    mToolPath = QFileDialog::getOpenFileName(this, QString::fromUtf8("选择脚本"), "/home", QString::fromUtf8("脚本文件(cts-tradefed gts-tradefed)"));
+    ui->lineEdit_path->setText(mToolPath);
+    QDir rootDir(QString("%1/../../..").arg(mToolPath));
+    rootDir.setPath(rootDir.absolutePath());
+    QString dirName = rootDir.dirName();
+    ui->lineEdit_name->setText(dirName);
+    QStringList list = dirName.split("_");
+    if(list.size() == 3){
+
+    }else{
+
+    }
+    qDebug()<<"[AddToolWidget]root dir name:"<<dirName;
+
 }
 
 void AddToolWidget::saveTool()
 {
     SqlConnection *conn=SqlConnection::getInstance();
-    QString query=QString("select * from Tool where path ='%1'").arg(path);
-
     if(conn->connect())
     {
+        QString query=QString("select * from Tool where path ='%1'").arg(mToolPath);
         if(conn->execSql(query).isEmpty()){
             query=QString("insert into Tool(name,path,platform,version) values('%1','%2','%3','%4')")
                            .arg(ui->lineEdit_name->text()).arg(ui->lineEdit_path->text()).arg("").arg("");

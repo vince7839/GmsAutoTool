@@ -1,6 +1,7 @@
 #ifndef SQLCONNECTION_H
 #define SQLCONNECTION_H
 #include<QSqlDatabase>
+#include<QMap>
 
 class SqlConnection
 {

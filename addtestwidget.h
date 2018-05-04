@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QMap>
+#include <QList>
 
 namespace Ui {
 class AddTestWidget;
@@ -25,6 +26,7 @@ public:
 
 private:
     Ui::AddTestWidget *ui;
+    QList<QMap<QString,QString> > mToolList;
 };
 
 #endif // ADDTESTWIDGET_H

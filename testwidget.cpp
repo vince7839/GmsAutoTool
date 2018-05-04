@@ -96,7 +96,7 @@ void TestWidget::newTest()
 
 void TestWidget::startTest(QMap<QString,QString> map)
 {
-    QString tempName = QString("temp/%1").arg(QDateTime::currentSecsSinceEpoch());
+    QString tempName = QString("temp/%1").arg(QDateTime::currentMSecsSinceEpoch());
     QFile file(tempName);
     file.open(QIODevice::ReadWrite|QIODevice::Text);
     file.close();
@@ -104,6 +104,7 @@ void TestWidget::startTest(QMap<QString,QString> map)
     QProcess*p=new QProcess(this);
     QStringList arg;
     QString toolPath = map.value("path");
+    QString platform = map.value("platform");
     arg<<toolPath<<ConfigQuery::getCommand(ConfigQuery::CTS_CMD,"N","all")<<tempName<<map.value("name");
     qDebug()<<"[TestWidget]start test:"<<arg;
     p->start("script/start-test.sh",arg);
@@ -131,7 +132,7 @@ void TestWidget::on_pushButton_clicked()
    // p->start("script/start-test.sh",QStringList()<<"/home/liaowenxing/GMS/CTS/N/CTS_7.0_r10/android-cts/tools/cts-tradefed"<<"run cts"<<"temp/1.txt");
     //restoreView();
 
-    int interval = QDateTime::currentSecsSinceEpoch() - 1523511058;
+    int interval = QDateTime::currentMSecsSinceEpoch() - 1523511058;
     int h = interval/(60*60);
     int m = interval/60 - h*60;
     int s = interval - h*60*60 - m*60;
@@ -202,7 +203,7 @@ void TestWidget::updateTime()
    QList<ProgressView*> list = mViewMap.values();
    if(!list.isEmpty()){
        foreach (ProgressView* v, list) {
-           int interval = QDateTime::currentSecsSinceEpoch() - v->startSec;
+           int interval = QDateTime::currentMSecsSinceEpoch() - v->startSec;
            int h = interval/(60*60);
            int m = interval/60 - h*60;
            int s = interval - h*60*60 - m*60;

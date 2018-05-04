@@ -6,6 +6,7 @@
 #include <QList>
 #include <QRadioButton>
 #include<updatable.h>
+#include<QMap>
 
 namespace Ui {
 class SettingsWidget;

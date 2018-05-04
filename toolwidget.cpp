@@ -135,7 +135,7 @@ ToolWidget::~ToolWidget()
 void ToolWidget::contextMenuEvent(QContextMenuEvent *event)
 {
     QMenu*menu=new QMenu;
-    QAction*renameAction=new QAction(QString::fromUtf8("重命名"));
+    QAction*renameAction=new QAction(QString::fromUtf8("重命名"),menu);
     connect(renameAction,SIGNAL(triggered(bool)),this,SLOT(renameTool()));
     menu->addAction(renameAction);
     menu->exec(mapToGlobal(event->pos()));

@@ -14,19 +14,14 @@ const QString SqlConnection::CONFIG_SEND_FILE = "allow_send_file";
 SqlConnection::SqlConnection()
 {
     //QString dbPath="/media/sf_虚拟机共享/AutoTool.db";
-    QString dbPath="database/GmsAutoTool.db";
-    db=QSqlDatabase::addDatabase("QSQLITE");
+    QString dbPath = "database/GmsAutoTool.db";
+    db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName(dbPath);
-
 }
 
 bool SqlConnection::connect()
 {
-    if(!db.open())
-     {
-        return false;
-     }
-    return true;
+    return db.open();
 }
 
 void SqlConnection::close(){

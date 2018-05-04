@@ -85,7 +85,7 @@ void OnlineWidget::updateContent()
 void OnlineWidget::contextMenuEvent(QContextMenuEvent *e)
 {
     QMenu*menu=new QMenu;
-    QAction*screenAction=new QAction(QString::fromUtf8("抓取屏幕"));
+    QAction*screenAction=new QAction(QString::fromUtf8("抓取屏幕"),menu);
     connect(screenAction,SIGNAL(triggered(bool)),this,SLOT(getHostScreen()));
     menu->addAction(screenAction);
     menu->exec(mapToGlobal(e->pos()));

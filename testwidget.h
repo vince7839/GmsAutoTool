@@ -109,7 +109,7 @@ public:
         box = new QGroupBox(map.value("name"));
         box->setLayout(vLayout);
 
-        startSec = QDateTime::currentSecsSinceEpoch();
+        startSec = QDateTime::currentMSecsSinceEpoch();
         checkTime.start();
     }
 
