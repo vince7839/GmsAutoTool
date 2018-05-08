@@ -8,7 +8,7 @@
 #include"QDir"
 #include <config.h>
 #include <QTimer>
-
+#include<QListWidgetItem>
 AddTestWidget::AddTestWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::AddTestWidget)
@@ -136,6 +136,7 @@ void AddTestWidget::updateActionInfo()
     QString action = ui->cbox_action->currentData().toString();
     QString toolPath = ui->cbox_tool->currentData().toString();
     ui->groupBox->setVisible(action != Config::ACTION_ALL);
+   // delete ui->groupBox->layout()->re;
     qDebug()<<action;
     QProcess* p = new QProcess;
     QStringList arg;
@@ -149,22 +150,19 @@ void AddTestWidget::updateActionInfo()
             qDebug()<<output;
             QStringList list = output.split("\n");
             QComboBox* cbox_session = new QComboBox;
-            if(list.size()>4)
+            for(int i=0;i<list.size();i++)
             {
-                for(int i=4;i<list.size();i++)
-                {
-                    QString line = list.at(i);
-                    QRegExp reg("([0-9]+) +([0-9]+) +([0-9]+).+");
-                    if(reg.exactMatch(line))
-                    {
-                        QString sessionId = reg.cap(1);
-                        QString pass =  reg.cap(2);
-                        QString fail =  reg.cap(3);
-                        QString item = QString("session id:%1 | pass:%2 | fail:%3").arg(sessionId).arg(pass).arg(fail);
-                        cbox_session->addItem(item,sessionId);
-                        qDebug()<<reg.cap(1)<<reg.cap(2)<<reg.cap(3);
-                    }
-                }
+               QString line = list.at(i);
+               QRegExp reg("([0-9]+) +([0-9]+) +([0-9]+).+");
+               if(reg.exactMatch(line))
+               {
+                  QString sessionId = reg.cap(1);
+                  QString pass =  reg.cap(2);
+                  QString fail =  reg.cap(3);
+                  QString item = QString("session id:%1 | pass:%2 | fail:%3").arg(sessionId).arg(pass).arg(fail);
+                  cbox_session->addItem(item,sessionId);
+                  qDebug()<<reg.cap(1)<<reg.cap(2)<<reg.cap(3);
+               }
             }
             QLabel* label= new QLabel(QString::fromUtf8("选择session"));
             QHBoxLayout* hLayout = new QHBoxLayout;
@@ -183,6 +181,23 @@ void AddTestWidget::updateActionInfo()
 
             }
         }
+    }else if(action == Config::ACTION_SINGLE){
+        QLabel* labelModule= new QLabel(QString::fromUtf8("模块"));
+        QLineEdit* moduleEdit = new QLineEdit;
+        QLabel* labelTest= new QLabel(QString::fromUtf8("Test"));
+        QLineEdit* testEdit = new QLineEdit;
+        QHBoxLayout* hLayout1 = new QHBoxLayout;
+        hLayout1->addWidget(labelModule);
+        hLayout1->addWidget(moduleEdit);
+        QHBoxLayout* hLayout2 = new QHBoxLayout;
+        hLayout2->addWidget(labelTest);
+        hLayout2->addWidget(testEdit);
+
+        QVBoxLayout* vLayout = new QVBoxLayout;
+        vLayout->addLayout(hLayout1);
+        vLayout->addLayout(hLayout2);
+
+        ui->groupBox->setLayout(vLayout);
     }
 }
 
