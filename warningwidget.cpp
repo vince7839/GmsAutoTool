@@ -1,6 +1,6 @@
 #include "warningwidget.h"
 #include "ui_warningwidget.h"
-#include <configquery.h>
+#include <config.h>
 #include <QDebug>
 #include <QTimer>
 #include <QTime>
@@ -11,7 +11,7 @@ WarningWidget::WarningWidget(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowTitle(QString::fromUtf8("警告"));
-    ui->label->setText(ConfigQuery::TESTING_WARNING);
+    ui->label->setText(Config::TESTING_WARNING);
     QFont ft;
     ft.setPointSize(70);
     ui->label->setFont(ft);

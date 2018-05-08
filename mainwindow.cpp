@@ -6,7 +6,7 @@
 #include <QTime>
 #include <tabstyle.h>
 #include <QMenuBar>
-#include <configquery.h>
+#include <config.h>
 #include <QSettings>
 #include <updatable.h>
 #include <QProcess>

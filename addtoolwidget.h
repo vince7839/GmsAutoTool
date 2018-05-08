@@ -15,11 +15,11 @@ signals:
 private slots:
     void openFileDialog();
     void saveTool();
-    void toolValidate();
 public:
     explicit AddToolWidget(QWidget *parent = 0);
     ~AddToolWidget();
     QMap<QString,QString> getToolInfo(QString);
+    QString getPlatform(QString);
 private:
     Ui::AddToolWidget *ui;
     QString mToolPath;

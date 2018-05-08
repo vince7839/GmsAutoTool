@@ -6,7 +6,7 @@
 #include "QDebug"
 #include"QLabel"
 #include<QListWidget>
-#include<configquery.h>
+#include<config.h>
 #include<QSettings>
 #include<QFile>
 #include<QMenu>
@@ -17,30 +17,27 @@ void ToolWidget::openAddWidget()
     AddToolWidget*w=new AddToolWidget;
     connect(w,SIGNAL(toolAdded()),this,SLOT(updateToolList()));
     w->show();
-
 }
 
 void ToolWidget::enableDelBtn()
 {
     ui->btn_del_tool->setDisabled(ui->tool_listWidget->selectedItems().isEmpty());
-
 }
 
 void ToolWidget::deleteTool()
 {
-    QString delPath=ui->tool_listWidget->currentItem()->data(Qt::UserRole).toString();
-    qDebug()<<delPath;
-
-    SqlConnection *conn=SqlConnection::getInstance();
-
-    if(conn->connect()){
-     conn->execSql(QString("delete from Tool where path = '%1'").arg(delPath));
-
-    }else{
-     QMessageBox::warning(this,QString::fromUtf8("错误"),QString::fromUtf8("打开数据库失败！"));
+    QString toolName = ui->tool_listWidget->currentItem()->text();
+    if(QMessageBox::warning(this,QString::fromUtf8("警告"),QString::fromUtf8("确认删除工具%1？").arg(toolName),QMessageBox::Yes|QMessageBox::No)
+            == QMessageBox::Yes)
+    {
+        QString toolPath=ui->tool_listWidget->currentItem()->data(Qt::UserRole).toString();
+        SqlConnection *conn=SqlConnection::getInstance();
+        if(conn->connect())
+        {
+            conn->execSql(QString("delete from Tool where path = '%1'").arg(toolPath));
+            updateToolList();
+        }
     }
-
-    updateToolList();
 }
 
 void ToolWidget::updateToolList()
@@ -48,40 +45,28 @@ void ToolWidget::updateToolList()
     toolList.clear();
     ui->tool_listWidget->clear();
     SqlConnection *conn=SqlConnection::getInstance();
-    if(conn->connect()){
-        toolList=conn->execSql("select * from Tool");
-
-    }else{
-        QMessageBox::warning(this,QString::fromUtf8("错误"),QString::fromUtf8("打开数据库失败！"));
+    if(conn->connect())
+    {
+        toolList = conn->execSql("select * from Tool");
     }
-
     for(int i=0;i<toolList.size();i++)
     {
         QMap<QString,QString> map = toolList.at(i);
         QListWidgetItem*item = new QListWidgetItem;
         item->setText(map.value("name"));
-
-        QString iconPath = map.value("type") == "CTS" ? "img/cts_icon":"img/gts_icon";
-
+        QString iconPath = getIconPath(map.value("type"));
         QString path = map.value("path");
-        if(QFile::exists(path)) {
-            qDebug()<<"tool exists";
+        if(QFile::exists(path))
+        {
             item->setIcon(QIcon(QPixmap(iconPath)));
             item->setData(Qt::UserRole,path);
             item->setFlags(item->flags()|Qt::ItemIsEditable);
             ui->tool_listWidget->addItem(item);
         }else{
-           /* QString msg = QString::fromUtf8("检测到工具%1不存在，是否删除？").arg(path);
-            if(QMessageBox::warning(0,QString::fromUtf8("警告"),msg
-                                    ,QMessageBox::Ok,QMessageBox::Cancel) == QMessageBox::Ok){
-
-            qDebug()<<"remove invalid tool:"<<path;
-            }else{
-                qDebug()<<"not remove";
-            }*/
+            qDebug()<<"[ToolWidget]tool not exists:"<<path;
+            conn->execSql(QString("delete from Tool where path = '%1'").arg(path));
         }
     }
-    // ui->tool_listWidget->setFlow(QListView::TopToBottom);
 }
 
 void ToolWidget::renameTool()
@@ -97,6 +82,15 @@ void ToolWidget::updateContent()
     updateToolList();
 }
 
+QString ToolWidget::getIconPath(QString type)
+{
+    if(type == "CTS"){
+        return "img/cts_icon";
+    }else if(type == "GTS"){
+        return "img/gts_icon";
+    }
+}
+
 ToolWidget::ToolWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ToolWidget)
@@ -108,6 +102,7 @@ ToolWidget::ToolWidget(QWidget *parent) :
 
     ui->btn_del_tool->setEnabled(false);
 
+    ui->tool_listWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->tool_listWidget->setViewMode(QListView::IconMode);
     ui->tool_listWidget->setIconSize(QSize(100,100));
     ui->tool_listWidget->setFocusPolicy(Qt::NoFocus);
@@ -117,7 +112,7 @@ ToolWidget::ToolWidget(QWidget *parent) :
     ui->tool_listWidget->setSelectionMode(QAbstractItemView::SingleSelection);
 
     QSettings settings("Sagereal","GmsAutoTool");
-    QString mac = ConfigQuery::getMacAddress();
+    QString mac = Config::getMacAddress();
     if(settings.value("MAC")!=mac)
     {
 
@@ -133,10 +128,11 @@ ToolWidget::~ToolWidget()
 }
 
 void ToolWidget::contextMenuEvent(QContextMenuEvent *event)
-{
+{/*
     QMenu*menu=new QMenu;
     QAction*renameAction=new QAction(QString::fromUtf8("重命名"),menu);
     connect(renameAction,SIGNAL(triggered(bool)),this,SLOT(renameTool()));
     menu->addAction(renameAction);
     menu->exec(mapToGlobal(event->pos()));
+    */
 }

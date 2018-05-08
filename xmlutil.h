@@ -13,7 +13,7 @@ public:
     QString getNodeText(QString nodeName,QString[],QString[]);
     void parseNode(QDomNode);
     void parseChildren(QDomNode);
-    static QDomNode getChildNode(QDomNode,QStringList,QStringList);
+    static QDomNode getChildNode(QDomNode,QString,QMap<QString,QString>);
 private:
     QDomDocument doc;
     QString mAttrs[];

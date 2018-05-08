@@ -1,0 +1,413 @@
+This file contains any messages produced by compilers while
+running configure, to aid debugging if configure makes a mistake.
+
+configure:585: checking whether to use symlinks for manpages
+configure:597: checking whether to compress the manpages
+configure:623: checking whether to add a package name suffix for the manpages
+configure:654: checking for gcc
+configure:767: checking whether the C compiler (gcc  ) works
+configure:783: gcc -o conftest    conftest.c  1>&5
+configure:809: checking whether the C compiler (gcc  ) is a cross-compiler
+configure:814: checking whether we are using GNU C
+configure:823: gcc -E conftest.c
+configure:842: checking whether gcc accepts -g
+configure:884: checking how to run the C preprocessor
+configure:905: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:965: checking dirent.h
+configure:997: gcc -o conftest    conftest.c  1>&5
+configure:1020: checking for errno.h
+configure:1030: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:1057: checking for float.h
+configure:1067: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:1094: checking for values.h
+configure:1104: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:1131: checking for limits.h
+configure:1141: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:1171: checking for stdlib.h
+configure:1181: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:1253: checking for string.h
+configure:1263: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:1326: checking for sys/wait.h
+configure:1336: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:1363: checking for dlfcn.h
+configure:1373: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:1404: checking for unistd.h
+configure:1414: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:1404: checking for sys/param.h
+configure:1414: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:1449: checking if the compiler understands -pipe
+configure:1463: gcc -c  -pipe  conftest.c 1>&5
+configure:1876: checking for building with threads
+configure:1907: checking for sin
+configure:1935: gcc -o conftest  -pipe   conftest.c  1>&5
+configure:1919:6: warning: conflicting types for built-in function 'sin' [enabled by default]
+ char sin();
+      ^
+/tmp/ccpnEgwv.o: In function `main':
+conftest.c:(.text+0xa): undefined reference to `sin'
+collect2: error: ld returned 1 exit status
+configure: failed program was:
+#line 1912 "configure"
+#include "confdefs.h"
+/* System header to define __stub macros and hopefully few prototypes,
+    which can conflict with char sin(); below.  */
+#include <assert.h>
+/* Override any gcc2 internal prototype to avoid an error.  */
+/* We use char because int might match the return type of a gcc2
+    builtin and then its argument prototype would still apply.  */
+char sin();
+
+int main() {
+
+/* The GNU C library defines this for functions which it implements
+    to always fail with ENOSYS.  Some functions are actually named
+    something starting with __ and the normal name is an alias.  */
+#if defined (__stub_sin) || defined (__stub___sin)
+choke me
+#else
+sin();
+#endif
+
+; return 0; }
+configure:1956: checking for main in -lieee
+configure:1971: gcc -o conftest  -pipe   conftest.c -lieee   1>&5
+configure:1998: checking for main in -linet
+configure:2013: gcc -o conftest  -pipe   conftest.c -linet   1>&5
+/usr/bin/ld: cannot find -linet
+collect2: error: ld returned 1 exit status
+configure: failed program was:
+#line 2006 "configure"
+#include "confdefs.h"
+
+int main() {
+main()
+; return 0; }
+configure:2035: checking for net/errno.h
+configure:2045: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:2041:23: fatal error: net/errno.h: No such file or directory
+ #include <net/errno.h>
+                       ^
+compilation terminated.
+configure: failed program was:
+#line 2040 "configure"
+#include "confdefs.h"
+#include <net/errno.h>
+configure:2091: checking for connect
+configure:2119: gcc -o conftest  -pipe   conftest.c  1>&5
+configure:2284: checking for gethostbyname
+configure:2312: gcc -o conftest  -pipe   conftest.c  1>&5
+configure:2385: checking how to build libraries
+configure:2424: checking for ranlib
+configure:2456: checking if 64bit support is requested
+configure:2470: checking if 64bit Sparc VIS support is requested
+configure:2489: checking if rpath support is requested
+configure:2505: checking system version
+configure:2540: checking for dlopen in -ldl
+configure:2559: gcc -o conftest  -pipe   conftest.c -ldl   1>&5
+configure:2609: checking for ar
+configure:4324: checking for cast to union support
+configure:4339: gcc -c  -pipe  conftest.c 1>&5
+configure:4394: checking for build with symbols
+configure:4459: checking for required early compiler flags
+configure:4473: gcc -c  -pipe  conftest.c 1>&5
+configure:4523: gcc -c  -pipe  conftest.c 1>&5
+configure: In function 'main':
+configure:4519:15: error: storage size of 'buf' isn't known
+ struct stat64 buf; int i = stat64("/", &buf);
+               ^
+configure: failed program was:
+#line 4516 "configure"
+#include "confdefs.h"
+#include <sys/stat.h>
+int main() {
+struct stat64 buf; int i = stat64("/", &buf);
+; return 0; }
+configure:4539: gcc -c  -pipe  conftest.c 1>&5
+configure:4573: gcc -c  -pipe  conftest.c 1>&5
+configure: In function 'main':
+configure:4569:19: error: 'open64' undeclared (first use in this function)
+ char *p = (char *)open64;
+                   ^
+configure:4569:19: note: each undeclared identifier is reported only once for each function it appears in
+configure: failed program was:
+#line 4566 "configure"
+#include "confdefs.h"
+#include <sys/stat.h>
+int main() {
+char *p = (char *)open64;
+; return 0; }
+configure:4589: gcc -c  -pipe  conftest.c 1>&5
+configure: In function 'main':
+configure:4585:19: error: 'open64' undeclared (first use in this function)
+ char *p = (char *)open64;
+                   ^
+configure:4585:19: note: each undeclared identifier is reported only once for each function it appears in
+configure: failed program was:
+#line 4581 "configure"
+#include "confdefs.h"
+#define _LARGEFILE_SOURCE64 1
+#include <sys/stat.h>
+int main() {
+char *p = (char *)open64;
+; return 0; }
+configure:4620: checking for 64-bit integer type
+configure:4635: gcc -c  -pipe  conftest.c 1>&5
+configure: In function 'main':
+configure:4631:1: error: unknown type name '__int64'
+ __int64 value = (__int64) 0;
+ ^
+configure:4631:18: error: '__int64' undeclared (first use in this function)
+ __int64 value = (__int64) 0;
+                  ^
+configure:4631:18: note: each undeclared identifier is reported only once for each function it appears in
+configure:4631:27: error: expected ',' or ';' before numeric constant
+ __int64 value = (__int64) 0;
+                           ^
+configure: failed program was:
+#line 4628 "configure"
+#include "confdefs.h"
+
+int main() {
+__int64 value = (__int64) 0;
+; return 0; }
+configure:4658: gcc -c  -pipe  conftest.c 1>&5
+configure: In function 'main':
+configure:4653:21: error: duplicate case value
+             case 1: case (sizeof(${tcl_type_64bit})==sizeof(long)): ;
+                     ^
+configure:4653:13: error: previously used here
+             case 1: case (sizeof(${tcl_type_64bit})==sizeof(long)): ;
+             ^
+configure: failed program was:
+#line 4649 "configure"
+#include "confdefs.h"
+
+int main() {
+switch (0) {
+            case 1: case (sizeof(long long)==sizeof(long)): ;
+        }
+; return 0; }
+configure:4854: checking whether byte ordering is bigendian
+configure:4872: gcc -c  -pipe  conftest.c 1>&5
+configure:4887: gcc -c  -pipe  conftest.c 1>&5
+configure: In function 'main':
+configure:4882:2: error: unknown type name 'not'
+  not big endian
+  ^
+configure:4882:10: error: expected '=', ',', ';', 'asm' or '__attribute__' before 'endian'
+  not big endian
+          ^
+configure: failed program was:
+#line 4876 "configure"
+#include "confdefs.h"
+#include <sys/types.h>
+#include <sys/param.h>
+int main() {
+
+#if BYTE_ORDER != BIG_ENDIAN
+ not big endian
+#endif
+; return 0; }
+configure:4953: checking for getcwd
+configure:4981: gcc -o conftest  -pipe   -Wl,--export-dynamic conftest.c  1>&5
+configure:5015: checking for opendir
+configure:5043: gcc -o conftest  -pipe   -Wl,--export-dynamic conftest.c  1>&5
+configure:5015: checking for strstr
+configure:5043: gcc -o conftest  -pipe   -Wl,--export-dynamic conftest.c  1>&5
+configure:5027:6: warning: conflicting types for built-in function 'strstr' [enabled by default]
+ char $ac_func();
+      ^
+configure:5015: checking for strtol
+configure:5043: gcc -o conftest  -pipe   -Wl,--export-dynamic conftest.c  1>&5
+configure:5015: checking for strtoll
+configure:5043: gcc -o conftest  -pipe   -Wl,--export-dynamic conftest.c  1>&5
+configure:5015: checking for strtoull
+configure:5043: gcc -o conftest  -pipe   -Wl,--export-dynamic conftest.c  1>&5
+configure:5015: checking for tmpnam
+configure:5043: gcc -o conftest  -pipe   -Wl,--export-dynamic conftest.c  1>&5
+/tmp/ccOsPSn8.o: In function `main':
+conftest.c:(.text+0xa): warning: the use of `tmpnam' is dangerous, better use `mkstemp'
+configure:5015: checking for waitpid
+configure:5043: gcc -o conftest  -pipe   -Wl,--export-dynamic conftest.c  1>&5
+configure:5070: checking for strerror
+configure:5098: gcc -o conftest  -pipe   -Wl,--export-dynamic conftest.c  1>&5
+configure:5122: checking for getwd
+configure:5150: gcc -o conftest  -pipe   -Wl,--export-dynamic conftest.c  1>&5
+/tmp/ccoQxC3c.o: In function `main':
+conftest.c:(.text+0xa): warning: the `getwd' function is dangerous and should not be used.
+configure:5174: checking for wait3
+configure:5202: gcc -o conftest  -pipe   -Wl,--export-dynamic conftest.c  1>&5
+configure:5226: checking for uname
+configure:5254: gcc -o conftest  -pipe   -Wl,--export-dynamic conftest.c  1>&5
+configure:5285: checking for realpath
+configure:5313: gcc -o conftest  -pipe   -Wl,--export-dynamic conftest.c  1>&5
+configure:6296: checking for sys/modem.h
+configure:6306: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:6302:23: fatal error: sys/modem.h: No such file or directory
+ #include <$ac_hdr>
+                       ^
+compilation terminated.
+configure: failed program was:
+#line 6301 "configure"
+#include "confdefs.h"
+#include <sys/modem.h>
+configure:6333: checking termios vs. termio vs. sgtty
+configure:6357: gcc -o conftest  -pipe   -Wl,--export-dynamic conftest.c  1>&5
+configure:6568: checking for fd_set in sys/types
+configure:6581: gcc -c  -pipe  conftest.c 1>&5
+configure:6640: checking whether struct tm is in sys/time.h or time.h
+configure:6653: gcc -c  -pipe  conftest.c 1>&5
+configure:6678: checking for sys/time.h
+configure:6688: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:6715: checking whether time.h and sys/time.h may both be included
+configure:6729: gcc -c  -pipe  conftest.c 1>&5
+configure:6750: checking for tm_zone in struct tm
+configure:6763: gcc -c  -pipe  conftest.c 1>&5
+configure:6823: checking for gmtime_r
+configure:6851: gcc -o conftest  -pipe   -Wl,--export-dynamic conftest.c  1>&5
+configure:6823: checking for localtime_r
+configure:6851: gcc -o conftest  -pipe   -Wl,--export-dynamic conftest.c  1>&5
+configure:6877: checking tm_tzadj in struct tm
+configure:6890: gcc -c  -pipe  conftest.c 1>&5
+configure: In function 'main':
+configure:6886:17: error: 'struct tm' has no member named 'tm_tzadj'
+ struct tm tm; tm.tm_tzadj;
+                 ^
+configure: failed program was:
+#line 6883 "configure"
+#include "confdefs.h"
+#include <time.h>
+int main() {
+struct tm tm; tm.tm_tzadj;
+; return 0; }
+configure:6911: checking tm_gmtoff in struct tm
+configure:6924: gcc -c  -pipe  conftest.c 1>&5
+configure:6949: checking long timezone variable
+configure:6964: gcc -c  -pipe  conftest.c 1>&5
+configure: In function 'main':
+configure:6960:6: warning: incompatible implicit declaration of built-in function 'exit' [enabled by default]
+      exit (0);
+      ^
+configure:7030: checking for st_blksize in struct stat
+configure:7043: gcc -c  -pipe  conftest.c 1>&5
+configure:7065: checking for fstatfs
+configure:7093: gcc -o conftest  -pipe   -Wl,--export-dynamic conftest.c  1>&5
+configure:7122: checking for 8-bit clean memcmp
+configure:7140: gcc -o conftest  -pipe   -Wl,--export-dynamic conftest.c  1>&5
+configure: In function 'main':
+configure:7135:3: warning: incompatible implicit declaration of built-in function 'exit' [enabled by default]
+   exit(memcmp(&c0, &c2, 1) < 0 && memcmp(&c1, &c2, 1) < 0 ? 0 : 1);
+   ^
+configure:7164: checking for memmove
+configure:7192: gcc -o conftest  -pipe   -Wl,--export-dynamic conftest.c  1>&5
+configure:7176:6: warning: conflicting types for built-in function 'memmove' [enabled by default]
+ char memmove();
+      ^
+configure:7225: checking proper strstr implementation
+configure:7243: gcc -o conftest  -pipe   -Wl,--export-dynamic conftest.c  1>&5
+configure:7236:13: warning: conflicting types for built-in function 'strstr' [enabled by default]
+  extern int strstr();
+             ^
+configure: In function 'main':
+configure:7239:6: warning: incompatible implicit declaration of built-in function 'exit' [enabled by default]
+      exit(strstr("\0test", "test") ? 1 : 0);
+      ^
+configure:7270: checking for strtoul
+configure:7298: gcc -o conftest  -pipe   -Wl,--export-dynamic conftest.c  1>&5
+configure:7320: checking proper strtoul implementation
+configure:7345: gcc -o conftest  -pipe   -Wl,--export-dynamic conftest.c  1>&5
+configure: In function 'main':
+configure:7339:3: warning: incompatible implicit declaration of built-in function 'exit' [enabled by default]
+   exit(1);
+   ^
+configure:7341:6: warning: incompatible implicit declaration of built-in function 'exit' [enabled by default]
+      exit(0);
+      ^
+configure:7374: checking for strtod
+configure:7402: gcc -o conftest  -pipe   -Wl,--export-dynamic conftest.c  1>&5
+configure:7424: checking proper strtod implementation
+configure:7449: gcc -o conftest  -pipe   -Wl,--export-dynamic conftest.c  1>&5
+configure: In function 'main':
+configure:7443:3: warning: incompatible implicit declaration of built-in function 'exit' [enabled by default]
+   exit(1);
+   ^
+configure:7445:6: warning: incompatible implicit declaration of built-in function 'exit' [enabled by default]
+      exit(0);
+      ^
+configure:7481: checking for strtod
+configure:7531: checking for Solaris2.4/Tru64 strtod bugs
+configure:7563: gcc -o conftest  -pipe   -Wl,--export-dynamic conftest.c  1>&5
+configure: In function 'main':
+configure:7549:4: warning: incompatible implicit declaration of built-in function 'exit' [enabled by default]
+    exit(1);
+    ^
+configure:7553:4: warning: incompatible implicit declaration of built-in function 'exit' [enabled by default]
+    exit(1);
+    ^
+configure:7557:4: warning: incompatible implicit declaration of built-in function 'exit' [enabled by default]
+    exit(1);
+    ^
+configure:7559:7: warning: incompatible implicit declaration of built-in function 'exit' [enabled by default]
+       exit(0);
+       ^
+configure:7594: checking for ANSI C header files
+configure:7607: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:7674: gcc -o conftest  -pipe   -Wl,--export-dynamic conftest.c  1>&5
+configure: In function 'main':
+configure:7669:67: warning: incompatible implicit declaration of built-in function 'exit' [enabled by default]
+ if (XOR (islower (i), ISLOWER (i)) || toupper (i) != TOUPPER (i)) exit(2);
+                                                                   ^
+configure:7698: checking for mode_t
+configure:7731: checking for pid_t
+configure:7764: checking for size_t
+configure:7797: checking for uid_t in sys/types.h
+configure:7832: checking for socklen_t
+configure:7877: checking for opendir
+configure:7938: checking union wait
+configure:7956: gcc -o conftest  -pipe   -Wl,--export-dynamic conftest.c  1>&5
+configure:7983: checking for strncasecmp
+configure:8011: gcc -o conftest  -pipe   -Wl,--export-dynamic conftest.c  1>&5
+configure:7995:6: warning: conflicting types for built-in function 'strncasecmp' [enabled by default]
+ char strncasecmp();
+      ^
+configure:8131: checking for gettimeofday
+configure:8159: gcc -o conftest  -pipe   -Wl,--export-dynamic conftest.c  1>&5
+configure:8183: checking for gettimeofday declaration
+configure:8220: checking whether char is unsigned
+configure:8283: checking signed char declarations
+configure:8299: gcc -c  -pipe  conftest.c 1>&5
+configure:8324: checking for a putenv() that copies the buffer
+configure:8355: gcc -o conftest  -pipe   -Wl,--export-dynamic conftest.c  1>&5
+configure: In function 'main':
+configure:8340:20: warning: incompatible implicit declaration of built-in function 'strdup' [enabled by default]
+      foo = (char *)strdup(OURVAR);
+                    ^
+configure:8342:6: warning: incompatible implicit declaration of built-in function 'strcpy' [enabled by default]
+      strcpy((char *)(strchr(foo, '=') + 1), "no");
+      ^
+configure:8342:22: warning: incompatible implicit declaration of built-in function 'strchr' [enabled by default]
+      strcpy((char *)(strchr(foo, '=') + 1), "no");
+                      ^
+configure:8395: checking for langinfo.h
+configure:8405: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:8429: checking whether to use nl_langinfo
+configure:8443: gcc -c  -pipe  conftest.c 1>&5
+configure:8824: checking for fts
+configure:8845: gcc -o conftest  -pipe   -Wl,--export-dynamic conftest.c  1>&5
+configure:8877: checking for sys/ioctl.h
+configure:8887: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:8917: checking for sys/filio.h
+configure:8927: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:8923:23: fatal error: sys/filio.h: No such file or directory
+ #include <$ac_hdr>
+                       ^
+compilation terminated.
+configure: failed program was:
+#line 8922 "configure"
+#include "confdefs.h"
+#include <sys/filio.h>
+configure:8955: checking system version
+configure:8986: checking FIONBIO vs. O_NONBLOCK for nonblocking I/O
+configure:9102: checking whether to enable DTrace support
+configure:9132: checking whether the cpuid instruction is usable
+configure:9153: gcc -o conftest  -pipe   -Wl,--export-dynamic conftest.c  1>&5

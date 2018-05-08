@@ -16,13 +16,15 @@ AddToolWidget::AddToolWidget(QWidget *parent) :
     connect(ui->btn_path,SIGNAL(clicked()),this,SLOT(openFileDialog()));
     connect(ui->btn_ok,SIGNAL(clicked()),this,SLOT(saveTool()));
     connect(ui->btn_cancel,SIGNAL(clicked()),this,SLOT(close()));
-    connect(ui->lineEdit_name,SIGNAL(textChanged(QString)),this,SLOT(toolValidate()));
-    connect(ui->lineEdit_path,SIGNAL(textChanged(QString)),this,SLOT(toolValidate()));
-    ui->lineEdit_name->setPlaceholderText(QString::fromUtf8("例如7.0_R11"));
+    //ui->lineEdit_name->setPlaceholderText(QString::fromUtf8("例如7.0_R11"));
+    ui->lineEdit_name->setReadOnly(true);
     ui->lineEdit_path->setReadOnly(true);
+    ui->lineEdit_platform->setReadOnly(true);
+    ui->lineEdit_type->setReadOnly(true);
     ui->btn_ok->setDisabled(true);
     setWindowModality(Qt::ApplicationModal);
     setWindowTitle(QString::fromUtf8("添加工具"));
+    ui->groupBox->setVisible(false);
 }
 
 AddToolWidget::~AddToolWidget()
@@ -43,7 +45,7 @@ QMap<QString, QString> AddToolWidget::getToolInfo(QString path)
 
 void AddToolWidget::openFileDialog()
 {
-    mToolPath = QFileDialog::getOpenFileName(this, QString::fromUtf8("选择脚本"), "/home", QString::fromUtf8("脚本文件(cts-tradefed gts-tradefed)"));
+    mToolPath = QFileDialog::getOpenFileName(this, QString::fromUtf8("选择脚本"), "/home", QString::fromUtf8("启动脚本(*-tradefed)"));
     ui->lineEdit_path->setText(mToolPath);
     QDir rootDir(QString("%1/../../..").arg(mToolPath));
     rootDir.setPath(rootDir.absolutePath());
@@ -51,12 +53,19 @@ void AddToolWidget::openFileDialog()
     ui->lineEdit_name->setText(dirName);
     QStringList list = dirName.split("_");
     if(list.size() == 3){
-
+        ui->lineEdit_name->setText(dirName);
+        ui->lineEdit_type->setText(list.at(0));
+        ui->lineEdit_platform->setText(list.at(1));
+        ui->lineEdit_version->setText(list.at(2));
+        ui->label_warning->setVisible(false);
     }else{
-
+        ui->label_warning->setVisible(true);
+        ui->label_warning->setText(QString::fromUtf8("<font color=red>无法获取工具信息，请确保文件夹命名格式标准，例如CTS_7.0_r10</font>"));
     }
+    ui->groupBox->setVisible(!ui->lineEdit_path->text().isEmpty());
+    ui->btn_ok->setEnabled(!ui->lineEdit_name->text().isEmpty() && !ui->lineEdit_path->text().isEmpty()
+                                             && !ui->lineEdit_platform->text().isEmpty() && !ui->lineEdit_type->text().isEmpty());
     qDebug()<<"[AddToolWidget]root dir name:"<<dirName;
-
 }
 
 void AddToolWidget::saveTool()
@@ -64,26 +73,21 @@ void AddToolWidget::saveTool()
     SqlConnection *conn=SqlConnection::getInstance();
     if(conn->connect())
     {
-        QString query=QString("select * from Tool where path ='%1'").arg(mToolPath);
+        QString query = QString("select * from Tool where path ='%1'").arg(mToolPath);
         if(conn->execSql(query).isEmpty()){
-            query=QString("insert into Tool(name,path,platform,version) values('%1','%2','%3','%4')")
-                           .arg(ui->lineEdit_name->text()).arg(ui->lineEdit_path->text()).arg("").arg("");
+            query = QString("insert into Tool(name,path,platform,version,type) values('%1','%2','%3','%4','%5')")
+                           .arg(ui->lineEdit_name->text()).arg(ui->lineEdit_path->text()).arg(ui->lineEdit_platform->text())
+                           .arg(ui->lineEdit_version->text()).arg(ui->lineEdit_type->text());
+            qDebug()<<"[AddToolWidget]add tool:"<<query;
             conn->execSql(query);
         }else{
             QMessageBox::warning(this,QString::fromUtf8("错误"),QString::fromUtf8("工具已存在！"));
             return;
         }
-
     }
-    else QMessageBox::warning(this,QString::fromUtf8("错误"),QString::fromUtf8("打开数据库失败！"));
-
     emit toolAdded();
     close();
 }
 
-void AddToolWidget::toolValidate()
-{
-    ui->btn_ok->setEnabled(!ui->lineEdit_name->text().isEmpty() && !ui->lineEdit_path->text().isEmpty());
-}
 
 

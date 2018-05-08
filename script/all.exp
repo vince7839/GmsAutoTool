@@ -1,12 +1,12 @@
 #!/usr/bin/expect
 spawn bash -c "[lindex $argv 0]"
-puts "path:[lindex $argv 0]"
-puts "cmd :[lindex $argv 1]"
+puts "\[GmsAutoTool\]tool path:[lindex $argv 0]"
+puts "\[GmsAutoTool\]run cmd:[lindex $argv 1]"
+puts "\r\[GmsAutoTool\]test name:[lindex $argv 2]"
 expect {
   "Detected new device" { send "[lindex $argv 1]\n";expect eof}
   "124555555" { send "1\n";expect eof} 
   "2965412555" { send "2\n";expect eof}
   "358452694" { send "3\n";expect eof}
 }
-interact
- 
+interact 

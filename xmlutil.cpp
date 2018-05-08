@@ -39,19 +39,24 @@ void XmlUtil::parseChildren(QDomNode node)
     }
 }
 
-QDomNode XmlUtil::getChildNode(QDomNode node, QStringList attrs, QStringList attrValues)
+QDomNode XmlUtil::getChildNode(QDomNode root, QString name, QMap<QString, QString> attr)
 {
-    for(int i=0;i<node.childNodes().size();i++)
+    QStringList attrNames = attr.keys();
+    for(int i=0;i<root.childNodes().size();i++)
     {
-        for(int j=0;j<attrs.size();j++)
+        QDomNode child = root.childNodes().at(i);
+        if(child.nodeName() == name)
         {
-            if(node.childNodes().at(i).attributes().namedItem(attrs.at(j)).nodeValue()
-                != attrValues.at(j))
-                break;
-            if(j == attrs.size()-1) return node.childNodes().at(i);
-        }
-
+            for(int j=0;j<attrNames.size();j++)
+            {
+                QString key = attrNames.at(j);
+                if(child.attributes().namedItem(key).nodeValue()
+                    != attr.value(key))
+                    break;
+                if(j == attrNames.size() - 1)
+                    return child;
+            }
+         }
     }
-
     return QDomNode();
 }

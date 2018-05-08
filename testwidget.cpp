@@ -3,7 +3,7 @@
 #include"addtestwidget.h"
 #include"QProcess"
 #include "QDebug"
-#include"configquery.h"
+#include"config.h"
 #include<QNetworkInterface>
 #include<QFileSystemWatcher>
 #include<QProgressBar>
@@ -27,7 +27,7 @@ TestWidget::TestWidget(QWidget *parent) :
     connect(mTimer,SIGNAL(timeout()),this,SLOT(updateTime()));
     mFileWatcher = new QFileSystemWatcher;
     connect(mFileWatcher,SIGNAL(fileChanged(QString)),this,SLOT(onFileChanged(QString)));
-    ui->pushButton->setVisible(false);
+  //  ui->pushButton->setVisible(false);
 }
 
 TestWidget::~TestWidget()
@@ -43,11 +43,13 @@ void TestWidget::parseOutput(QString path,QString output)
     QRegExp testFinishReg(".*([0-9]+:[0-9]+:[0-9]+).*([0-9]+)/([0-9]+) .* (.*) .* .*#(.*) (pass|fail).*");
     QRegExp nameReg("\\[GmsAutoTool\\]test name:(.*)");
     ProgressView* view = mViewMap.value(path);
-    if(view == NULL){
+    if(view == NULL)
+    {
         return;
     }
     view->checkTime.restart();
-    if(expectTimeReg.exactMatch(output)){
+    if(expectTimeReg.exactMatch(output))
+    {
         qDebug()<<"[TestWidget]output matches 'expect time'";
         QString moduleNum = expectTimeReg.capturedTexts().at(1);
         int num = moduleNum.toInt();
@@ -87,6 +89,21 @@ void TestWidget::parseOutput(QString path,QString output)
     }
 }
 
+QString TestWidget::getCmdPlatform(QString num)
+{
+    QStringList numPrefix;
+    numPrefix<<"8"<<"7"<<"6"<<"5";
+    QStringList platforms;
+    platforms<<"O"<<"N"<<"M"<<"L";
+    for(int i=0;i<numPrefix.size();i++)
+    {
+        if(num.startsWith(numPrefix.at(i))){
+            return platforms.at(i);
+        }
+    }
+    return platforms.first();//没找到对应平台则使用默认最新命令
+}
+
 void TestWidget::newTest()
 {
     AddTestWidget*w=new AddTestWidget;
@@ -101,11 +118,12 @@ void TestWidget::startTest(QMap<QString,QString> map)
     file.open(QIODevice::ReadWrite|QIODevice::Text);
     file.close();
     mFileWatcher->addPath(tempName);
-    QProcess*p=new QProcess(this);
+    QProcess*p=new QProcess;
     QStringList arg;
     QString toolPath = map.value("path");
     QString platform = map.value("platform");
-    arg<<toolPath<<ConfigQuery::getCommand(ConfigQuery::CTS_CMD,"N","all")<<tempName<<map.value("name");
+    QString device = map.value("device");
+    arg<<toolPath<<Config::getTestCmd(Config::CTS,getCmdPlatform(platform),Config::ACTION_ALL)<<device<<tempName<<map.value("name");
     qDebug()<<"[TestWidget]start test:"<<arg;
     p->start("script/start-test.sh",arg);
     map.insert("testId",tempName);
@@ -123,24 +141,17 @@ void TestWidget::on_pushButton_clicked()
 {
   /*  QNetworkInterface i = QNetworkInterface::interfaceFromName("eth0");
       qDebug()<<i.hardwareAddress();*/
-   /* QRegExp reg(".*([0-9]+:[0-9]+:[0-9]+).*([0-9]+)/([0-9]+) .* (.*) .* .*#(.*) (pass|fail).*");
-       QString s = "04-11 14:05:33 I/ConsoleReporter: [35452/35452 armeabi-v7a CtsDeqpTestCases 0123456789ABCDEF] dEQP-GLES31.functional.default_vertex_array_object#vertex_attrib_divisor pass";
-       qDebug()<<reg.exactMatch(s);
-       qDebug()<<reg.capturedTexts();*/
-    //QProcess* p = new QProcess;
-    //p->start("./1.sh");
-   // p->start("script/start-test.sh",QStringList()<<"/home/liaowenxing/GMS/CTS/N/CTS_7.0_r10/android-cts/tools/cts-tradefed"<<"run cts"<<"temp/1.txt");
-    //restoreView();
 
-    int interval = QDateTime::currentMSecsSinceEpoch() - 1523511058;
-    int h = interval/(60*60);
-    int m = interval/60 - h*60;
-    int s = interval - h*60*60 - m*60;
-    QString hour = QString(h>9?"%1":"0%1").arg(h);
-    QString minute = QString(m>9?"%1":"0%1").arg(m);
-    QString second = QString(s>9?"%1":"0%1").arg(s);
-    qDebug()<<interval<<" "<<QString("%1:%2:%3").arg(hour).arg(minute).arg(second);
+qDebug()<<Config::getTestCmd(Config::CTS,"N",Config::ACTION_ALL);
+qDebug()<<Config::getTestCmd(Config::CTS,"Y",Config::ACTION_ALL);
 
+pa = new QProcess;
+connect(pa,SIGNAL(readyRead()),this,SLOT(testOut()));
+QStringList arg;
+//arg<<"l"<<"r";
+arg<<"run"<<"cts";
+pa->start("/home/liaowenxing/GMS/CTS/N/CTS_7.0_r10/android-cts/tools/cts-tradefed",arg);
+//pa->start("script/test.sh");
 }
 
 void TestWidget::updateContent(){}
@@ -239,4 +250,9 @@ void TestWidget::restoreView()
             }
         }
     }
+}
+
+void TestWidget::testOut()
+{
+    qDebug()<<pa->readAll();
 }

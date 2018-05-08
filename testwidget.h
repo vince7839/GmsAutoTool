@@ -30,10 +30,12 @@ public slots:
     void addTestProgress(QMap<QString,QString>);
     void updateTime();
     void restoreView();
+    void testOut();
 public:
     explicit TestWidget(QWidget *parent = 0);
     ~TestWidget();
     void parseOutput(QString,QString);
+    QString getCmdPlatform(QString);
 private slots:
     void on_pushButton_clicked();
 
@@ -46,6 +48,7 @@ private:
     QMap<QString,ProgressView*> mViewMap;
     QProcess* pa;
     QFileSystemWatcher* mFileWatcher;
+
 };
 
 class TestWidget::ProgressView

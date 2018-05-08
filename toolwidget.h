@@ -13,6 +13,7 @@ class ToolWidget : public QWidget,public Updatable
     Q_OBJECT
 public:
     void updateContent();
+    QString getIconPath(QString);
 public slots:
     void openAddWidget();
     void enableDelBtn();

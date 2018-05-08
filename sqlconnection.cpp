@@ -7,6 +7,7 @@
 #include<QSqlRecord>
 #include<QSqlField>
 #include<QDebug>
+#include<QMessageBox>
 SqlConnection*SqlConnection::mConn;
 const QString SqlConnection::CONFIG = "Config";
 const QString SqlConnection::CONFIG_GRAB_SCREEN = "allow_grab_screen";
@@ -21,7 +22,12 @@ SqlConnection::SqlConnection()
 
 bool SqlConnection::connect()
 {
-    return db.open();
+    if(!db.open())
+    {
+        QMessageBox::warning(NULL,QString::fromUtf8("警告"),QString::fromUtf8("连接数据库失败！"));
+        return false;
+    }
+    return true;
 }
 
 void SqlConnection::close(){

@@ -1,17 +1,32 @@
 <?xml version='1.0' encoding='UTF-8' standalone='no'?>
 <Config>
-<CtsCommands>
+<Test type="CTS">
     <Action name="all">
+        <Command>run cts</Command>
         <Command platform="N">run cts</Command>
     </Action>
     <Action name="plan">
+        <Command>run cts --plan</Command>
         <Command platform="N">run cts --plan</Command>
     </Action>
-</CtsCommands>
+</Test>
+
+<Test type="GTS">
+    <Action name="all">
+        <Command>run gts</Command>
+        <Command platform="N">run gts</Command>
+    </Action>
+    <Action name="plan">
+        <Command>run gts</Command>
+        <Command platform="N">run gts --plan</Command>
+    </Action>
+</Test>
 
 <Server>
    <Ip name="127">192.168.3.127</Ip>
    <Ip name="31">192.168.0.31</Ip>
 </Server>
+
+
 
 </Config>

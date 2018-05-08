@@ -4,7 +4,7 @@
 #include <QRadioButton>
 #include <QLabel>
 #include <QButtonGroup>
-#include <configquery.h>
+#include <config.h>
 #include <sqlconnection.h>
 #include<QDebug>
 #include<QSettings>
@@ -16,17 +16,17 @@ SettingsWidget::SettingsWidget(QWidget *parent) :
     ui->setupUi(this);
     mScrollLayout = new QVBoxLayout;
 
-    QStringList TWO_STATES_OPTIONS = QStringList()<<ConfigQuery::SETTING_LABEL_ON<<ConfigQuery::SETTING_LABEL_OFF;
+    QStringList TWO_STATES_OPTIONS = QStringList()<<Config::SETTING_LABEL_ON<<Config::SETTING_LABEL_OFF;
     QStringList NO_OPTION = QStringList();
     QList<SubSetting> remoteSettings;
     remoteSettings.append(SubSetting(QString::fromUtf8("允许远程屏幕抓取")
-                                     ,TWO_STATES_OPTIONS,ConfigQuery::SETTING_GRAB_SCREEN));
+                                     ,TWO_STATES_OPTIONS,Config::SETTING_GRAB_SCREEN));
     remoteSettings.append(SubSetting(QString::fromUtf8("允许远程发送文件")
-                                     ,TWO_STATES_OPTIONS,ConfigQuery::SETTING_RECV_FILE));
+                                     ,TWO_STATES_OPTIONS,Config::SETTING_RECV_FILE));
     addRadioModels(QString::fromUtf8("远程"),remoteSettings);
 
     QList<SubSetting> versionSettings;
-    versionSettings.append(SubSetting(QString::fromUtf8("当前版本:")+ConfigQuery::VERSION,NO_OPTION,ConfigQuery::SETTING_NO_KEY));
+    versionSettings.append(SubSetting(QString::fromUtf8("当前版本:")+Config::VERSION,NO_OPTION,Config::SETTING_NO_KEY));
     addRadioModels(QString::fromUtf8("版本号"),versionSettings);
 
     mScrollLayout->addStretch();

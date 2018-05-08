@@ -5,7 +5,7 @@
 #include<QMessageBox>
 #include<QHostInfo>
 #include<logutil.h>
-#include<configquery.h>
+#include<config.h>
 #include<QApplication>
 #include<QDesktopWidget>
 #include<QFile>
@@ -35,7 +35,7 @@ SocketUtil::SocketUtil()
 {
 
     mUdpSocket=new QUdpSocket;
-    if( ! mUdpSocket->bind(ConfigQuery::UDP_PORT) ){
+    if( ! mUdpSocket->bind(Config::UDP_PORT) ){
         qDebug()<<"udp bind fail!";
     }
     connect(mUdpSocket,SIGNAL(readyRead()),this,SLOT(recvUdp()));
@@ -49,7 +49,7 @@ SocketUtil::SocketUtil()
 
     mTcpServer=new QTcpServer;
     connect(mTcpServer,SIGNAL(newConnection()),this,SLOT(newConnect()));
-    if( !mTcpServer->listen(QHostAddress::Any,ConfigQuery::TCP_PORT) )
+    if( !mTcpServer->listen(QHostAddress::Any,Config::TCP_PORT) )
     {
         QMessageBox::warning(0,QString::fromUtf8(""),QString::fromUtf8("tcp listen error!"));
     }
@@ -74,21 +74,21 @@ void SocketUtil::sendUdp(QMap<QString, QVariant> msg)
     QDataStream out(&block,QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_5_6);
     out<<msg;
-    mUdpSocket->writeDatagram(block,QHostAddress::Broadcast,ConfigQuery::UDP_PORT) ;//也会给自己发一份
+    mUdpSocket->writeDatagram(block,QHostAddress::Broadcast,Config::UDP_PORT) ;//也会给自己发一份
     qDebug()<<"sendUdp:"<<msg;
 }
 
 void SocketUtil::handleMessage(QMap<QString, QVariant> msg)
 {
     qDebug()<<"handleMessage:"<<msg.value(KEY_FROM_IP).toString()<<" "<<msg.value(KEY_MSG_TYPE);
-    if(/*msg.value("fromIP") == getMyIP()*/msg.value("key") == ConfigQuery::KEY)
+    if(/*msg.value("fromIP") == getMyIP()*/msg.value("key") == Config::KEY)
    {
      qDebug()<<"recv myself message";
     // return;
    }
    QMap<QString,QVariant> map;
    map.insert(KEY_TO_IP,msg.value(KEY_FROM_IP));
-   map.insert("key",ConfigQuery::KEY);
+   map.insert("key",Config::KEY);
    switch(msg.value(KEY_MSG_TYPE).toInt())
    {
     case MSG_FIND_SERVER:
@@ -113,7 +113,7 @@ void SocketUtil::handleMessage(QMap<QString, QVariant> msg)
           emit onUserFounded(msg);
           break;
     case MSG_EXPECT_SCREEN:
-          if(ConfigQuery::isAllowed(ConfigQuery::SETTING_GRAB_SCREEN))
+          if(Config::isAllowed(Config::SETTING_GRAB_SCREEN))
           {
               map.insert(KEY_MSG_TYPE,MSG_FILE_SCREEN);
               sendFile(map);
@@ -137,7 +137,7 @@ void SocketUtil::handleMessage(QMap<QString, QVariant> msg)
         break;
    case MSG_FILE_DOCUMENT:
         qDebug()<<"MSG_FILE_DOCUMENT";
-        if(ConfigQuery::isAllowed(ConfigQuery::SETTING_RECV_FILE)){
+        if(Config::isAllowed(Config::SETTING_RECV_FILE)){
             QDir dir = QDir::current();
             qDebug()<<dir.currentPath();
             if( !dir.exists("FileRecv")){
@@ -194,7 +194,7 @@ void SocketUtil::sendTcp(QMap<QString, QVariant> param)
     out<<param;
     out.device()->seek(0);
     out<<(qint64)(block.size()-sizeof(qint64));
-    mTcpSocketSelf->connectToHost(param.value(KEY_TO_IP).toString(),ConfigQuery::TCP_PORT);
+    mTcpSocketSelf->connectToHost(param.value(KEY_TO_IP).toString(),Config::TCP_PORT);
     if(mTcpSocketSelf->waitForConnected()){
         qDebug()<<"tcp write";
         mTcpSocketSelf->write(block);
