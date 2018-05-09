@@ -12,6 +12,7 @@
 #include<QLabel>
 #include<QTimer>
 #include<QDir>
+#include<QMessageBox>
 
 TestWidget::TestWidget(QWidget *parent) :
     QWidget(parent),
@@ -107,22 +108,32 @@ QString TestWidget::getCmdPlatform(QString num)
 void TestWidget::newTest()
 {
     AddTestWidget*w=new AddTestWidget;
-    connect(w,SIGNAL(postStart(QMap<QString,QString>)),this,SLOT(startTest(QMap<QString,QString>)));
+    connect(w,SIGNAL(postStart(QMap<QString,QString>,QSet<QString>))
+            ,this,SLOT(startTest(QMap<QString,QString>,QSet<QString>)));
     w->show();
 }
 
-void TestWidget::startTest(QMap<QString,QString> map)
+void TestWidget::startTest(QMap<QString,QString> map, QSet<QString> set)
 {
+    qDebug()<<map;
+    qDebug()<<set;
     QString tempName = QString("temp/%1").arg(QDateTime::currentMSecsSinceEpoch());
-    QFile file(tempName);
-    file.open(QIODevice::ReadWrite|QIODevice::Text);
-    file.close();
-    mFileWatcher->addPath(tempName);
     QString toolPath = map.value("path");
     QString platform = map.value("platform");
     QString device = map.value("device");
-    QString printInfo = QString("[GmsAutoTool]test name:%1").arg(map.value("name"));
-    QString bashCmd = QString("trap 'rm %5' SIGHUP SIGINT;echo '%1';(%2 %3 -s %4;rm %5)|tee %5;exec bash").arg(printInfo).arg(toolPath)
+    QString printInfo = QString("[GmsAutoTool]test name:%1\n").arg(map.value("name"));
+    QFile file(tempName);    
+    if(file.open(QIODevice::WriteOnly))
+    {
+       QTextStream stream(&file);
+       stream<<printInfo;
+       file.close();
+    }else{
+       QMessageBox::warning(this,QString::fromUtf8("错误"),QString::fromUtf8("无法创建临时文件！"));
+       return;
+    }
+    mFileWatcher->addPath(tempName);
+    QString bashCmd = QString("trap 'rm %4' SIGHUP SIGINT;(%1 %2 -s %3;rm %4)|tee -a %4;exec bash").arg(toolPath)
             .arg(Config::getTestCmd(Config::CTS,getCmdPlatform(platform),Config::ACTION_ALL)).arg(device).arg(tempName);
     QStringList arg;
     arg<<"-x"<<"bash"<<"-c"<<bashCmd;

@@ -15,7 +15,7 @@ class AddTestWidget : public QWidget
 {
     Q_OBJECT
 signals:
-    void postStart(QMap<QString,QString>);
+    void postStart(QMap<QString,QString>,QSet<QString>);
 private slots:
     void toolFilter();
     void enableStart();
@@ -25,10 +25,12 @@ private slots:
     void updateTestName();
     void updateActionBox();
     void updateActionInfo();
+    void modulesChanged(bool);
 public:
     explicit AddTestWidget(QWidget *parent = 0);
     ~AddTestWidget();
     bool isListChanged(QStringList,QStringList);
+    void initBoxUi();
 protected:
      void closeEvent(QCloseEvent *event);
 
@@ -37,7 +39,10 @@ private:
     QList<QMap<QString,QString> > mToolList;
     QStringList mDeviceList;
     QTimer* mTimer;
-    QGroupBox* mInfoBox=NULL;
+    QGroupBox* mRetryBox;
+    QGroupBox* mModuleBox;
+    QGroupBox* mSingleBox;
+    QSet<QString> mModuleSet;
 };
 
 #endif // ADDTESTWIDGET_H
