@@ -118,14 +118,17 @@ void TestWidget::startTest(QMap<QString,QString> map)
     file.open(QIODevice::ReadWrite|QIODevice::Text);
     file.close();
     mFileWatcher->addPath(tempName);
-    QProcess*p=new QProcess;
-    QStringList arg;
     QString toolPath = map.value("path");
     QString platform = map.value("platform");
     QString device = map.value("device");
-    arg<<toolPath<<Config::getTestCmd(Config::CTS,getCmdPlatform(platform),Config::ACTION_ALL)<<device<<tempName<<map.value("name");
+    QString printInfo = QString("[GmsAutoTool]test name:%1").arg(map.value("name"));
+    QString bashCmd = QString("trap 'rm %5' SIGHUP SIGINT;echo '%1';(%2 %3 -s %4;rm %5)|tee %5;exec bash").arg(printInfo).arg(toolPath)
+            .arg(Config::getTestCmd(Config::CTS,getCmdPlatform(platform),Config::ACTION_ALL)).arg(device).arg(tempName);
+    QStringList arg;
+    arg<<"-x"<<"bash"<<"-c"<<bashCmd;
     qDebug()<<"[TestWidget]start test:"<<arg;
-    p->start("script/start-test.sh",arg);
+    QProcess* p = new QProcess;
+    p->start("gnome-terminal",arg);
     map.insert("testId",tempName);
     addTestProgress(map);
 }
@@ -149,8 +152,8 @@ pa = new QProcess;
 connect(pa,SIGNAL(readyRead()),this,SLOT(testOut()));
 QStringList arg;
 //arg<<"l"<<"r";
-arg<<"run"<<"cts";
-pa->start("/home/liaowenxing/GMS/CTS/N/CTS_7.0_r10/android-cts/tools/cts-tradefed",arg);
+//arg<<"run"<<"cts";
+//pa->start("/home/liaowenxing/GMS/CTS/N/CTS_7.0_r10/android-cts/tools/cts-tradefed",arg);
 //pa->start("script/test.sh");
 }
 
@@ -170,7 +173,7 @@ void TestWidget::onFileChanged(QString path)
             int startRow = view->rowIndex;
             for(int i = startRow;i < list.size();i++)
             {
-                qDebug()<<list.at(i);
+             //   qDebug()<<list.at(i);
                 QStringList lineList = list.at(i).split("\r");  //like aaa\rbbb\r,this list ("aaa","bbb","")
                 if(lineList.size() >= 2)
                 {
@@ -214,7 +217,7 @@ void TestWidget::updateTime()
    QList<ProgressView*> list = mViewMap.values();
    if(!list.isEmpty()){
        foreach (ProgressView* v, list) {
-           int interval = QDateTime::currentMSecsSinceEpoch() - v->startSec;
+           int interval = (QDateTime::currentMSecsSinceEpoch() - v->startSec)/1000;
            int h = interval/(60*60);
            int m = interval/60 - h*60;
            int s = interval - h*60*60 - m*60;
@@ -223,7 +226,7 @@ void TestWidget::updateTime()
            QString minute = QString(m>9?"%1":"0%1").arg(m);
            QString second = QString(s>9?"%1":"0%1").arg(s);
            QString displayTime = QString("%1:%2:%3").arg(hour).arg(minute).arg(second);
-           qDebug()<<interval<<" "<<displayTime;
+       //    qDebug()<<interval<<" "<<displayTime;
            v->labelRealTime->setText(displayTime);
            if(v->checkTime.elapsed() > 1000*60){ //10minutes
                v->labelRecent->setText(QString::fromUtf8("<font color=red>已10分钟无任何输出</font>"));

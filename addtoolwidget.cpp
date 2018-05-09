@@ -7,6 +7,7 @@
 #include<QDomNode>
 #include<QDir>
 #include<QDebug>
+#include<QProcess>
 
 AddToolWidget::AddToolWidget(QWidget *parent) :
     QWidget(parent),
@@ -47,25 +48,33 @@ void AddToolWidget::openFileDialog()
 {
     mToolPath = QFileDialog::getOpenFileName(this, QString::fromUtf8("选择脚本"), "/home", QString::fromUtf8("启动脚本(*-tradefed)"));
     ui->lineEdit_path->setText(mToolPath);
-    QDir rootDir(QString("%1/../../..").arg(mToolPath));
-    rootDir.setPath(rootDir.absolutePath());
-    QString dirName = rootDir.dirName();
-    ui->lineEdit_name->setText(dirName);
-    QStringList list = dirName.split("_");
-    if(list.size() == 3){
-        ui->lineEdit_name->setText(dirName);
-        ui->lineEdit_type->setText(list.at(0));
-        ui->lineEdit_platform->setText(list.at(1));
-        ui->lineEdit_version->setText(list.at(2));
-        ui->label_warning->setVisible(false);
-    }else{
-        ui->label_warning->setVisible(true);
-        ui->label_warning->setText(QString::fromUtf8("<font color=red>无法获取工具信息，请确保文件夹命名格式标准，例如CTS_7.0_r10</font>"));
+    QFileInfo info(mToolPath);
+    QString scriptName = info.fileName();
+    QString toolType = scriptName.left(3).toUpper();
+    ui->lineEdit_type->setText(toolType);
+    QProcess* p = new QProcess;
+    p->start(mToolPath);
+    if(p->waitForFinished())
+    {
+        QString output = p->readAll();
+        qDebug()<<output;
+        QStringList list = output.split("\n");
+        QString line = list.first();
+        QRegExp reg("Android (Google|Compatibility|Vendor) Test Suite (.*) .*");
+        if(reg.exactMatch(line))
+        {
+            QString platVersion = reg.cap(2);
+            qDebug()<<platVersion;
+            ui->lineEdit_platform->setText(platVersion.split("_").first());
+            ui->lineEdit_version->setText(platVersion.split("_").last());
+            ui->lineEdit_name->setText(QString("%1_%2").arg(toolType).arg(platVersion));
+        }else if(line.startsWith("bash:")){
+            qDebug()<<"tool permision denied";
+        }
     }
     ui->groupBox->setVisible(!ui->lineEdit_path->text().isEmpty());
     ui->btn_ok->setEnabled(!ui->lineEdit_name->text().isEmpty() && !ui->lineEdit_path->text().isEmpty()
                                              && !ui->lineEdit_platform->text().isEmpty() && !ui->lineEdit_type->text().isEmpty());
-    qDebug()<<"[AddToolWidget]root dir name:"<<dirName;
 }
 
 void AddToolWidget::saveTool()

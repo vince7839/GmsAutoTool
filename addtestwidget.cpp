@@ -28,7 +28,6 @@ AddTestWidget::AddTestWidget(QWidget *parent) :
     updateTestName();
     updateActionBox();
 
-    ui->groupBox->setVisible(false);
     mTimer = new QTimer;
     connect(mTimer,SIGNAL(timeout()),this,SLOT(updateDeviceBox()));
     mTimer->start(500);
@@ -135,11 +134,11 @@ void AddTestWidget::updateActionInfo()
 {
     QString action = ui->cbox_action->currentData().toString();
     QString toolPath = ui->cbox_tool->currentData().toString();
-    ui->groupBox->setVisible(action != Config::ACTION_ALL);
-   // delete ui->groupBox->layout()->re;
+    if(mInfoBox != NULL) mInfoBox->setVisible(action != Config::ACTION_ALL);
     qDebug()<<action;
     QProcess* p = new QProcess;
     QStringList arg;
+    QGroupBox* groupBox = new QGroupBox;
     if(action == Config::ACTION_RETRY)
     {
         arg<<"l"<<"r";
@@ -168,7 +167,8 @@ void AddTestWidget::updateActionInfo()
             QHBoxLayout* hLayout = new QHBoxLayout;
             hLayout->addWidget(label);
             hLayout->addWidget(cbox_session);
-            ui->groupBox->setLayout(hLayout);
+            groupBox->setLayout(hLayout);
+
         }
     }else if(action == Config::ACTION_MODULE){
         arg<<"l"<<"m";
@@ -182,6 +182,7 @@ void AddTestWidget::updateActionInfo()
             }
         }
     }else if(action == Config::ACTION_SINGLE){
+         QVBoxLayout* vLayout = new QVBoxLayout;
         QLabel* labelModule= new QLabel(QString::fromUtf8("模块"));
         QLineEdit* moduleEdit = new QLineEdit;
         QLabel* labelTest= new QLabel(QString::fromUtf8("Test"));
@@ -193,12 +194,13 @@ void AddTestWidget::updateActionInfo()
         hLayout2->addWidget(labelTest);
         hLayout2->addWidget(testEdit);
 
-        QVBoxLayout* vLayout = new QVBoxLayout;
         vLayout->addLayout(hLayout1);
         vLayout->addLayout(hLayout2);
-
-        ui->groupBox->setLayout(vLayout);
+        groupBox->setLayout(vLayout);
     }
+        delete mInfoBox;
+        ui->boxLayout->addWidget(groupBox);
+        mInfoBox = groupBox;
 }
 
 void AddTestWidget::toolFilter()

@@ -5,6 +5,7 @@
 #include <QMap>
 #include <QList>
 #include <QTimer>
+#include <QGroupBox>
 
 namespace Ui {
 class AddTestWidget;
@@ -36,6 +37,7 @@ private:
     QList<QMap<QString,QString> > mToolList;
     QStringList mDeviceList;
     QTimer* mTimer;
+    QGroupBox* mInfoBox=NULL;
 };
 
 #endif // ADDTESTWIDGET_H

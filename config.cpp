@@ -44,9 +44,9 @@ QString Config::getTestCmd(QString type,QString platform, QString action)
    QMap<QString,QString> map,map1,map2;
    map.insert("type",type);
    QDomNode testNode = XmlUtil::getChildNode(doc.namedItem("Config"),"Test",map);
-   map1.insert("name",platform);
+   map1.insert("name",action);
    QDomNode actionNode = XmlUtil::getChildNode(testNode,"Action",map1);
-   map2.insert("platform",action);
+   map2.insert("platform",platform);
    QDomNode cmdNode = XmlUtil::getChildNode(actionNode,"Command",map2);
    if(cmdNode.isNull())
    {
