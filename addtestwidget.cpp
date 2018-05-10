@@ -11,6 +11,7 @@
 #include<QListWidgetItem>
 #include<QGroupBox>
 #include<QCheckBox>
+#include<planutil.h>
 AddTestWidget::AddTestWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::AddTestWidget)
@@ -72,19 +73,34 @@ void AddTestWidget::initBoxUi()
     mModuleBox = new QGroupBox(QString::fromUtf8("模块信息"));
     QLabel* moduleSelectLabel = new QLabel(QString::fromUtf8("选择模块"));
     QComboBox* cboxModule = new QComboBox;
-    QLineEdit* lineEdit = new QLineEdit(QString::fromUtf8("选取了0个模块"));
-    lineEdit->setReadOnly(true);
-    lineEdit->setObjectName("selectedModules");
+    QLineEdit* moduleLineEdit = new QLineEdit;
+    moduleLineEdit->setText(QString::fromUtf8("选取了0个模块"));
+    QLabel* planNameLabel = new QLabel(QString::fromUtf8("Plan名称"));
+    QLabel* planWarningLabel = new QLabel;
+    planWarningLabel->setObjectName("planWarningLabel");
+    QLineEdit* planNameEdit = new QLineEdit;
+    planNameEdit->setObjectName("planNameEdit");
+    connect(planNameEdit,SIGNAL(textChanged(QString)),this,SLOT(enableStart()));
+    QHBoxLayout*hLayoutModule1 = new QHBoxLayout;
+    QHBoxLayout*hLayoutModule2 = new QHBoxLayout;
+    QVBoxLayout* vLayoutModule = new QVBoxLayout;
+    planNameLabel->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
+    moduleLineEdit->setReadOnly(true);
+    moduleLineEdit->setObjectName("selectedModules");
     moduleSelectLabel->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
     QListWidget* listWidget = new QListWidget;
     listWidget->setObjectName("moduleList");
-    QHBoxLayout*layoutModule = new QHBoxLayout;
     cboxModule->setModel(listWidget->model());
     cboxModule->setView(listWidget);
-    cboxModule->setLineEdit(lineEdit);
-    layoutModule->addWidget(moduleSelectLabel);
-    layoutModule->addWidget(cboxModule);
-    mModuleBox->setLayout(layoutModule);
+    cboxModule->setLineEdit(moduleLineEdit);
+    hLayoutModule1->addWidget(moduleSelectLabel);
+    hLayoutModule1->addWidget(cboxModule);
+    hLayoutModule2->addWidget(planNameLabel);
+    hLayoutModule2->addWidget(planNameEdit);
+    hLayoutModule2->addWidget(planWarningLabel);
+    vLayoutModule->addLayout(hLayoutModule1);
+    vLayoutModule->addLayout(hLayoutModule2);
+    mModuleBox->setLayout(vLayoutModule);
 
     QLabel* moduleLabel= new QLabel(QString::fromUtf8("模块"));
     QLabel* labelTest= new QLabel(QString::fromUtf8("Test"));
@@ -144,14 +160,22 @@ void AddTestWidget::startClicked()
            QComboBox* sessionBox= mRetryBox->findChild<QComboBox*>("sessionBox");
            map.insert("session",sessionBox->currentData().toString());
        }else if(ui->cbox_action->currentData()==Config::ACTION_MODULE){
-
+           if(mModuleSet.size() == 1)
+           {
+                map.insert("isOneModule","true");
+                map.insert("module",mModuleSet.toList().first());
+           }else{
+                QString planName = mModuleBox->findChild<QLineEdit*>("planNameEdit")->text();
+                PlanUtil::CreatePlan(ui->cbox_tool->currentData().toString(),planName,mModuleSet);
+                map.insert("planName",planName);
+           }
        }else if(ui->cbox_action->currentData()==Config::ACTION_SINGLE){
            QString moduleName = mSingleBox->findChild<QLineEdit*>("moduleNameEdit")->text();
            QString testName = mSingleBox->findChild<QLineEdit*>("testNameEdit")->text();
            map.insert("module",moduleName);
            map.insert("test",testName);
        }
-       emit postStart(map,mModuleSet);
+       emit postStart(map);
        close();
 }
 
@@ -280,7 +304,7 @@ void AddTestWidget::modulesChanged(bool isChecked)
     qDebug()<<QString("[AddTestWidget]module %1 checked %2").arg(moduleName).arg(isChecked);
     if(isChecked)
     {
-        mModuleSet.insert(moduleName);
+        mModuleSet.insert(moduleName);QString planName = mModuleBox->findChild<QLineEdit*>("planNameEdit")->text();
     }else{
         mModuleSet.remove(moduleName);
     }
@@ -296,12 +320,19 @@ void AddTestWidget::toolFilter()
 
 void AddTestWidget::enableStart()
 {
+
+    QString planName = mModuleBox->findChild<QLineEdit*>("planNameEdit")->text();
+    bool isPlanExists = PlanUtil::isPlanExists(ui->cbox_tool->currentData().toString(),planName);
+    bool isPlanNameOk = !isPlanExists && !planName.isEmpty();
+    mModuleBox->findChild<QLabel*>("planWarningLabel")->setText(isPlanExists ? QString::fromUtf8("<font color=red>Plan已存在！<font>") : "");
+    qDebug()<<QString("[AddTestWidget]plan name %1 is ok = %2").arg(planName).arg(isPlanNameOk);
+
     QString singleModule = mSingleBox->findChild<QLineEdit*>("moduleNameEdit")->text();
     QString singleTest = mSingleBox->findChild<QLineEdit*>("testNameEdit")->text();
     bool isSingleOk = ui->cbox_action->currentData().toString()!=Config::ACTION_SINGLE
                         ||(!singleModule.isEmpty() && !singleTest.isEmpty());
     bool isModuleOk = ui->cbox_action->currentData().toString()!=Config::ACTION_MODULE
-                        ||!mModuleSet.isEmpty();
+                        ||(!mModuleSet.isEmpty() && isPlanNameOk);
 
     ui->btn_start->setEnabled(!ui->cbox_tool->currentText().isEmpty()
                               && !ui->cbox_device->currentText().isEmpty()

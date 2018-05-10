@@ -23,7 +23,7 @@ class TestWidget : public QWidget,public Updatable
     Q_OBJECT
 public slots:
     void newTest();
-    void startTest(QMap<QString,QString>,QSet<QString>);
+    void startTest(QMap<QString,QString>);
     void printOutput();
     void updateContent();
     void onFileChanged(QString);

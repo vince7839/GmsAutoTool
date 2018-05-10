@@ -4,8 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui sql xml network dbus
-
+QT       += core gui sql xml network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -48,7 +47,8 @@ SOURCES += \
     warningwidget.cpp \
     settingswidget.cpp \
     messagedialog.cpp \
-    config.cpp
+    config.cpp \
+    planutil.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -74,7 +74,8 @@ HEADERS += \
     settingswidget.h \
     messagedialog.h \
     updatable.h \
-    config.h
+    config.h \
+    planutil.h
 
 FORMS += \
     mainwindow.ui \

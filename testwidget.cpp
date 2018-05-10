@@ -28,7 +28,7 @@ TestWidget::TestWidget(QWidget *parent) :
     connect(mTimer,SIGNAL(timeout()),this,SLOT(updateTime()));
     mFileWatcher = new QFileSystemWatcher;
     connect(mFileWatcher,SIGNAL(fileChanged(QString)),this,SLOT(onFileChanged(QString)));
-  //  ui->pushButton->setVisible(false);
+    ui->pushButton->setVisible(false);
 }
 
 TestWidget::~TestWidget()
@@ -108,20 +108,20 @@ QString TestWidget::getCmdPlatform(QString num)
 void TestWidget::newTest()
 {
     AddTestWidget*w=new AddTestWidget;
-    connect(w,SIGNAL(postStart(QMap<QString,QString>,QSet<QString>))
-            ,this,SLOT(startTest(QMap<QString,QString>,QSet<QString>)));
+    connect(w,SIGNAL(postStart(QMap<QString,QString>))
+            ,this,SLOT(startTest(QMap<QString,QString>)));
     w->show();
 }
 
-void TestWidget::startTest(QMap<QString,QString> map, QSet<QString> set)
+void TestWidget::startTest(QMap<QString,QString> map)
 {
     qDebug()<<map;
-    qDebug()<<set;
     QString tempName = QString("temp/%1").arg(QDateTime::currentMSecsSinceEpoch());
     QString toolPath = map.value("path");
     QString platform = map.value("platform");
     QString device = map.value("device");
     QString printInfo = QString("[GmsAutoTool]test name:%1\n").arg(map.value("name"));
+    QString action = map.value("action");
     QFile file(tempName);    
     if(file.open(QIODevice::WriteOnly))
     {
@@ -133,8 +133,23 @@ void TestWidget::startTest(QMap<QString,QString> map, QSet<QString> set)
        return;
     }
     mFileWatcher->addPath(tempName);
+    QString actionCmd = Config::getTestCmd(Config::CTS,getCmdPlatform(platform),action);
+    if(action == Config::ACTION_ALL){
+
+    }else if(action == Config::ACTION_RETRY){
+        actionCmd = actionCmd.arg(map.value("session"));
+    }else if(action == Config::ACTION_MODULE){
+        if(map.value("isOneModule") == "true"){
+            actionCmd = actionCmd.arg(map.value("module"));
+        }else{
+            actionCmd = Config::getTestCmd(Config::CTS,getCmdPlatform(platform),Config::ACTION_PLAN).arg(map.value("planName"));
+        }
+    }else if(action == Config::ACTION_SINGLE){
+       actionCmd =  actionCmd.arg(map.value("module")).arg(map.value("test"));
+    }
+    qDebug()<<"[TestWidget]action cmd:"<<actionCmd;
     QString bashCmd = QString("trap 'rm %4' SIGHUP SIGINT;(%1 %2 -s %3;rm %4)|tee -a %4;exec bash").arg(toolPath)
-            .arg(Config::getTestCmd(Config::CTS,getCmdPlatform(platform),Config::ACTION_ALL)).arg(device).arg(tempName);
+            .arg(actionCmd).arg(device).arg(tempName);
     QStringList arg;
     arg<<"-x"<<"bash"<<"-c"<<bashCmd;
     qDebug()<<"[TestWidget]start test:"<<arg;
@@ -148,7 +163,6 @@ void TestWidget::printOutput()
 {
     qDebug()<<"change";
    // qDebug()<<pa->readAll();
-
 }
 
 void TestWidget::on_pushButton_clicked()
@@ -239,7 +253,7 @@ void TestWidget::updateTime()
            QString displayTime = QString("%1:%2:%3").arg(hour).arg(minute).arg(second);
        //    qDebug()<<interval<<" "<<displayTime;
            v->labelRealTime->setText(displayTime);
-           if(v->checkTime.elapsed() > 1000*60){ //10minutes
+           if(v->checkTime.elapsed() > 1000*60*10){ //10minutes
                v->labelRecent->setText(QString::fromUtf8("<font color=red>已10分钟无任何输出</font>"));
            }
        }

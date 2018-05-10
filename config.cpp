@@ -16,6 +16,7 @@ const QString Config::ACTION_ALL = "all";
 const QString Config::ACTION_RETRY = "retry";
 const QString Config::ACTION_MODULE = "module";
 const QString Config::ACTION_SINGLE = "single";
+ const QString Config::ACTION_PLAN = "plan";
 
 const QString Config::VERSION = "beta 1.0";
 const QString Config::SETTINGS = "Config";

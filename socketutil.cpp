@@ -11,6 +11,7 @@
 #include<QFile>
 #include<QDir>
 #include<screenwidget.h>
+#include<QNetworkInterface>
 
 const int SocketUtil::MSG_FIND_SERVER = 0;
 const int SocketUtil::MSG_ME_SERVER = 1;
@@ -142,14 +143,17 @@ void SocketUtil::handleMessage(QMap<QString, QVariant> msg)
             qDebug()<<dir.currentPath();
             if( !dir.exists("FileRecv")){
                 qDebug()<<"the directory FileRecv does not exist";
-                dir.mkpath("FileRecv");
+                dir.mkdir("FileRecv");
             }
             QByteArray byteArray = msg.value(KEY_DATA).toByteArray();
             QFile file("FileRecv/"+msg.value(KEY_FILE_NAME).toString());
-            file.open(QIODevice::ReadWrite);
-            file.write(byteArray);
-            file.close();
-            emit onDocumentRecved(msg);
+            if(file.open(QIODevice::ReadWrite))
+            {
+                file.write(byteArray);
+                file.close();
+                emit onDocumentRecved(msg);
+                QMessageBox::information(0,QString::fromUtf8("提示"),QString::fromUtf8("已成功接收文件%1").arg(file.fileName()));
+            }
         }else{
             map.insert(KEY_MSG_TYPE,MSG_REFUSE_DOCUMENT);
             sendTcp(map);
@@ -164,14 +168,18 @@ void SocketUtil::handleMessage(QMap<QString, QVariant> msg)
 QString SocketUtil::getMyIP()
 {
     QString ip;
-    QHostInfo host=QHostInfo::fromName(QHostInfo::localHostName());
-    foreach(QHostAddress address,host.addresses())
+    foreach(QHostAddress address,QNetworkInterface::allAddresses())
     {
-       if(address.protocol() == QAbstractSocket::IPv4Protocol)
-            ip = address.toString();
+       if(address.protocol() == QAbstractSocket::IPv4Protocol && address != QHostAddress::LocalHost )
+       {
+            if(address.toString().startsWith("172"))
+            {
+                ip = address.toString();
+            }
+            qDebug()<<"[SocketUtil]find my ip:"<<address.toString();
+       }
     }
-    qDebug()<<"getMyIp():"<<ip;
-    LogUtil::Log("getMyIp()",ip);
+    qDebug()<<"[SocketUtil]get my ip return:"<<ip;
     return ip;
 }
 

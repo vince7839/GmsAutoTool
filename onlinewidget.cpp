@@ -17,7 +17,7 @@ OnlineWidget::OnlineWidget(QWidget *parent) :
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
-    mSocketUtil=SocketUtil::getInstance();
+    mSocketUtil = SocketUtil::getInstance();
     connect(mSocketUtil,SIGNAL(onUserFounded(QMap<QString,QVariant>)),this,SLOT(addOnline(QMap<QString,QVariant>)));
     connect(ui->btn_ok,SIGNAL(clicked()),this,SLOT(sendReportToHost()));
     mSocketUtil->sendAskOnline();   
@@ -53,12 +53,22 @@ void OnlineWidget::setReportInfo(QMap<QString,QString> info)
 
 void OnlineWidget::addOnline(QMap<QString,QVariant> msg)
 {
-  if( /*msg.value("fromIP") != SocketUtil::getMyIP() &&*/ !mOnlineList.contains(msg))
-  {
-      mOnlineList.append(msg);
-      updateTable();
-  }
-    qDebug()<<"addOnline():"<<msg.value("fromIP");
+    QString hostIP = msg.value("fromIP").toString();
+    qDebug()<<QString("[OnlineWidget]recv online signal from:%1:%2").arg(msg.value("hostName").toString()).arg(msg.value("fromIP").toString());
+    if(hostIP == SocketUtil::getMyIP())
+    {
+        return;
+    }
+    for(int i=0;i<mOnlineList.size();i++)
+    {
+        if(mOnlineList.at(i).value("fromIP") == hostIP )
+        {
+            return;
+         }
+    }
+    mOnlineList.append(msg);
+    updateTable();
+    qDebug()<<"[OnlineWidget]add online user ip:"<<msg.value("fromIP");
 }
 
 void OnlineWidget::sendReportToHost()
@@ -75,6 +85,7 @@ void OnlineWidget::getHostScreen()
 {
    QString toIP = mOnlineList.at(ui->tableWidget->currentRow()).value("fromIP").toString();
    mSocketUtil->sendMessage(toIP,SocketUtil::MSG_EXPECT_SCREEN);
+   qDebug()<<"[OnlineWidget]send screen request to:"<<toIP;
 }
 
 void OnlineWidget::updateContent()

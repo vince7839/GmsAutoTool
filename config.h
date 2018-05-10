@@ -13,6 +13,7 @@ public:
     static const QString ACTION_RETRY;
     static const QString ACTION_MODULE;
     static const QString ACTION_SINGLE;
+    static const QString ACTION_PLAN;
     static quint16 TCP_PORT;
     static quint16 UDP_PORT;
     static bool IS_ALLOW_SCREEN;

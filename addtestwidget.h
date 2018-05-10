@@ -6,6 +6,7 @@
 #include <QList>
 #include <QTimer>
 #include <QGroupBox>
+#include <QSet>
 
 namespace Ui {
 class AddTestWidget;
@@ -15,7 +16,7 @@ class AddTestWidget : public QWidget
 {
     Q_OBJECT
 signals:
-    void postStart(QMap<QString,QString>,QSet<QString>);
+    void postStart(QMap<QString,QString>);
 private slots:
     void toolFilter();
     void enableStart();
