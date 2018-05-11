@@ -1,0 +1,7 @@
+GmsAutoTool
+Makefile
+gmsautotool_plugin_import.cpp
+log/
+*.o
+ui_*
+moc_*

@@ -6,14 +6,17 @@ ScreenWidget::ScreenWidget(QWidget *parent) :
     ui(new Ui::ScreenWidget)
 {
     ui->setupUi(this);
-    ui->label->setScaledContents(true);
-    setFixedSize(1000,800);
+    ui->label->setScaledContents(true);   
 }
 
 void ScreenWidget::showPixmap(QPixmap pixmap)
 {
     qDebug()<<pixmap.isNull();
+    qDebug()<<"[ScreenWidget]screen pixmap size:"<<pixmap.width()<<"X"<<pixmap.height();
     ui->label->setPixmap(pixmap);
+    float scale = (float)pixmap.height()/(float)pixmap.width();
+    qDebug()<<scale;
+     setFixedSize(1000,1000*scale);
     show();
 }
 
