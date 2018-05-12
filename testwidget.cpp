@@ -13,6 +13,7 @@
 #include<QTimer>
 #include<QDir>
 #include<QMessageBox>
+#include<waitingwidget.h>
 
 TestWidget::TestWidget(QWidget *parent) :
     QWidget(parent),
@@ -28,7 +29,7 @@ TestWidget::TestWidget(QWidget *parent) :
     connect(mTimer,SIGNAL(timeout()),this,SLOT(updateTime()));
     mFileWatcher = new QFileSystemWatcher;
     connect(mFileWatcher,SIGNAL(fileChanged(QString)),this,SLOT(onFileChanged(QString)));
-    ui->pushButton->setVisible(false);
+    //ui->pushButton->setVisible(false);
 }
 
 TestWidget::~TestWidget()
@@ -170,16 +171,17 @@ void TestWidget::on_pushButton_clicked()
   /*  QNetworkInterface i = QNetworkInterface::interfaceFromName("eth0");
       qDebug()<<i.hardwareAddress();*/
 
-qDebug()<<Config::getTestCmd(Config::CTS,"N",Config::ACTION_ALL);
-qDebug()<<Config::getTestCmd(Config::CTS,"Y",Config::ACTION_ALL);
+//qDebug()<<Config::getTestCmd(Config::CTS,"N",Config::ACTION_ALL);
+//qDebug()<<Config::getTestCmd(Config::CTS,"Y",Config::ACTION_ALL);
 
-pa = new QProcess;
-connect(pa,SIGNAL(readyRead()),this,SLOT(testOut()));
-QStringList arg;
+//pa = new QProcess;
+//connect(pa,SIGNAL(readyRead()),this,SLOT(testOut()));
+//QStringList arg;
 //arg<<"l"<<"r";
 //arg<<"run"<<"cts";
 //pa->start("/home/liaowenxing/GMS/CTS/N/CTS_7.0_r10/android-cts/tools/cts-tradefed",arg);
 //pa->start("script/test.sh");
+    WaitingWidget::startWaiting("please waiting...");
 }
 
 void TestWidget::updateContent(){}

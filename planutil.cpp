@@ -33,7 +33,7 @@ void PlanUtil::CreatePlan(QString toolPath, QString planName, QSet<QString> test
     for(QString test:testSet)
     {
       QDomElement entryNode=doc.createElement("Entry");
-      entryNode.setAttribute("include",QString("armeabi-v7a ").arg(test));
+      entryNode.setAttribute("include",QString("armeabi-v7a %1").arg(test));
       rootNode.appendChild(entryNode);
     }
      doc.appendChild(rootNode);

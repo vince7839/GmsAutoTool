@@ -60,14 +60,15 @@ void AddToolWidget::openFileDialog()
         qDebug()<<output;
         QStringList list = output.split("\n");
         QString line = list.first();
-        QRegExp reg("Android (Google|Compatibility|Vendor) Test Suite (.*) .*");
+        QRegExp reg(".*([0-9]+\.[0-9]+)_(r[0-9]+) .*");
         if(reg.exactMatch(line))
         {
-            QString platVersion = reg.cap(2);
-            qDebug()<<platVersion;
-            ui->lineEdit_platform->setText(platVersion.split("_").first());
-            ui->lineEdit_version->setText(platVersion.split("_").last());
-            ui->lineEdit_name->setText(QString("%1_%2").arg(toolType).arg(platVersion));
+            QString platform = reg.cap(1);
+            QString version = reg.cap(2);
+            qDebug()<<QString("[AddToolWidget]tool info:").arg(platform).arg(version);
+            ui->lineEdit_platform->setText(platform);
+            ui->lineEdit_version->setText(version);
+            ui->lineEdit_name->setText(QString("%1_%2_%3").arg(toolType).arg(platform).arg(version));
         }else if(line.startsWith("bash:")){
             qDebug()<<"tool permision denied";
         }

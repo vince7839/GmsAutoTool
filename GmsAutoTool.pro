@@ -48,7 +48,8 @@ SOURCES += \
     settingswidget.cpp \
     messagedialog.cpp \
     config.cpp \
-    planutil.cpp
+    planutil.cpp \
+    waitingwidget.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -75,7 +76,8 @@ HEADERS += \
     messagedialog.h \
     updatable.h \
     config.h \
-    planutil.h
+    planutil.h \
+    waitingwidget.h
 
 FORMS += \
     mainwindow.ui \
@@ -93,4 +95,5 @@ FORMS += \
     screenwidget.ui \
     warningwidget.ui \
     settingswidget.ui \
-    messagedialog.ui
+    messagedialog.ui \
+    waitingwidget.ui
