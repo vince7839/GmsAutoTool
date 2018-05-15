@@ -3,7 +3,7 @@
 #include "sqlconnection.h"
 #include "QDebug"
 #include "QDir"
-#include "parseresultwidget.h"
+#include "failurewidget.h"
 #include<QFile>
 #include<QDomDocument>
 #include<QDomNode>
@@ -67,7 +67,7 @@ void ResultWidget::contextMenuEvent(QContextMenuEvent *e)
 void ResultWidget::updateResultTable(QList<QMap<QString,QString> >resultList)
 {
     qDebug()<<"ready size:"<<resultList.size();
-    mResultList=resultList;
+    mResultList = resultList;
   // ui->result_table_widget->clear();
    ui->result_table_widget->setRowCount(resultList.size());
    ui->result_table_widget->setColumnCount(7);
@@ -89,29 +89,22 @@ void ResultWidget::updateResultTable(QList<QMap<QString,QString> >resultList)
            item->setTextAlignment(Qt::AlignHCenter);
            ui->result_table_widget->setItem(i,j,item);
        }
-
    }
-
    // ui->result_table_widget->setFixedSize(ui->result_table_widget->size());
 }
 
 void ResultWidget::deleteResult()
 {
-    QList<QTableWidgetItem*> selectedItems=ui->result_table_widget->selectedItems();
+    QList<QTableWidgetItem*> selectedItems = ui->result_table_widget->selectedItems();
     foreach(QTableWidgetItem* item,selectedItems)
     {
-        if(item->column()==0){
-            QString resultPath=mResultList.at(item->row()).value("result_path")+"/..";
+        if(item->column() == 0){//一行会有多个item被选中
+            QString resultPath = mResultList.at(item->row()).value("resultDir");
             QDir dir(resultPath);
-            QStringList args;
-
-            args<<dir.absolutePath()<<"-r";
-            QProcess::execute("rm",args);
-
-            QString zipPath=dir.absolutePath()+".zip";
-            args<<zipPath<<"-r";
-            QProcess::execute("rm",args);
-
+            dir.removeRecursively();
+            QString zipPath =mResultList.at(item->row()).value("zipPath");
+            QFile zipfile(zipPath);
+            zipfile.remove();
             qDebug()<<item->row();
         }
     }
@@ -125,16 +118,14 @@ void ResultWidget::enableDelBtn()
 
 void ResultWidget::sendReport()
 {
-    qDebug()<<"sendReport():row->"<<ui->result_table_widget->currentRow();
     OnlineWidget*w=new OnlineWidget;
     w->setReportInfo(mResultList.at(ui->result_table_widget->currentRow()));
     w->show();
-    qDebug()<<"sendReport():"+mResultList.at(ui->result_table_widget->currentRow()).value("file_name");
 }
 
 void ResultWidget::openReport()
 {
-    QString resultPath = mResultList.at(ui->result_table_widget->currentRow()).value("result_path");
+    QString resultPath = mResultList.at(ui->result_table_widget->currentRow()).value("xmlPath");
     qDebug()<<"[ResultWidget]open report:"<<resultPath;
     QProcess* p = new QProcess;
     p->start("firefox",QStringList()<<resultPath);
@@ -153,8 +144,8 @@ void ResultWidget::updateContent()
 void ResultWidget::tableItemClicked(QTableWidgetItem*item)
 {
     if(parseWidget == NULL)
-          parseWidget=new ParseResultWidget;
-    parseWidget->showResult(mResultList.at(item->row()).value("result_path"));
+          parseWidget=new FailureWidget;
+    parseWidget->showResult(mResultList.at(item->row()).value("xmlPath"));
     parseWidget->activateWindow();
 }
 

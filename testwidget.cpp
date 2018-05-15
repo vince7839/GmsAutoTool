@@ -14,6 +14,7 @@
 #include<QDir>
 #include<QMessageBox>
 #include<waitingwidget.h>
+#include<QThread>
 
 TestWidget::TestWidget(QWidget *parent) :
     QWidget(parent),
@@ -91,21 +92,6 @@ void TestWidget::parseOutput(QString path,QString output)
     }
 }
 
-QString TestWidget::getCmdPlatform(QString num)
-{
-    QStringList numPrefix;
-    numPrefix<<"8"<<"7"<<"6"<<"5";
-    QStringList platforms;
-    platforms<<"O"<<"N"<<"M"<<"L";
-    for(int i=0;i<numPrefix.size();i++)
-    {
-        if(num.startsWith(numPrefix.at(i))){
-            return platforms.at(i);
-        }
-    }
-    return platforms.first();//没找到对应平台则使用默认最新命令
-}
-
 void TestWidget::newTest()
 {
     AddTestWidget*w=new AddTestWidget;
@@ -134,7 +120,7 @@ void TestWidget::startTest(QMap<QString,QString> map)
        return;
     }
     mFileWatcher->addPath(tempName);
-    QString actionCmd = Config::getTestCmd(Config::CTS,getCmdPlatform(platform),action);
+    QString actionCmd = Config::getTestCmd(Config::CTS,Config::getCmdPlatform(platform),action);
     if(action == Config::ACTION_ALL){
 
     }else if(action == Config::ACTION_RETRY){
@@ -143,7 +129,7 @@ void TestWidget::startTest(QMap<QString,QString> map)
         if(map.value("isOneModule") == "true"){
             actionCmd = actionCmd.arg(map.value("module"));
         }else{
-            actionCmd = Config::getTestCmd(Config::CTS,getCmdPlatform(platform),Config::ACTION_PLAN).arg(map.value("planName"));
+            actionCmd = Config::getTestCmd(Config::CTS,Config::getCmdPlatform(platform),Config::ACTION_PLAN).arg(map.value("planName"));
         }
     }else if(action == Config::ACTION_SINGLE){
        actionCmd =  actionCmd.arg(map.value("module")).arg(map.value("test"));
@@ -181,7 +167,9 @@ void TestWidget::on_pushButton_clicked()
 //arg<<"run"<<"cts";
 //pa->start("/home/liaowenxing/GMS/CTS/N/CTS_7.0_r10/android-cts/tools/cts-tradefed",arg);
 //pa->start("script/test.sh");
-    WaitingWidget::startWaiting("please waiting...");
+    static bool b =true;
+    b? WaitingWidget::startWaiting(this,QString::fromUtf8("正在加载")):WaitingWidget::endWaiting();
+    b =!b;
 }
 
 void TestWidget::updateContent(){}

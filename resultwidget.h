@@ -3,7 +3,7 @@
 
 #include <QWidget>
 #include"QTableWidgetItem"
-#include "parseresultwidget.h"
+#include "failurewidget.h"
 #include "QLinkedList"
 #include<updatable.h>
 
@@ -30,7 +30,7 @@ public:
 private:
     Ui::ResultWidget *ui;
     QList<QMap<QString,QString> > mResultList;
-    ParseResultWidget* parseWidget=NULL;
+    FailureWidget* parseWidget=NULL;
     QThread*mLoadThread;
 protected:
     void contextMenuEvent(QContextMenuEvent*);

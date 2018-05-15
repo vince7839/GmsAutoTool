@@ -2,26 +2,13 @@
 #include "ui_plandialog.h"
 #include <QFile>
 #include<QDebug>
-bool PlanDialog::checkPlanName(QString planName)
+#include<planutil.h>
+
+void PlanDialog::createAndExecPlan()
 {
-    mPlanName=planName;
-    QString msg="";
-    QFile file(mDirPath+"/"+planName+".xml");
-    if(planName=="")  msg=QString::fromUtf8("Plan名不能为空！");
-
-    if(file.exists()) msg=QString::fromUtf8("Plan已存在！");
-
-    ui->label_warning->setText(msg);
-    ui->btn_ok->setEnabled((planName != "") && (!file.exists()));
-
-    //qDebug()<<file.exists();
-    return file.exists();
-}
-
-void PlanDialog::setPlanInfo(QStringList list,QString dirPath)
-{
-    ui->listWidget_plan->addItems(list);
-    mDirPath=dirPath;
+    QString planName = ui->lineEdit_planName->text();
+    PlanUtil::createPlan(mToolPath,planName,mPlanSet);
+    PlanUtil::execPlan(mToolPath,planName);
 }
 
 PlanDialog::PlanDialog(QWidget *parent) :
@@ -30,8 +17,9 @@ PlanDialog::PlanDialog(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowTitle(QString::fromUtf8("新建Plan"));
+    setModal(true);
     ui->label_info->setText(QString::fromUtf8("为以下Test建立Plan并开始测试?"));
-    connect(ui->btn_ok,SIGNAL(clicked(bool)),this,SLOT(accept()));
+    connect(ui->btn_ok,SIGNAL(clicked(bool)),this,SLOT(createAndExecPlan()));
     connect(ui->btn_cancel,SIGNAL(clicked(bool)),this,SLOT(reject()));
     connect(ui->lineEdit_planName,SIGNAL(textChanged(QString)),this,SLOT(checkPlanName(QString)));
     ui->btn_ok->setEnabled(false);
@@ -45,7 +33,30 @@ PlanDialog::~PlanDialog()
     delete ui;
 }
 
-QString PlanDialog::getPlanName()
+void PlanDialog::exec(QString toolPath, QSet<QString> testSet)
 {
-    return mPlanName;
+    mToolPath = toolPath;
+    foreach (QString item, testSet)
+    {
+        ui->listWidget_plan->addItem(item);
+    }
+    QDialog::exec();
+}
+
+void PlanDialog::checkPlanName(QString planName)
+{
+    QString msg = "";
+    bool isEnabled = true;
+    if(planName.isEmpty())
+    {
+        msg = QString::fromUtf8("Plan名不能为空！");
+        isEnabled = false;
+    }else if(PlanUtil::isPlanExists("","")){
+        msg = QString::fromUtf8("Plan已存在！");
+        isEnabled = false;
+    }else{
+
+    }
+    ui->label_warning->setText(msg);
+    ui->btn_ok->setEnabled(isEnabled);
 }

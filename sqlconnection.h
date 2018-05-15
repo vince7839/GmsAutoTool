@@ -11,8 +11,7 @@ public:
     ~SqlConnection();
     bool connect();
     void close();
-    QList<QMap<QString,QString> > execSql(QString);
-    static QList<QMap<QString,QString> > RemoteExec(QString);
+    QList<QMap<QString,QString> > exec(QString);
     void putInt(QString, QString, int);
     static const QString CONFIG;
     static const QString CONFIG_GRAB_SCREEN;
@@ -20,7 +19,7 @@ public:
 private:
     QSqlDatabase db;
     SqlConnection();
-    static SqlConnection* mConn;
+    static SqlConnection* sInstance;
 };
 
 #endif // SQLCONNECTION_H

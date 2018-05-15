@@ -1,5 +1,5 @@
-#ifndef PARSERESULTWIDGET_H
-#define PARSERESULTWIDGET_H
+#ifndef FAILUREWIDGET_H
+#define FAILUREWIDGET_H
 
 #include <QWidget>
 #include <QDomNode>
@@ -8,10 +8,10 @@
 #include<solutionwidget.h>
 
 namespace Ui {
-class ParseResultWidget;
+class FailureWidget;
 }
 
-class ParseResultWidget : public QWidget
+class FailureWidget : public QWidget
 {
     Q_OBJECT
 private slots:
@@ -26,19 +26,19 @@ public:
     void parseNode(QDomNode);
     void showResult(QString);
     void changeState(QTreeWidgetItem *);
-    void writePlanXml(QString);
-    void execPlan(QString);
-
-    explicit ParseResultWidget(QWidget *parent = 0);
-    ~ParseResultWidget();
     void updateTreeWidget();
+
+    explicit FailureWidget(QWidget *parent = 0);
+    ~FailureWidget();
+    FailureWidget(QString toolPath,QString xmlPath);
 private:
-    Ui::ParseResultWidget *ui;
+    Ui::FailureWidget *ui;
     QMultiMap<QString,QString> moduleToCaseMap,caseToTestMap;
     const int COLUMN_INDEX_NAME=0,COLUMN_INDEX_COUNT=1;
-    QStringList checkedList;
+    QSet<QString> mPlanSet;
     SolutionWidget* solutionWidget=NULL;
-    QString mResultPath;
+    QString mXmlPath;
+    QString mToolPath;
 };
 
-#endif // PARSERESULTWIDGET_H
+#endif // FailureWidget_H

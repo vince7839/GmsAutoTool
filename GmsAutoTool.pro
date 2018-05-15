@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui sql xml network
+QT      += core gui sql xml network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -32,7 +32,6 @@ SOURCES += \
     resultwidget.cpp \
     toolwidget.cpp \
     testwidget.cpp \
-    parseresultwidget.cpp \
     plandialog.cpp \
     solutionwidget.cpp \
     addsolutionwidget.cpp \
@@ -49,7 +48,8 @@ SOURCES += \
     messagedialog.cpp \
     config.cpp \
     planutil.cpp \
-    waitingwidget.cpp
+    waitingwidget.cpp \
+    failturewidget.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -59,7 +59,6 @@ HEADERS += \
     resultwidget.h \
     toolwidget.h \
     testwidget.h \
-    parseresultwidget.h \
     plandialog.h \
     solutionwidget.h \
     addsolutionwidget.h \
@@ -77,7 +76,8 @@ HEADERS += \
     updatable.h \
     config.h \
     planutil.h \
-    waitingwidget.h
+    waitingwidget.h \
+    failurewidget.h
 
 FORMS += \
     mainwindow.ui \
@@ -86,7 +86,6 @@ FORMS += \
     resultwidget.ui \
     toolwidget.ui \
     testwidget.ui \
-    parseresultwidget.ui \
     plandialog.ui \
     solutionwidget.ui \
     addsolutionwidget.ui \
@@ -96,4 +95,5 @@ FORMS += \
     warningwidget.ui \
     settingswidget.ui \
     messagedialog.ui \
-    waitingwidget.ui
+    waitingwidget.ui \
+    failurewidget.ui

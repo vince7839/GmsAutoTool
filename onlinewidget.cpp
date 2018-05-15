@@ -46,8 +46,8 @@ void OnlineWidget::updateTable()
 
 void OnlineWidget::setReportInfo(QMap<QString,QString> info)
 {
-    mReportPath = info.value("zip_path");
-    mReportName = info.value("file_name");
+    mReportPath = info.value("zipPath");
+    mReportName = info.value("zipName");
     qDebug()<<"mReportPath:"<<mReportPath;
 }
 

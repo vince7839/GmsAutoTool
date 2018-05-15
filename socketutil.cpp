@@ -42,7 +42,7 @@ SocketUtil::SocketUtil()
     connect(mUdpSocket,SIGNAL(readyRead()),this,SLOT(recvUdp()));
 
     mTcpSocketSelf = new QTcpSocket;
-    QList<QMap<QString,QString> > list=SqlConnection::getInstance()->execSql("select * from Config");
+    QList<QMap<QString,QString> > list=SqlConnection::getInstance()->exec("select * from Config");
     if( !list.isEmpty() )
     {
         mIsServer=list.at(0).value("is_server") == "true";

@@ -12,11 +12,12 @@ class WaitingWidget : public QWidget
     Q_OBJECT
 
 public:
-    static void startWaiting(QString text);
+    static void startWaiting(QWidget*,QString text);
     static void endWaiting();
     void setMessage(QString);
     ~WaitingWidget();
-
+protected:
+    void closeEvent(QCloseEvent *event);
 private:
     Ui::WaitingWidget *ui;
     static WaitingWidget* sInstance;

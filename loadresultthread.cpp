@@ -12,7 +12,7 @@
 void LoadResultThread::loadAsType(QString type)
 {
     qDebug()<<"load type:"<<type;
-    mType=type;
+    mType = type;
     start();
 }
 
@@ -24,46 +24,43 @@ LoadResultThread::LoadResultThread()
 void LoadResultThread::parseResultPath()
 {
     mResultList.clear();
-    QList<QMap<QString,QString> > list;
     QString query="select path from Tool";
     if(mType!=QString::fromUtf8("全部"))
         query += QString(" where type = '%1'").arg(mType);
     qDebug()<<query;
     SqlConnection *conn=SqlConnection::getInstance();
-
-    if(conn->connect()){
-        list=conn->execSql(query);
-
+    if(!conn->connect())
+    {
+        return;
     }
-
+    QList<QMap<QString,QString> > list=conn->exec(query);
     for(int i=0;i<list.size();i++){
-        QString bashPath = list.at(i).value("path");
-        QString toolPath = bashPath.left(bashPath.lastIndexOf("/"));
-        QString ctsPath = toolPath.left(toolPath.lastIndexOf("/"));
-        QString resultPath = ctsPath + QString("/results");
-      //  qDebug()<<path;
-        QDir resultDir(resultPath);
-
-        foreach(QFileInfo info,resultDir.entryInfoList()){
-            if( info.isDir() && info.fileName()!="." && info.fileName()!= ".." ){
-              // qDebug()<<info.fileName()<<" "<<info.absoluteFilePath();
-                QDir secondDir(info.absoluteFilePath());
-                foreach(QFileInfo i,secondDir.entryInfoList()){
-                    if(i.isFile() && i.fileName()=="test_result.xml"){
-                 //       qDebug()<<i.absoluteFilePath();
-                        QMap<QString,QString> map;
-                        map.insert("result_path",i.absoluteFilePath());
-                        map.insert("result_name",i.fileName());
-                        map.insert("zip_path",i.absolutePath()+QString(".zip"));
-                        map.insert("file_name",secondDir.dirName()+QString(".zip"));
-                        mResultList.append(map);
-                    }
+        QString toolPath = list.at(i).value("path");
+        QString resultDirPath = QDir(QString("%1/../../results").arg(toolPath)).absolutePath();
+        QDir resultDir(resultDirPath);
+        qDebug()<<"[LoadResultThread]result dir path:"<<resultDir.absolutePath();
+        qDebug()<<resultDir.entryInfoList().size();
+        foreach(QFileInfo info,resultDir.entryInfoList())
+        {
+            if( info.isDir() && info.fileName()!="." && info.fileName()!= ".." )
+            {
+                qDebug()<<info.absolutePath()<<" "<<info.absoluteFilePath();
+                QFileInfo xmlFile(QString("%1/test_result.xml").arg(info.absoluteFilePath()));
+                if(xmlFile.exists())
+                {
+                    QMap<QString,QString> map;
+                    map.insert("toolPath",toolPath);
+                    map.insert("resultDir",info.absoluteFilePath());
+                    map.insert("resultName",info.fileName());
+                    map.insert("xmlPath",xmlFile.absoluteFilePath());
+                    map.insert("zipPath",info.absoluteFilePath().append(".zip"));
+                    map.insert("zipName",info.fileName().append(".zip"));
+                    qDebug()<<"[LoadResultThread]result info:"<<map;
+                    mResultList.append(map);
                 }
-
             }
         }
     }
-
     parseResultInfo();
 }
 
@@ -74,7 +71,7 @@ void LoadResultThread::parseResultInfo()
     {
         QMap<QString,QString> map=mResultList.at(i);
         QDomDocument doc;
-        doc.setContent(new QFile(map.value("result_path")));
+        doc.setContent(new QFile(map.value("xmlPath")));
         QDomNode resultNode=doc.namedItem("Result");
         QDomNode buildNode=resultNode.namedItem("Build");
         QDomNode summaryNode=resultNode.namedItem("Summary");

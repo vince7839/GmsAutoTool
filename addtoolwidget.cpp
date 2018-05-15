@@ -84,12 +84,12 @@ void AddToolWidget::saveTool()
     if(conn->connect())
     {
         QString query = QString("select * from Tool where path ='%1'").arg(mToolPath);
-        if(conn->execSql(query).isEmpty()){
+        if(conn->exec(query).isEmpty()){
             query = QString("insert into Tool(name,path,platform,version,type) values('%1','%2','%3','%4','%5')")
                            .arg(ui->lineEdit_name->text()).arg(ui->lineEdit_path->text()).arg(ui->lineEdit_platform->text())
                            .arg(ui->lineEdit_version->text()).arg(ui->lineEdit_type->text());
             qDebug()<<"[AddToolWidget]add tool:"<<query;
-            conn->execSql(query);
+            conn->exec(query);
         }else{
             QMessageBox::warning(this,QString::fromUtf8("错误"),QString::fromUtf8("工具已存在！"));
             return;

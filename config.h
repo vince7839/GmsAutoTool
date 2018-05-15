@@ -35,6 +35,7 @@ public:
     static QString getTestCmd(QString,QString,QString);
     static QStringList getTestActions(QString);
     static QString getActionLabel(QString);
+    static QString getCmdPlatform(QString);
 };
 
 #endif // CONFIG_H

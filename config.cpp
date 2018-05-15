@@ -96,3 +96,18 @@ QStringList Config::getTestTypes()
     types<<CTS<<GTS<<VTS;
     return types;
 }
+
+QString Config::getCmdPlatform(QString num)
+{
+    QStringList numPrefix;
+    numPrefix<<"8"<<"7"<<"6"<<"5";
+    QStringList platforms;
+    platforms<<"O"<<"N"<<"M"<<"L";
+    for(int i=0;i<numPrefix.size();i++)
+    {
+        if(num.startsWith(numPrefix.at(i))){
+            return platforms.at(i);
+        }
+    }
+    return platforms.first();//没找到对应平台则使用默认最新命令
+}

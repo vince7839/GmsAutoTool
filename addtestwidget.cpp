@@ -142,7 +142,7 @@ void AddTestWidget::updateToolBox()
                                                  .arg(ui->cbox_type->currentText());
     if(conn->connect())
     {
-        mToolList = conn->execSql(query);
+        mToolList = conn->exec(query);
     }
     for(int i = 0;i < mToolList.size();i++)
         ui->cbox_tool->addItem(mToolList.at(i).value("name"),mToolList.at(i).value("path"));
@@ -168,7 +168,7 @@ void AddTestWidget::startClicked()
                 map.insert("module",mModuleSet.toList().first());
            }else{
                 QString planName = mModuleBox->findChild<QLineEdit*>("planNameEdit")->text();
-                PlanUtil::CreatePlan(ui->cbox_tool->currentData().toString(),planName,mModuleSet);
+                PlanUtil::createPlan(ui->cbox_tool->currentData().toString(),planName,mModuleSet);
                 map.insert("planName",planName);
            }
        }else if(ui->cbox_action->currentData()==Config::ACTION_SINGLE){

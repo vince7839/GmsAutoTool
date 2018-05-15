@@ -34,7 +34,7 @@ void ToolWidget::deleteTool()
         SqlConnection *conn=SqlConnection::getInstance();
         if(conn->connect())
         {
-            conn->execSql(QString("delete from Tool where path = '%1'").arg(toolPath));
+            conn->exec(QString("delete from Tool where path = '%1'").arg(toolPath));
             updateToolList();
         }
     }
@@ -47,7 +47,7 @@ void ToolWidget::updateToolList()
     SqlConnection *conn=SqlConnection::getInstance();
     if(conn->connect())
     {
-        toolList = conn->execSql("select * from Tool");
+        toolList = conn->exec("select * from Tool");
     }
     for(int i=0;i<toolList.size();i++)
     {
@@ -64,7 +64,7 @@ void ToolWidget::updateToolList()
             ui->tool_listWidget->addItem(item);
         }else{
             qDebug()<<"[ToolWidget]tool not exists:"<<path;
-            conn->execSql(QString("delete from Tool where path = '%1'").arg(path));
+            conn->exec(QString("delete from Tool where path = '%1'").arg(path));
         }
     }
 }

@@ -7,7 +7,8 @@ class PlanUtil
 public:
     PlanUtil();
     static bool isPlanExists(QString,QString);
-    static void CreatePlan(QString,QString,QSet<QString>);
+    static void createPlan(QString,QString,QSet<QString>);
+    static void execPlan(QString,QString);
 };
 
 #endif // PLANUTIL_H

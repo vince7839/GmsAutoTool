@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ParseResultWidget</class>
- <widget class="QWidget" name="ParseResultWidget">
+ <class>FailureWidget</class>
+ <widget class="QWidget" name="FailureWidget">
   <property name="geometry">
    <rect>
     <x>0</x>

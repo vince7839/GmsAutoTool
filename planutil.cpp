@@ -4,6 +4,10 @@
 #include<QDebug>
 #include<QDomDocument>
 #include<QDomNode>
+#include<QProcess>
+#include<config.h>
+#include<sqlconnection.h>
+#include<plandialog.h>
 PlanUtil::PlanUtil()
 {
 
@@ -19,7 +23,33 @@ bool PlanUtil::isPlanExists(QString toolPath, QString planName)
     return file.exists();
 }
 
-void PlanUtil::CreatePlan(QString toolPath, QString planName, QSet<QString> testSet)
+void PlanUtil::execPlan(QString toolPath, QString planName)
+{
+    SqlConnection* conn = SqlConnection::getInstance();
+    if(!conn->connect())
+    {
+        return;
+    }
+    QList<QMap<QString,QString>> list = conn->exec(QString("SELECT * FROM Tool WHERE path = '%1'").arg(toolPath));
+    if(list.isEmpty()||list.size() > 1)
+    {
+        qDebug()<<"[PlanUtil]result size exception";
+        return;
+    }else{
+        QMap<QString,QString> map = list.first();
+        QString type = map.value("type");
+        QString platform = Config::getCmdPlatform(map.value("platform"));
+        QString planCmd = Config::getTestCmd(type,platform,Config::ACTION_PLAN);
+        planCmd.arg(planName);
+        QProcess* p = new QProcess;
+        QStringList arg;
+        arg<<"-x"<<"bash"<<"-c"<<planCmd;
+        qDebug()<<"[PlanUtil]exec plan:"<<arg;
+        p->start("gnome-terminal",arg);
+    }
+}
+
+void PlanUtil::createPlan(QString toolPath, QString planName, QSet<QString> testSet)
 {
     QDir rootDir(QString("%1/../..").arg(toolPath));
     QDir planDir(QString("%1/subplans").arg(rootDir.absolutePath()));

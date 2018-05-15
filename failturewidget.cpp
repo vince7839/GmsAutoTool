@@ -1,5 +1,5 @@
-#include "parseresultwidget.h"
-#include "ui_parseresultwidget.h"
+#include "failurewidget.h"
+#include "ui_failurewidget.h"
 #include "QDomDocument"
 #include "QFile"
 #include "QDebug"
@@ -7,8 +7,9 @@
 #include "solutionwidget.h"
 #include "QDir"
 #include"QProcess"
+#include<planutil.h>
 
-void ParseResultWidget::treeCheckedChange(QTreeWidgetItem*item,int)
+void FailureWidget::treeCheckedChange(QTreeWidgetItem*item,int)
 {
     Qt::CheckState state=item->checkState(COLUMN_INDEX_NAME);//必须要先取出来 因为后面改变子节点的时候会反过来修改父节点的状态,实时获取会导致只能勾选一个子节点
 
@@ -22,21 +23,26 @@ void ParseResultWidget::treeCheckedChange(QTreeWidgetItem*item,int)
 
    if( item->parent()!=NULL ) changeState(item->parent());
 
-   if(item->childCount() == 0)
+   if(item->childCount() == 0) //选中的是一个test子节点
    {
+       QString test = item->text(COLUMN_INDEX_NAME);
+       QString caseName=caseToTestMap.key(test);
+       QString moduleName=moduleToCaseMap.key(caseName);
+       QString planItem = QString("%1 %2#%3").arg(moduleName).arg(caseName).arg(test);
        if(state == Qt::Checked)
-           checkedList.append(item->text(COLUMN_INDEX_NAME));
-       else
-           checkedList.removeAll(item->text(COLUMN_INDEX_NAME));
-
-       ui->label_checked_count->setText(QString("已勾选:%1").arg(checkedList.size()));
-       ui->btn_new_plan->setEnabled( !checkedList.isEmpty() );
+       {
+           mPlanSet.insert(planItem);
+       }else{
+           mPlanSet.remove(planItem);
+       }
+       ui->label_checked_count->setText(QString("已勾选:%1").arg(mPlanSet.size()));
+       ui->btn_new_plan->setDisabled(mPlanSet.isEmpty() );
    }
 
     setWindowTitle(QString::fromUtf8("失败条目"));
 }
 
-void ParseResultWidget::selectAll(int state)
+void FailureWidget::selectAll(int state)
 {
     for(int i=0;i<ui->result_tree_widget->topLevelItemCount();i++)
     {
@@ -45,30 +51,19 @@ void ParseResultWidget::selectAll(int state)
     }
 }
 
-void ParseResultWidget::newPlan()
+void FailureWidget::newPlan()
 {
-    qDebug()<<checkedList;
     PlanDialog* w=new PlanDialog;
-    w->setModal(true);
+    w->exec(mToolPath,mPlanSet);
+}
 
-    QDir dir(mResultPath+"/../../../subplans");
-    QString planDirPath=dir.absolutePath();
-    w->setPlanInfo(checkedList,planDirPath);
-
-    if(w->exec())
-    {
-       writePlanXml(w->getPlanName());
-       execPlan(w->getPlanName());
-    }
-    }
-
-void ParseResultWidget::enableSolutionBtn()
+void FailureWidget::enableSolutionBtn()
 {
     ui->btn_solution->setDisabled(ui->result_tree_widget->selectedItems().isEmpty()
                                   || ui->result_tree_widget->selectedItems().at(0)->childCount() != 0 );
 }
 
-void ParseResultWidget::showSolution()
+void FailureWidget::showSolution()
 {
    QString testName=ui->result_tree_widget->currentItem()->text(COLUMN_INDEX_NAME);
    QString caseName=caseToTestMap.key(testName);
@@ -88,7 +83,7 @@ void ParseResultWidget::showSolution()
 
 }
 
-void ParseResultWidget::expandTree()
+void FailureWidget::expandTree()
 {
     static bool isExpand=false;
 
@@ -106,7 +101,7 @@ void ParseResultWidget::expandTree()
 
 
 
-void ParseResultWidget::parseXml(QDomNode node)  //递归解析xml文件,对我们感兴趣的节点进行处理
+void FailureWidget::parseXml(QDomNode node)  //递归解析xml文件,对我们感兴趣的节点进行处理
 {
     parseNode(node);  //Test标签也可能有子节点,所以写在判断之外
     if(node.hasChildNodes()){
@@ -120,7 +115,7 @@ void ParseResultWidget::parseXml(QDomNode node)  //递归解析xml文件,对我�
     }
 }
 
-void ParseResultWidget::parseNode(QDomNode node)
+void FailureWidget::parseNode(QDomNode node)
 {
     if(node.nodeName()=="Test"){
         if(node.attributes().namedItem("result").nodeValue()=="fail"){
@@ -136,14 +131,14 @@ void ParseResultWidget::parseNode(QDomNode node)
    }
 }
 
-void ParseResultWidget::showResult(QString xmlPath)
+void FailureWidget::showResult(QString xmlPath)
 {
-    mResultPath=xmlPath;
+    mXmlPath=xmlPath;
     QDomDocument doc;
     doc.setContent(new QFile(xmlPath));
     moduleToCaseMap.clear();
     caseToTestMap.clear();
-    checkedList.clear();
+    mPlanSet.clear();
     parseXml(doc.namedItem("Result"));
     updateTreeWidget();
     ui->result_tree_widget->collapseAll();
@@ -153,7 +148,7 @@ void ParseResultWidget::showResult(QString xmlPath)
     show();
 }
 
-void ParseResultWidget::changeState(QTreeWidgetItem*item)
+void FailureWidget::changeState(QTreeWidgetItem*item)
 {
     Qt::CheckState preItemState=item->child(0)->checkState(COLUMN_INDEX_NAME);
     Qt::CheckState newState;
@@ -177,49 +172,9 @@ void ParseResultWidget::changeState(QTreeWidgetItem*item)
 
 }
 
-void ParseResultWidget::writePlanXml(QString planName)
-{
-    QDir dir(mResultPath+"/../../../subplans"); //有.的路径是相对路径,可以转化为绝对路径,这种方式更方便不用自己组装字符串
-    if( !dir.exists())
-    {
-        dir.mkdir(dir.absolutePath());
-     //   qDebug()<<"mkdir "<<dir.absolutePath();
-    }
-    QFile file(dir.absolutePath()+"/"+planName+".xml");
-    QDomDocument doc;
-    QDomElement rootNode = doc.createElement("SubPlan");
-    rootNode.setAttribute("version","2.0");
-
-    for(QString test:checkedList)
-    {
-      QString caseName=caseToTestMap.key(test);
-      QString moduleName=moduleToCaseMap.key(caseName);
-      QDomElement entryNode=doc.createElement("Entry");
-      entryNode.setAttribute("include",moduleName+" "+caseName+"#"+test);
-      rootNode.appendChild(entryNode);
-    }
-     doc.appendChild(rootNode);
-    file.open(QIODevice::WriteOnly);
-    QTextStream out(&file);
-    out<<"<?xml version='1.0' encoding='UTF-8' standalone='no' ?>\n";
-    doc.save(out,4);
-    file.close();
-    //qDebug()<<dir.absolutePath();
-}
-
-void ParseResultWidget::execPlan(QString planName)
-{
-    QProcess *p=new QProcess(this);
-    QStringList arg;
-    arg<<"-x"<<"bash"<<"-c"<<"-v"<<QString("/home/liaowenxing/plan.exp run cts --plan %1").arg(planName);
-    p->execute(QString("gnome-terminal"),arg);
-   // qDebug()<<planPath;
-}
-
-
-ParseResultWidget::ParseResultWidget(QWidget *parent) :
+FailureWidget::FailureWidget(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::ParseResultWidget)
+    ui(new Ui::FailureWidget)
 {
     ui->setupUi(this);
     connect(ui->result_tree_widget,SIGNAL(itemChanged(QTreeWidgetItem*,int))
@@ -241,12 +196,19 @@ ParseResultWidget::ParseResultWidget(QWidget *parent) :
    // ui->result_tree_widget->collapseAll();
 }
 
-ParseResultWidget::~ParseResultWidget()
+FailureWidget::~FailureWidget()
 {
     delete ui;
 }
 
-void ParseResultWidget::updateTreeWidget()
+FailureWidget::FailureWidget(QString toolPath,QString xmlPath)
+{
+   FailureWidget();
+   mToolPath = toolPath;
+   mXmlPath = xmlPath;
+}
+
+void FailureWidget::updateTreeWidget()
 {
 
    // qDebug()<<moduleToCaseMap;
