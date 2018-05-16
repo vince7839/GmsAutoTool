@@ -13,7 +13,7 @@ WaitingWidget::WaitingWidget(QWidget *parent) :
     p.setColor(QPalette::Background,Qt::black);
     setPalette(p);
     setWindowFlags(Qt::FramelessWindowHint|Qt::Tool);
-    setWindowModality(Qt::ApplicationModal);
+  //  setWindowModality(Qt::ApplicationModal);
     setWindowOpacity(0.8);
     setFixedSize(100,50);
     QPalette p2;
@@ -28,17 +28,17 @@ void WaitingWidget::startWaiting(QWidget *parent, QString text)
         sInstance = new WaitingWidget;
         qDebug()<<"new";
     }
-   if(text == NULL ||text.isEmpty())
-   {
+     if(text == NULL ||text.isEmpty())
+     {
        text = QString::fromUtf8("正在加载");
-   }
-  sInstance->setMessage(text);
-  QPoint point(parent->width()/2,parent->height()/2);
-  point = parent->mapToGlobal(point);
-  int x = point.x() - sInstance->width()/2;
-  int y = point.y() - sInstance->height()/2;
-  sInstance->move(x,y);
-  sInstance->show();
+     }
+     sInstance->setMessage(text);
+     QPoint point(parent->width()/2,parent->height()/2);
+     point = parent->mapToGlobal(point);
+     int x = point.x() - sInstance->width()/2;
+     int y = point.y() - sInstance->height()/2;
+     sInstance->move(x,y);
+     sInstance->show();
 }
 
 void WaitingWidget::endWaiting()
@@ -64,5 +64,5 @@ WaitingWidget::~WaitingWidget()
 
 void WaitingWidget::closeEvent(QCloseEvent *event)
 {
-event->ignore();
+    event->ignore();
 }

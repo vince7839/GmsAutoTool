@@ -4,10 +4,10 @@
 #include "QFile"
 #include "QDebug"
 #include "plandialog.h"
-#include "solutionwidget.h"
 #include "QDir"
 #include"QProcess"
 #include<planutil.h>
+#include"solutionwidget.h"
 
 void FailureWidget::treeCheckedChange(QTreeWidgetItem*item,int)
 {
@@ -73,14 +73,11 @@ void FailureWidget::showSolution()
    map.insert("module",moduleName);
    map.insert("case",caseName);
    map.insert("test",testName);
-
-   if(solutionWidget == NULL)
-            solutionWidget=new SolutionWidget;
-
-   solutionWidget->showSolution(map);
-   solutionWidget->activateWindow();
-
-
+  if(mSolutionWidget == NULL)
+  {
+       mSolutionWidget = new SolutionWidget;
+    }
+   mSolutionWidget->showSolution(map);
 }
 
 void FailureWidget::expandTree()
@@ -131,9 +128,9 @@ void FailureWidget::parseNode(QDomNode node)
    }
 }
 
-void FailureWidget::showResult(QString xmlPath)
+void FailureWidget::showResult(QString toolPath, QString xmlPath)
 {
-    mXmlPath=xmlPath;
+    mToolPath = toolPath;
     QDomDocument doc;
     doc.setContent(new QFile(xmlPath));
     moduleToCaseMap.clear();
@@ -144,8 +141,8 @@ void FailureWidget::showResult(QString xmlPath)
     ui->result_tree_widget->collapseAll();
     ui->btn_expand->setText(QString::fromUtf8("展开▼"));
     ui->result_tree_widget->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
-
     show();
+    activateWindow();
 }
 
 void FailureWidget::changeState(QTreeWidgetItem*item)
@@ -199,13 +196,6 @@ FailureWidget::FailureWidget(QWidget *parent) :
 FailureWidget::~FailureWidget()
 {
     delete ui;
-}
-
-FailureWidget::FailureWidget(QString toolPath,QString xmlPath)
-{
-   FailureWidget();
-   mToolPath = toolPath;
-   mXmlPath = xmlPath;
 }
 
 void FailureWidget::updateTreeWidget()

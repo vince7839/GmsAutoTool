@@ -61,7 +61,7 @@ QString Config::getTestCmd(QString type,QString platform, QString action)
 QStringList Config::getTestActions(QString type)
 {
     QStringList actions;
-    actions<<ACTION_ALL<<ACTION_RETRY<<ACTION_MODULE<<ACTION_SINGLE;
+    actions<<ACTION_ALL<<ACTION_RETRY<<ACTION_MODULE<<ACTION_SINGLE<<ACTION_PLAN;
     return actions;
 }
 
@@ -72,6 +72,7 @@ QString Config::getActionLabel(QString action)
     map.insert(ACTION_RETRY,QString::fromUtf8("复测"));
     map.insert(ACTION_MODULE,QString::fromUtf8("模块测试"));
     map.insert(ACTION_SINGLE,QString::fromUtf8("单项测试"));
+    map.insert(ACTION_PLAN,QString::fromUtf8("执行Plan"));
     return map.value(action);
 }
 

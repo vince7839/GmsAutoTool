@@ -16,8 +16,8 @@ PlanUtil::PlanUtil()
 bool PlanUtil::isPlanExists(QString toolPath, QString planName)
 {
     QDir planDir(QString("%1/../../subplans").arg(toolPath));
-    qDebug()<<"[PlanUtil]plan dir:"<<planDir.absolutePath();
     QString fileName = QString("%1/%2.xml").arg(planDir.absolutePath()).arg(planName);
+     qDebug()<<"[PlanUtil]plan file name:"<<fileName;
     QFile file(fileName);
     qDebug()<<QString("[PlanUtil]check plan file %1 exists = %2").arg(fileName).arg(file.exists());
     return file.exists();
@@ -33,7 +33,7 @@ void PlanUtil::execPlan(QString toolPath, QString planName)
     QList<QMap<QString,QString>> list = conn->exec(QString("SELECT * FROM Tool WHERE path = '%1'").arg(toolPath));
     if(list.isEmpty()||list.size() > 1)
     {
-        qDebug()<<"[PlanUtil]result size exception";
+        qDebug()<<"[PlanUtil]tool size exception";
         return;
     }else{
         QMap<QString,QString> map = list.first();
@@ -41,9 +41,10 @@ void PlanUtil::execPlan(QString toolPath, QString planName)
         QString platform = Config::getCmdPlatform(map.value("platform"));
         QString planCmd = Config::getTestCmd(type,platform,Config::ACTION_PLAN);
         planCmd.arg(planName);
+        QString bashCmd = QString("%1 %2;exec bash").arg(toolPath).arg(planCmd);
+        qDebug()<<"[PlanUtil]plan cmd:"<<planCmd;
         QProcess* p = new QProcess;
-        QStringList arg;
-        arg<<"-x"<<"bash"<<"-c"<<planCmd;
+        QStringList arg = QStringList()<<"-x"<<"bash"<<"-c"<<bashCmd;
         qDebug()<<"[PlanUtil]exec plan:"<<arg;
         p->start("gnome-terminal",arg);
     }

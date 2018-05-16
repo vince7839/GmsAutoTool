@@ -39,6 +39,7 @@ void SolutionWidget::showSolution(QMap<QString, QString> map)
 
     ui->scrollArea->setWidget(scrollWidget);
     show();
+    activateWindow();
 }
 
 void SolutionWidget::addAnswer(QMap<QString, QString> map)

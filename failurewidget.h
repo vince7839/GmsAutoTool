@@ -24,20 +24,20 @@ private slots:
 public:    
     void parseXml(QDomNode);
     void parseNode(QDomNode);
-    void showResult(QString);
+    void showResult(QString toolPath,QString xmlPath);
     void changeState(QTreeWidgetItem *);
     void updateTreeWidget();
 
     explicit FailureWidget(QWidget *parent = 0);
     ~FailureWidget();
-    FailureWidget(QString toolPath,QString xmlPath);
 private:
     Ui::FailureWidget *ui;
-    QMultiMap<QString,QString> moduleToCaseMap,caseToTestMap;
-    const int COLUMN_INDEX_NAME=0,COLUMN_INDEX_COUNT=1;
+    QMultiMap<QString,QString> moduleToCaseMap;
+    QMultiMap<QString,QString> caseToTestMap;
+    const int COLUMN_INDEX_NAME = 0;
+    const int  COLUMN_INDEX_COUNT = 1;
     QSet<QString> mPlanSet;
-    SolutionWidget* solutionWidget=NULL;
-    QString mXmlPath;
+    SolutionWidget* mSolutionWidget;
     QString mToolPath;
 };
 

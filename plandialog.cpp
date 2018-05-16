@@ -51,7 +51,7 @@ void PlanDialog::checkPlanName(QString planName)
     {
         msg = QString::fromUtf8("Plan名不能为空！");
         isEnabled = false;
-    }else if(PlanUtil::isPlanExists("","")){
+    }else if(PlanUtil::isPlanExists(mToolPath,planName)){
         msg = QString::fromUtf8("Plan已存在！");
         isEnabled = false;
     }else{

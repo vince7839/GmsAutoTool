@@ -94,10 +94,12 @@ void TestWidget::parseOutput(QString path,QString output)
 
 void TestWidget::newTest()
 {
+    setCursor(Qt::WaitCursor);
     AddTestWidget*w=new AddTestWidget;
     connect(w,SIGNAL(postStart(QMap<QString,QString>))
             ,this,SLOT(startTest(QMap<QString,QString>)));
     w->show();
+    setCursor(Qt::ArrowCursor);
 }
 
 void TestWidget::startTest(QMap<QString,QString> map)
@@ -133,6 +135,8 @@ void TestWidget::startTest(QMap<QString,QString> map)
         }
     }else if(action == Config::ACTION_SINGLE){
        actionCmd =  actionCmd.arg(map.value("module")).arg(map.value("test"));
+    }else if(action == Config::ACTION_PLAN){
+        actionCmd = actionCmd.arg(map.value("planName"));
     }
     qDebug()<<"[TestWidget]action cmd:"<<actionCmd;
     QString bashCmd = QString("trap 'rm %4' SIGHUP SIGINT;(%1 %2 -s %3;rm %4)|tee -a %4;exec bash").arg(toolPath)
@@ -156,17 +160,6 @@ void TestWidget::on_pushButton_clicked()
 {
   /*  QNetworkInterface i = QNetworkInterface::interfaceFromName("eth0");
       qDebug()<<i.hardwareAddress();*/
-
-//qDebug()<<Config::getTestCmd(Config::CTS,"N",Config::ACTION_ALL);
-//qDebug()<<Config::getTestCmd(Config::CTS,"Y",Config::ACTION_ALL);
-
-//pa = new QProcess;
-//connect(pa,SIGNAL(readyRead()),this,SLOT(testOut()));
-//QStringList arg;
-//arg<<"l"<<"r";
-//arg<<"run"<<"cts";
-//pa->start("/home/liaowenxing/GMS/CTS/N/CTS_7.0_r10/android-cts/tools/cts-tradefed",arg);
-//pa->start("script/test.sh");
     static bool b =true;
     b? WaitingWidget::startWaiting(this,QString::fromUtf8("正在加载")):WaitingWidget::endWaiting();
     b =!b;

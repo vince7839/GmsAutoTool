@@ -23,10 +23,8 @@ public:
     void parseXml(QDomNode);
     void parseNode(QDomNode);
 
-
     explicit SolutionWidget(QWidget *parent = 0);
     ~SolutionWidget();
-
 private:
     Ui::SolutionWidget *ui;
     QString mTestName;

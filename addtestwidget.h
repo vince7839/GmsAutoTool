@@ -26,7 +26,13 @@ private slots:
     void updateTestName();
     void updateActionBox();
     void updateActionInfo();
+    void updateSessionBox();
+    void updatePlanBox();
+    void updateModuleBox();
     void modulesChanged(bool);
+    void onToolChanged();
+    void switchPlanMode(bool isChecked);
+    void openPlanFile();
 public:
     explicit AddTestWidget(QWidget *parent = 0);
     ~AddTestWidget();
@@ -43,6 +49,7 @@ private:
     QGroupBox* mRetryBox;
     QGroupBox* mModuleBox;
     QGroupBox* mSingleBox;
+    QGroupBox* mPlanBox;
     QSet<QString> mModuleSet;
 };
 

@@ -144,9 +144,12 @@ void ResultWidget::updateContent()
 void ResultWidget::tableItemClicked(QTableWidgetItem*item)
 {
     if(parseWidget == NULL)
+    {
           parseWidget=new FailureWidget;
-    parseWidget->showResult(mResultList.at(item->row()).value("xmlPath"));
-    parseWidget->activateWindow();
+    }
+    QString toolPath = mResultList.at(item->row()).value("toolPath");
+    QString xmlPath = mResultList.at(item->row()).value("xmlPath");
+    parseWidget->showResult(toolPath,xmlPath);
 }
 
 
