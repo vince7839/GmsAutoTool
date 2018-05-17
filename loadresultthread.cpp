@@ -38,13 +38,11 @@ void LoadResultThread::parseResultPath()
         QString toolPath = list.at(i).value("path");
         QString resultDirPath = QDir(QString("%1/../../results").arg(toolPath)).absolutePath();
         QDir resultDir(resultDirPath);
-        qDebug()<<"[LoadResultThread]result dir path:"<<resultDir.absolutePath();
-        qDebug()<<resultDir.entryInfoList().size();
+        qDebug()<<"[LoadResultThread]tool result dir:"<<resultDir.absolutePath();
         foreach(QFileInfo info,resultDir.entryInfoList())
         {
             if( info.isDir() && info.fileName()!="." && info.fileName()!= ".." )
             {
-                qDebug()<<info.absolutePath()<<" "<<info.absoluteFilePath();
                 QFileInfo xmlFile(QString("%1/test_result.xml").arg(info.absoluteFilePath()));
                 if(xmlFile.exists())
                 {
@@ -55,7 +53,7 @@ void LoadResultThread::parseResultPath()
                     map.insert("xmlPath",xmlFile.absoluteFilePath());
                     map.insert("zipPath",info.absoluteFilePath().append(".zip"));
                     map.insert("zipName",info.fileName().append(".zip"));
-                    qDebug()<<"[LoadResultThread]result info:"<<map;
+                  //  qDebug()<<"[LoadResultThread]result info:"<<map;
                     mResultList.append(map);
                 }
             }
@@ -102,9 +100,24 @@ QString LoadResultThread::getFormatTime(QString msec)
     return t.toString("yyyy/MM/dd HH:mm");
 }
 
+void LoadResultThread::sortByTime(QList<QMap<QString, QString> > &list)
+{
+    //使用冒泡算法对测试结果按时间排序
+    int ROUND_COUNT = list.size() - 1;
+    for(int i=0;i<ROUND_COUNT;i++)
+    {
+        for(int j=0;j<ROUND_COUNT-i;j++)
+        {
+            if(list.at(j).value("end_time") < list.at(j+1).value("end_time")){
+                list.swap(j,j+1);
+            }
+        }
+    }
+}
+
 void LoadResultThread::run(){
-    qDebug()<<"run";
+    qDebug()<<"[LoadResultThread]thread run";
     parseResultPath();
-    //qSort(mResultList);
+    sortByTime(mResultList);
     loadReady(mResultList);
 }

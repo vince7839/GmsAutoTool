@@ -30,7 +30,7 @@ TestWidget::TestWidget(QWidget *parent) :
     connect(mTimer,SIGNAL(timeout()),this,SLOT(updateTime()));
     mFileWatcher = new QFileSystemWatcher;
     connect(mFileWatcher,SIGNAL(fileChanged(QString)),this,SLOT(onFileChanged(QString)));
-    //ui->pushButton->setVisible(false);
+    ui->pushButton->setVisible(false);
 }
 
 TestWidget::~TestWidget()
@@ -41,7 +41,7 @@ TestWidget::~TestWidget()
 void TestWidget::parseOutput(QString path,QString output)
 {
     qDebug()<<"output:"<<output;
-    QRegExp expectTimeReg(".*running ([0-9]+) modules, expected to complete in ([0-9]+)h ([0-9]+)m ([0-9]+)s.*");
+    QRegExp expectTimeReg(".*running ([0-9]+) .*modules, expected to complete in ([0-9]+)h ([0-9]+)m ([0-9]+)s.*");
     QRegExp moduleStartReg(".*Starting .* (.*) with ([0-9]+) test.*");   //more than 1 test will show tests
     QRegExp testFinishReg(".*([0-9]+:[0-9]+:[0-9]+).*([0-9]+)/([0-9]+) .* (.*) .* .*#(.*) (pass|fail).*");
     QRegExp nameReg("\\[GmsAutoTool\\]test name:(.*)");
@@ -106,7 +106,7 @@ void TestWidget::startTest(QMap<QString,QString> map)
 {
     qDebug()<<map;
     QString tempName = QString("temp/%1").arg(QDateTime::currentMSecsSinceEpoch());
-    QString toolPath = map.value("path");
+    QString toolPath = map.value("toolPath");
     QString platform = map.value("platform");
     QString device = map.value("device");
     QString printInfo = QString("[GmsAutoTool]test name:%1\n").arg(map.value("name"));
@@ -150,50 +150,37 @@ void TestWidget::startTest(QMap<QString,QString> map)
     addTestProgress(map);
 }
 
-void TestWidget::printOutput()
-{
-    qDebug()<<"change";
-   // qDebug()<<pa->readAll();
-}
-
 void TestWidget::on_pushButton_clicked()
 {
   /*  QNetworkInterface i = QNetworkInterface::interfaceFromName("eth0");
       qDebug()<<i.hardwareAddress();*/
-    static bool b =true;
-    b? WaitingWidget::startWaiting(this,QString::fromUtf8("正在加载")):WaitingWidget::endWaiting();
-    b =!b;
+    qDebug()<<Config::getTestCmd("CTS","N","plan");
+    qDebug()<<Config::getTestCmd("CTS","O","plan");
 }
 
 void TestWidget::updateContent(){}
 
 void TestWidget::onFileChanged(QString path)
 {
-    //qDebug()<<"[TestWidget]onFileChanged:"<<path;
     QFile file(path);
     if(file.open(QIODevice::ReadOnly))
     {
         QStringList list = QString(file.readAll()).split("\n");
+        list.removeLast();
         ProgressView* view = mViewMap.value(path);
-        if(list.size() >= 2 && view != NULL)
-        {
-            list.removeLast();
-            int startRow = view->rowIndex;
-            for(int i = startRow;i < list.size();i++)
+        //qDebug()<<"[TestWidget]view is null:"<<(view == NULL);
+        if(!list.isEmpty() && view != NULL)
+        { 
+            for(int i = view->rowIndex;i < list.size();i++)
             {
-             //   qDebug()<<list.at(i);
-                QStringList lineList = list.at(i).split("\r");  //like aaa\rbbb\r,this list ("aaa","bbb","")
-                if(lineList.size() >= 2)
-                {
-                    QString output = lineList.at(1);
-                    if(!output.isEmpty())
-                    {
-                        parseOutput(path,output);
-                    }
+                QString output = list.at(i);
+                if(!output.isEmpty()){
+                    parseOutput(path,output);
                 }
             }
-            view->rowIndex = list.size()-1;
+            view->rowIndex = list.size() ;
         }
+        file.close();
     }
 }
 
@@ -204,7 +191,6 @@ void TestWidget::addTestProgress(QMap<QString, QString> map)
     scrollLayout->insertWidget(mViewMap.size(),view->getView());
     ui->scrollAreaWidgetContents->setLayout(scrollLayout);
     mViewMap.insert(map.value("testId"),view);
-
     if(!mTimer->isActive()){
         mTimer->start(1000);
     }
@@ -219,9 +205,9 @@ void TestWidget::updateTime()
            qDebug()<<"remove";
            delete mViewMap.value(k)->getView();
            mViewMap.remove(k);
+           mFileWatcher->removePath(k);
        }
    }
-
    QList<ProgressView*> list = mViewMap.values();
    if(!list.isEmpty()){
        foreach (ProgressView* v, list) {
@@ -261,9 +247,4 @@ void TestWidget::restoreView()
             }
         }
     }
-}
-
-void TestWidget::testOut()
-{
-    qDebug()<<pa->readAll();
 }

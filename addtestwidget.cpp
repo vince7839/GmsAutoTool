@@ -143,6 +143,7 @@ void AddTestWidget::initBoxUi()
     radioFile->setObjectName("fileRadioBtn");
     connect(radioFile,SIGNAL(toggled(bool)),this,SLOT(switchPlanMode(bool)));
     QLineEdit* fileLineEdit = new QLineEdit;
+    connect(fileLineEdit,SIGNAL(textChanged(QString)),this,SLOT(enableStart()));
     fileLineEdit->setObjectName("fileLineEdit");
     fileLineEdit->setReadOnly(true);
     fileLineEdit->setFocusPolicy(Qt::NoFocus);
@@ -188,8 +189,9 @@ void AddTestWidget::updateToolBox()
 void AddTestWidget::startClicked()
 {
        QMap<QString,QString> map;
+       QString toolPath = mToolList.at(ui->cbox_tool->currentIndex()).value("path");
        map.insert("platform",mToolList.at(ui->cbox_tool->currentIndex()).value("platform"));
-       map.insert("path",mToolList.at(ui->cbox_tool->currentIndex()).value("path"));
+       map.insert("toolPath",toolPath);
        map.insert("device",ui->cbox_device->currentText());
        map.insert("name",ui->lineEdit_name->text());
        map.insert("action",ui->cbox_action->currentData().toString());
@@ -217,7 +219,19 @@ void AddTestWidget::startClicked()
            bool isFilePlan = mPlanBox->findChild<QRadioButton*>("fileRadioBtn")->isChecked();
            QString planName;
            if(isFilePlan){
-
+               QString filePath = mPlanBox->findChild<QLineEdit*>("fileLineEdit")->text();
+               QFileInfo oldFile(filePath);
+               QString newFilePath = QFileInfo(QString("%1/../../subplans/%2")
+                                           .arg(toolPath).arg(oldFile.fileName())).absoluteFilePath();
+               if(QFile::exists(newFilePath))
+               {
+                    QMessageBox::warning(this,QString::fromUtf8("警告"),QString::fromUtf8("%1已存在").arg(newFilePath));
+                    return;
+               }
+               QFile::copy(filePath,newFilePath);
+               planName = oldFile.completeBaseName();
+               qDebug()<<"[AddTestWidget]old file path:"<<filePath;
+               qDebug()<<"[AddTestWidget]new file path:"<<newFilePath;
            }else{
                planName = mPlanBox->findChild<QComboBox*>("cboxPlan")->currentText();
            }
@@ -313,7 +327,7 @@ void AddTestWidget::updateSessionBox()
               QString item = QString("id:%1 | pass:%2 | fail:%3")
                       .arg(sessionId).arg(pass).arg(fail);
               cboxSession->addItem(item,sessionId);
-              qDebug()<<reg.cap(1)<<reg.cap(2)<<reg.cap(3);
+           //   qDebug()<<reg.cap(1)<<reg.cap(2)<<reg.cap(3);
            }
         }
     }
@@ -401,7 +415,7 @@ void AddTestWidget::switchPlanMode(bool isChecked)
     QPushButton* btnFile = mPlanBox->findChild<QPushButton*>("btnFile");
     btnFile->setEnabled(isChecked);
     mPlanBox->findChild<QComboBox*>("cboxPlan")->setEnabled(!isChecked);
-
+    enableStart();
 }
 
 void AddTestWidget::openPlanFile()
@@ -440,7 +454,7 @@ void AddTestWidget::enableStart()
             warningLabel->setText(QString::fromUtf8(isMultiModule ? "<font color=red>输入Plan名<font>" : ""));
         }else{
             isPlanNameOk = !PlanUtil::isPlanExists(toolPath,planName);
-            warningLabel->setText(isPlanNameOk ? QString::fromUtf8("<font color=red>Plan已存在！<font>") : "");
+            warningLabel->setText(QString::fromUtf8(isPlanNameOk ? "" : "<font color=red>Plan已存在！<font>"));
         }
         isModuleOk = !mModuleSet.isEmpty() && (isPlanNameOk||!isMultiModule);
         qDebug()<<QString("[AddTestWidget]plan name %1 is ok = %2").arg(planName).arg(isPlanNameOk);

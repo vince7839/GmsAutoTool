@@ -24,13 +24,11 @@ class TestWidget : public QWidget,public Updatable
 public slots:
     void newTest();
     void startTest(QMap<QString,QString>);
-    void printOutput();
     void updateContent();
     void onFileChanged(QString);
     void addTestProgress(QMap<QString,QString>);
     void updateTime();
     void restoreView();
-    void testOut();
 public:
     explicit TestWidget(QWidget *parent = 0);
     ~TestWidget();

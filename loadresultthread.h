@@ -16,6 +16,7 @@ public:
     void parseResultPath();
     void parseResultInfo();
     QString getFormatTime(QString);
+    void sortByTime(QList<QMap<QString, QString> >&);
 protected:
     void run();
 private:

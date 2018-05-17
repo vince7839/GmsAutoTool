@@ -145,8 +145,8 @@ void SocketUtil::handleMessage(QMap<QString, QVariant> msg)
                 qDebug()<<"the directory FileRecv does not exist";
                 dir.mkdir("FileRecv");
             }
-            QByteArray byteArray = msg.value(KEY_DATA).toByteArray();
-            QFile file("FileRecv/"+msg.value(KEY_FILE_NAME).toString());
+            QByteArray byteArray = msg.value(KEY_DATA).toByteArray();                        
+            QFile file("FileRecv/"+msg.value(KEY_FILE_NAME).toString());//会自动创建文件夹
             if(file.open(QIODevice::ReadWrite))
             {
                 file.write(byteArray);

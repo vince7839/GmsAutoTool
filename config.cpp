@@ -52,9 +52,8 @@ QString Config::getTestCmd(QString type,QString platform, QString action)
    if(cmdNode.isNull())
    {
        cmdNode =  actionNode.namedItem("Command"); //default cmd
-   }
-   QString log("[Config]get cmd for %1 %2 %3:%4");
-   qDebug()<<log.arg(type).arg(platform).arg(action).arg(cmdNode.toElement().text());
+   }   
+   qDebug()<<QString("[Config]get cmd for test:%1 platform:%2 action:%3->%4").arg(type).arg(platform).arg(action).arg(cmdNode.toElement().text());
    return cmdNode.toElement().text();
 }
 
@@ -110,5 +109,6 @@ QString Config::getCmdPlatform(QString num)
             return platforms.at(i);
         }
     }
-    return platforms.first();//没找到对应平台则使用默认最新命令
+    qDebug()<<"[Config]no platform for:"<<num;
+    return "";
 }

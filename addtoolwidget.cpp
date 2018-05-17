@@ -48,6 +48,11 @@ void AddToolWidget::openFileDialog()
 {
     mToolPath = QFileDialog::getOpenFileName(this, QString::fromUtf8("选择脚本"), "/home", QString::fromUtf8("启动脚本(*-tradefed)"));
     ui->lineEdit_path->setText(mToolPath);
+    if(mToolPath.isEmpty())
+    {
+        return;
+    }
+    setCursor(Qt::WaitCursor);
     QFileInfo info(mToolPath);
     QString scriptName = info.fileName();
     QString toolType = scriptName.left(3).toUpper();
@@ -60,12 +65,12 @@ void AddToolWidget::openFileDialog()
         qDebug()<<output;
         QStringList list = output.split("\n");
         QString line = list.first();
-        QRegExp reg(".*([0-9]+\.[0-9]+)_(r[0-9]+) .*");
+        QRegExp reg(".*([0-9]+\\.[0-9]+)_(r[0-9]+) .*");
         if(reg.exactMatch(line))
         {
             QString platform = reg.cap(1);
             QString version = reg.cap(2);
-            qDebug()<<QString("[AddToolWidget]tool info:").arg(platform).arg(version);
+            qDebug()<<QString("[AddToolWidget]tool info:%1_%2").arg(platform).arg(version);
             ui->lineEdit_platform->setText(platform);
             ui->lineEdit_version->setText(version);
             ui->lineEdit_name->setText(QString("%1_%2_%3").arg(toolType).arg(platform).arg(version));
@@ -76,6 +81,7 @@ void AddToolWidget::openFileDialog()
     ui->groupBox->setVisible(!ui->lineEdit_path->text().isEmpty());
     ui->btn_ok->setEnabled(!ui->lineEdit_name->text().isEmpty() && !ui->lineEdit_path->text().isEmpty()
                                              && !ui->lineEdit_platform->text().isEmpty() && !ui->lineEdit_type->text().isEmpty());
+    setCursor(Qt::ArrowCursor);
 }
 
 void AddToolWidget::saveTool()

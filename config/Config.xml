@@ -3,22 +3,57 @@
 <Test type="CTS">
     <Action name="all">
         <Command>run cts</Command>
-        <Command platform="N">run cts</Command>
     </Action>
     <Action name="plan">
-        <Command>run cts --plan</Command>
-        <Command platform="N">run cts --plan</Command>
+        <Command>run cts --plan %1</Command>
+        <Command platform="O">run cts --subplan %1</Command>
+    </Action>
+    <Action name="retry">
+        <Command>run cts -r %1</Command>
+    </Action>
+    <Action name="module">
+        <Command>run cts -m %1</Command>
+    </Action>
+    <Action name="single">
+        <Command>run cts -m %1 -t %2</Command>
     </Action>
 </Test>
 
 <Test type="GTS">
     <Action name="all">
         <Command>run gts</Command>
-        <Command platform="N">run gts</Command>
     </Action>
     <Action name="plan">
-        <Command>run gts</Command>
-        <Command platform="N">run gts --plan</Command>
+        <Command>run gts --plan %1</Command>
+        <Command platform="O">run cts --subplan %1</Command>
+    </Action>
+    <Action name="retry">
+        <Command>run gts -r %1</Command>
+    </Action>
+    <Action name="module">
+        <Command>run gts -m %1</Command>
+    </Action>
+    <Action name="single">
+        <Command>run gts -m %1 -t %2</Command>
+    </Action>
+</Test>
+
+<Test type="VTS">
+    <Action name="all">
+        <Command>run vts</Command>
+    </Action>
+    <Action name="plan">
+        <Command>run vts --plan %1</Command>
+        <Command platform="O">run cts --subplan %1</Command>
+    </Action>
+    <Action name="retry">
+        <Command>run vts -r %1</Command>
+    </Action>
+    <Action name="module">
+        <Command>run vts -m %1</Command>
+    </Action>
+    <Action name="single">
+        <Command>run vts -m %1 -t %2</Command>
     </Action>
 </Test>
 

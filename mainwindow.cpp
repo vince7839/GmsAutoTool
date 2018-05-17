@@ -42,7 +42,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     checkProcess = new QProcess(this);
     connect(checkProcess,SIGNAL(readyRead()),this,SLOT(onProcessOutput()));
-    checkProcess->start("expect -v");
+  //  checkProcess->start("expect -v");
    // QMenu* optionsMenu = menuBar()->addMenu(QString::fromUtf8("选项"));
     int x = (QApplication::desktop()->width() - width()) /2;
     int y = (QApplication::desktop()->height() - height()) /2;

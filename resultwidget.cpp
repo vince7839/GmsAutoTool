@@ -28,7 +28,7 @@ ResultWidget::ResultWidget(QWidget *parent) :
     ui->result_table_widget->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     //ui->result_table_widget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->result_table_widget->horizontalHeader()->setEnabled(false);  
-    mLoadThread=new LoadResultThread;
+    mLoadThread = new LoadResultThread;
     connect(mLoadThread,SIGNAL(loadReady(QList<QMap<QString,QString> >)),this,SLOT(updateResultTable(QList<QMap<QString,QString> >)));
     connect(ui->cBox_resultType,SIGNAL(currentTextChanged(QString)),mLoadThread,SLOT(loadAsType(QString)));
 
@@ -66,7 +66,7 @@ void ResultWidget::contextMenuEvent(QContextMenuEvent *e)
 
 void ResultWidget::updateResultTable(QList<QMap<QString,QString> >resultList)
 {
-    qDebug()<<"ready size:"<<resultList.size();
+    qDebug()<<"[ResultWidget]thread load result size:"<<resultList.size();
     mResultList = resultList;
   // ui->result_table_widget->clear();
    ui->result_table_widget->setRowCount(resultList.size());
@@ -108,7 +108,7 @@ void ResultWidget::deleteResult()
             qDebug()<<item->row();
         }
     }
-    updateContent();
+    mLoadThread->loadAsType(ui->cBox_resultType->currentText());
 }
 
 void ResultWidget::enableDelBtn()

@@ -26,72 +26,62 @@ void ExtendWidget::configPC()
     p->start("adb version");
     if(p->waitForFinished()){
         QString output = p->readAll();
-        qDebug()<<output;
+        qDebug()<<"[ExtendWidget]test adb:"<<output;
         adbExists = output.startsWith("Android Debug Bridge version");
     }
-
     p->start("aapt version");
     if(p->waitForFinished()){
         QString output = p->readAll();
-        qDebug()<<output;
+        qDebug()<<"[ExtendWidget]test aapt:"<<output;
         aaptExists = output.startsWith("Android Asset Packaging Tool");
     }
-
+    qDebug()<<QString("[ExtendWidget]adb:%1 aapt:%2").arg(adbExists).arg(aaptExists);
     if(adbExists && aaptExists)
     {
         QMessageBox::information(this,QString::fromUtf8("提示"),QString::fromUtf8("您已配置过系统环境,无需重新配置"));
         return;
     }
-    qDebug()<<adbExists<<" "<<aaptExists;
-    QStringList args;
     QString sdkPath=QFileDialog::getExistingDirectory(this,QString::fromUtf8("选择SDK文件夹"),"/home");
+    qDebug()<<"[ExtendWidget]sdk path:"<<sdkPath;
     QString cmd;
     if(!adbExists){
-        QString adbPath = sdkPath + QString("/platform-tools/adb");
+        QString adbPath =  QString("%1/platform-tools/adb").arg(sdkPath);
         if(!QFile::exists(adbPath))
         {
             QMessageBox::warning(this,QString::fromUtf8("错误"),QString::fromUtf8("找不到adb工具!"));
             return;
         }
-        cmd += "sudo ln -s "+adbPath+" /usr/bin/adb;echo 'link adb finish...';";
+        cmd.append(QString("sudo ln -s %1 %2;echo 'link adb finished...';").arg(adbPath).arg("/usr/bin/adb"));
     }else{
-        cmd += "echo 'adb does not need link,skip...';";
+        cmd.append(QString("echo 'adb is ok,skip...';"));
     }
-
     if(!aaptExists){
-        QString buildToolsPath = sdkPath + QString("/build-tools");
+        QString buildToolsPath = QString("%1/build-tools").arg(sdkPath);
         QDir dir(buildToolsPath);
-        QStringList versionList;
-
+        QString dirVersion;
         foreach(QFileInfo info,dir.entryInfoList())
         {
-            if(info.fileName()!="." && info.fileName()!="..")
-                versionList.append(info.fileName());
+            QString dirName = info.fileName();
+            if(info.isDir() && dirName!="." && dirName!=".." && dirName > dirVersion)
+            {
+                dirVersion =  dirName;
+            }
         }
-
-        if(versionList.isEmpty())
-        {
-            QMessageBox::warning(this,QString::fromUtf8("错误"),QString::fromUtf8("找不到build-tools!"));
-            return;
-        }
-
-        std::sort(versionList.begin(),versionList.end());
-        QString aaptPath=buildToolsPath+"/"+versionList.last()+"/aapt";
+        QString aaptPath = QString("%1/%2/aapt").arg(buildToolsPath).arg(dirVersion);
         if(!QFile::exists(aaptPath))
         {
-            QMessageBox::warning(this,QString::fromUtf8("错误"),QString::fromUtf8("找不到aapt文件!"));
+            QMessageBox::warning(this,QString::fromUtf8("错误"),QString::fromUtf8("找不到aapt!"));
             return;
         }
-        cmd += "sudo ln -s "+aaptPath+" /usr/bin/aapt;echo 'link aapt finish...'";
+        cmd.append(QString("sudo ln -s %1 %2;echo 'link aapt finished...';").arg(aaptPath).arg("/usr/bin/aapt"));
     }else{
-        cmd += "echo 'aapt does not need link,skip...';";
+        cmd.append("echo 'aapt is ok,skip...';");
     }
-    cmd += "exec bash";
-    qDebug()<<cmd;
+    cmd.append("exec bash");
+    qDebug()<<"[ExtendWidget]config PC cmd:"<<cmd;
     QMessageBox::information(this,QString::fromUtf8("提示"),QString::fromUtf8("请在接下来弹出的控制台中输入您的Linux密码"));
-    args<<"-x"<<"bash"<<"-c"<<cmd;
+    QStringList args = QStringList()<<"-x"<<"bash"<<"-c"<<cmd;
     QProcess::execute("gnome-terminal",args);
-
 }
 
 void ExtendWidget::pushFile()
@@ -100,34 +90,32 @@ void ExtendWidget::pushFile()
     if(!mediaPath.isEmpty())
     {
         QProcess*p=new QProcess;
-        QStringList args;
-        args<<"-x"<<"bash"<<"-c"<<"adb push "+mediaPath+" /storage/sdcard0/test;exec bash";
+        QString cmd = QString("adb push %1 /storage/sdcard0/test;echo 'success!';exec bash").arg(mediaPath);
+        QStringList args = QStringList()<<"-x"<<"bash"<<"-c"<<cmd;
         p->start("gnome-terminal",args);
-       // QMessageBox::information(this,QString::fromUtf8("提示"),QString::fromUtf8("media文件夹稍后将会导入至手机/storage/sdcard0/test目录下,请注意查收"));
     }
 }
 
 void ExtendWidget::installAPK()
 {
     QString apkPath=QFileDialog::getOpenFileName(this,QString::fromUtf8("选择APK"),"/home",QString::fromUtf8("APK安装包(*.apk)"));
-    qDebug()<<apkPath;
+    qDebug()<<"[ExtendWidget]install APK path:"<<apkPath;
     if(!apkPath.isEmpty())
     {
         QProcess*p=new QProcess;
-        QStringList args;
-        args<<"-x"<<"bash"<<"-c"<<"adb install "+apkPath+";exec bash";
+        QString cmd = QString("adb install %1;exec bash").arg(apkPath);
+        QStringList args = QStringList()<<"-x"<<"bash"<<"-c"<<cmd;
         p->start("gnome-terminal",args);
-
     }
 }
 
 void ExtendWidget::sendBroadcast()
 {
-    QProcess*p=new QProcess;
+    /*QProcess*p=new QProcess;
     QStringList args;
     args<<"-x"<<"bash"<<"-c"<<"exec bash";
-    p->start("gnome-terminal",args);
-
+    p->start("gnome-terminal",args);*/
+    QMessageBox::information(this,QString::fromUtf8("提示"),QString::fromUtf8("此功能暂未接入"));
 }
 
 void ExtendWidget::clickedHandle()

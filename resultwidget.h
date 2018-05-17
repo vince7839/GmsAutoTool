@@ -6,6 +6,7 @@
 #include "failurewidget.h"
 #include "QLinkedList"
 #include<updatable.h>
+#include<loadresultthread.h>
 
 namespace Ui {
 class ResultWidget;
@@ -31,7 +32,7 @@ private:
     Ui::ResultWidget *ui;
     QList<QMap<QString,QString> > mResultList;
     FailureWidget* parseWidget=NULL;
-    QThread*mLoadThread;
+    LoadResultThread*mLoadThread;
 protected:
     void contextMenuEvent(QContextMenuEvent*);
 
