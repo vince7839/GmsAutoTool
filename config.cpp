@@ -12,6 +12,7 @@
 const QString Config::CTS = "CTS";
 const QString Config::GTS = "GTS";
 const QString Config::VTS = "VTS";
+const QString Config::ANY = "ANY";
 const QString Config::ACTION_ALL = "all";
 const QString Config::ACTION_RETRY = "retry";
 const QString Config::ACTION_MODULE = "module";

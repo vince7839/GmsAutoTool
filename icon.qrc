@@ -2,7 +2,7 @@
     <qresource prefix="/tool">
         <file>img/cts_icon.jpg</file>
         <file>img/gts_icon.jpg</file>
-        <file>img/vts_icon.png</file>
+        <file>img/vts_icon.jpg</file>
     </qresource>
     <qresource prefix="/app">
         <file>img/app_icon.png</file>

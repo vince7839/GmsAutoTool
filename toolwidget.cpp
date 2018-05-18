@@ -89,7 +89,7 @@ QString ToolWidget::getIconPath(QString type)
     }else if(type == Config::GTS){
         return ":/tool/img/gts_icon.jpg";
     }else if(type == Config::VTS){
-        return ":/tool/img/vts_icon.png";
+        return ":/tool/img/vts_icon.jpg";
     }
 }
 

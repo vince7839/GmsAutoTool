@@ -8,6 +8,15 @@
 #include<QDomNode>
 #include<QDateTime>
 #include<QMetaType>
+#include<config.h>
+
+const QString LoadResultThread::KEY_TEST_TYPE = "test_type";
+const QString LoadResultThread::KEY_TOOL_VERSION = "tool_version";
+const QString LoadResultThread::KEY_PRODUCT = "product";
+const QString LoadResultThread::KEY_EXECUTE_MODULE = "execute_module";
+const QString LoadResultThread::KEY_FAILURE_COUNT = "failure_count";
+const QString LoadResultThread::KEY_START_TIME = "start_time";
+const QString LoadResultThread::KEY_END_TIME = "end_time";
 
 void LoadResultThread::loadAsType(QString type)
 {
@@ -25,9 +34,9 @@ void LoadResultThread::parseResultPath()
 {
     mResultList.clear();
     QString query="select path from Tool";
-    if(mType!=QString::fromUtf8("全部"))
+    if(mType != Config::ANY)
         query += QString(" where type = '%1'").arg(mType);
-    qDebug()<<query;
+    qDebug()<<"[LoadResultThread]result filter query:"<<query;
     SqlConnection *conn=SqlConnection::getInstance();
     if(!conn->isConnect())
     {
@@ -74,19 +83,19 @@ void LoadResultThread::parseResultInfo()
         QDomNode buildNode=resultNode.namedItem("Build");
         QDomNode summaryNode=resultNode.namedItem("Summary");
 
-        map.insert("test_type",resultNode.attributes().namedItem("suite_name").nodeValue());
+        map.insert(KEY_TEST_TYPE,resultNode.attributes().namedItem("suite_name").nodeValue());
 
-        map.insert("tool_version",resultNode.attributes().namedItem("suite_version").nodeValue());
+        map.insert(KEY_TOOL_VERSION,resultNode.attributes().namedItem("suite_version").nodeValue());
 
-        map.insert("product",buildNode.attributes().namedItem("build_product").nodeValue());
+        map.insert(KEY_PRODUCT,buildNode.attributes().namedItem("build_product").nodeValue());
 
-        map.insert("start_time",getFormatTime(resultNode.attributes().namedItem("start").nodeValue()));
+        map.insert(KEY_START_TIME,getFormatTime(resultNode.attributes().namedItem("start").nodeValue()));
 
-        map.insert("end_time",getFormatTime(resultNode.attributes().namedItem("end").nodeValue()));
+        map.insert(KEY_END_TIME,getFormatTime(resultNode.attributes().namedItem("end").nodeValue()));
 
-        map.insert("execute_module",QString("%1/%2").arg(summaryNode.attributes().namedItem("modules_done").nodeValue())
+        map.insert(KEY_EXECUTE_MODULE,QString("%1/%2").arg(summaryNode.attributes().namedItem("modules_done").nodeValue())
                                                     .arg(summaryNode.attributes().namedItem("modules_total").nodeValue()));
-        map.insert("failed_count",summaryNode.attributes().namedItem("failed").nodeValue());
+        map.insert(KEY_FAILURE_COUNT,summaryNode.attributes().namedItem("failed").nodeValue());
 
         mResultList.replace(i,map);
 
@@ -113,6 +122,13 @@ void LoadResultThread::sortByTime(QList<QMap<QString, QString> > &list)
             }
         }
     }
+}
+
+QStringList LoadResultThread::getResultKeys()
+{
+    QStringList keys = QStringList()<<KEY_TEST_TYPE<<KEY_TOOL_VERSION
+                                   <<KEY_PRODUCT<<KEY_EXECUTE_MODULE<<KEY_FAILURE_COUNT<<KEY_START_TIME<<KEY_END_TIME;
+    return keys;
 }
 
 void LoadResultThread::run(){

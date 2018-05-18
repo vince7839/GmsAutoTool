@@ -65,7 +65,7 @@ void AddToolWidget::openFileDialog()
         qDebug()<<output;
         QStringList list = output.split("\n");
         QString line = list.first();
-        QRegExp reg(".*([0-9]+\\.[0-9]+)_(r.+) .*");
+        QRegExp reg(".*([0-9]+\\.[0-9]+)_(.+) .*");
         if(reg.exactMatch(line))
         {
             QString platform = reg.cap(1);

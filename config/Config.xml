@@ -25,7 +25,7 @@
     </Action>
     <Action name="plan">
         <Command>run gts --plan %1</Command>
-        <Command platform="O">run cts --subplan %1</Command>
+        <Command platform="O">run gts --subplan %1</Command>
     </Action>
     <Action name="retry">
         <Command>run gts -r %1</Command>
@@ -44,7 +44,7 @@
     </Action>
     <Action name="plan">
         <Command>run vts --plan %1</Command>
-        <Command platform="O">run cts --subplan %1</Command>
+        <Command platform="O">run vts --subplan %1</Command>
     </Action>
     <Action name="retry">
         <Command>run vts -r %1</Command>
@@ -56,12 +56,4 @@
         <Command>run vts -m %1 -t %2</Command>
     </Action>
 </Test>
-
-<Server>
-   <Ip name="127">192.168.3.127</Ip>
-   <Ip name="31">192.168.0.31</Ip>
-</Server>
-
-
-
 </Config>

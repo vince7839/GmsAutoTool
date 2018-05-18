@@ -13,6 +13,7 @@
 #include<QMenu>
 #include<onlinewidget.h>
 #include<QContextMenuEvent>
+#include<config.h>
 
 ResultWidget::ResultWidget(QWidget *parent) :
     QWidget(parent),
@@ -21,7 +22,7 @@ ResultWidget::ResultWidget(QWidget *parent) :
     ui->setupUi(this);
     connect(ui->result_table_widget,SIGNAL(itemDoubleClicked(QTableWidgetItem*)),this,SLOT(tableItemClicked(QTableWidgetItem*)));
     connect(ui->btn_delete,SIGNAL(clicked()),this,SLOT(deleteResult()));
-    connect(ui->result_table_widget,SIGNAL(itemSelectionChanged()),this,SLOT(enableDelBtn()));
+    connect(ui->result_table_widget,SIGNAL(itemSelectionChanged()),this,SLOT(enableDelete()));
 
     ui->result_table_widget->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->result_table_widget->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -29,14 +30,11 @@ ResultWidget::ResultWidget(QWidget *parent) :
     //ui->result_table_widget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->result_table_widget->horizontalHeader()->setEnabled(false);  
     mLoadThread = new LoadResultThread;
-    connect(mLoadThread,SIGNAL(loadReady(QList<QMap<QString,QString> >)),this,SLOT(updateResultTable(QList<QMap<QString,QString> >)));
-    connect(ui->cBox_resultType,SIGNAL(currentTextChanged(QString)),mLoadThread,SLOT(loadAsType(QString)));
+    connect(mLoadThread,SIGNAL(loadReady(QList<QMap<QString,QString> >)),this,SLOT(updateTable(QList<QMap<QString,QString> >)));
+    connect(ui->cbox_type,SIGNAL(currentTextChanged(QString)),this,SLOT(loadResult()));
 
     ui->btn_delete->setDisabled(true);
-
-    QStringList array;
-    array<<"CTS"<<"GTS"<<QString::fromUtf8("全部");
-    ui->cBox_resultType->addItems(array);
+    updateFilterBox();
 }
 
 ResultWidget::~ResultWidget()
@@ -64,11 +62,10 @@ void ResultWidget::contextMenuEvent(QContextMenuEvent *e)
     menu->exec(mapToGlobal(e->pos()));
 }
 
-void ResultWidget::updateResultTable(QList<QMap<QString,QString> >resultList)
+void ResultWidget::updateTable(QList<QMap<QString,QString> >resultList)
 {
     qDebug()<<"[ResultWidget]thread load result size:"<<resultList.size();
     mResultList = resultList;
-  // ui->result_table_widget->clear();
    ui->result_table_widget->setRowCount(resultList.size());
    ui->result_table_widget->setColumnCount(7);
    ui->result_table_widget->setHorizontalHeaderLabels(
@@ -77,10 +74,7 @@ void ResultWidget::updateResultTable(QList<QMap<QString,QString> >resultList)
                                <<QString::fromUtf8("测试产品")<<QString::fromUtf8("执行模块")
                                <<QString::fromUtf8("失败项")<<QString::fromUtf8("开始时间")
                                <<QString::fromUtf8("结束时间"));
-
-   QStringList keys;
-   keys<<"test_type"<<"tool_version"<<"product"<<"execute_module"<<"failed_count"<<"start_time"<<"end_time";
-
+   QStringList keys = LoadResultThread::getResultKeys();
    for(int i=0;i<resultList.size();i++)
    {
        for(int j=0;j<keys.size();j++)
@@ -90,7 +84,7 @@ void ResultWidget::updateResultTable(QList<QMap<QString,QString> >resultList)
            ui->result_table_widget->setItem(i,j,item);
        }
    }
-   // ui->result_table_widget->setFixedSize(ui->result_table_widget->size());
+   setCursor(Qt::ArrowCursor);
 }
 
 void ResultWidget::deleteResult()
@@ -108,22 +102,22 @@ void ResultWidget::deleteResult()
             qDebug()<<item->row();
         }
     }
-    mLoadThread->loadAsType(ui->cBox_resultType->currentText());
+    loadResult();
 }
 
-void ResultWidget::enableDelBtn()
+void ResultWidget::enableDelete()
 {
     ui->btn_delete->setDisabled(ui->result_table_widget->selectedItems().isEmpty());
 }
 
-void ResultWidget::sendReport()
+void ResultWidget::sendResult()
 {
     OnlineWidget*w=new OnlineWidget;
     w->setReportInfo(mResultList.at(ui->result_table_widget->currentRow()));
     w->show();
 }
 
-void ResultWidget::openReport()
+void ResultWidget::openResult()
 {
     QString resultPath = mResultList.at(ui->result_table_widget->currentRow()).value("xmlPath");
     qDebug()<<"[ResultWidget]open report:"<<resultPath;
@@ -134,6 +128,21 @@ void ResultWidget::openReport()
 void ResultWidget::detailActionClicked()
 {
     tableItemClicked(ui->result_table_widget->currentItem());
+}
+
+void ResultWidget::updateFilterBox()
+{
+    QStringList types = Config::getTestTypes();
+    foreach(QString type,types){
+        ui->cbox_type->addItem(Config::getTypeLabel(type),type);
+    }
+    ui->cbox_type->addItem(QString::fromUtf8("全部"),Config::ANY);
+}
+
+void ResultWidget::loadResult()
+{
+    setCursor(Qt::WaitCursor);
+    mLoadThread->loadAsType(ui->cbox_type->currentData().toString());
 }
 
 void ResultWidget::updateContent()

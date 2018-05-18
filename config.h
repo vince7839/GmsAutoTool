@@ -9,6 +9,7 @@ public:
     static const QString CTS;
     static const QString GTS;
     static const QString VTS;
+    static const QString ANY;
     static const QString ACTION_ALL;
     static const QString ACTION_RETRY;
     static const QString ACTION_MODULE;
@@ -32,11 +33,11 @@ public:
     static bool isAllowed(QString);
     static QString getMacAddress();
     static QStringList getTestTypes();
+    static QString getTypeLabel(QString type);
     static QString getTestCmd(QString,QString,QString);
     static QStringList getTestActions(QString);
     static QString getActionLabel(QString);
-    static QString getCmdPlatform(QString);
-    static QString getTypeLabel(QString type);
+    static QString getCmdPlatform(QString);    
 };
 
 #endif // CONFIG_H

@@ -18,12 +18,14 @@ class ResultWidget : public QWidget,public Updatable
 public slots:
     void updateContent();
     void tableItemClicked(QTableWidgetItem *);
-    void updateResultTable(QList<QMap<QString,QString> >);
+    void updateTable(QList<QMap<QString,QString> >);
     void deleteResult();
-    void enableDelBtn();
-    void sendReport();
-    void openReport();
+    void enableDelete();
+    void sendResult();
+    void openResult();
     void detailActionClicked();
+    void updateFilterBox();
+    void loadResult();
 public:
     explicit ResultWidget(QWidget *parent = 0);
     ~ResultWidget();

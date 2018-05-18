@@ -32,7 +32,7 @@ TestWidget::TestWidget(QWidget *parent) :
     connect(mTimer,SIGNAL(timeout()),this,SLOT(updateTime()));
     mFileWatcher = new QFileSystemWatcher;
     connect(mFileWatcher,SIGNAL(fileChanged(QString)),this,SLOT(onFileChanged(QString)));
-    //ui->pushButton->setVisible(false);
+    ui->pushButton->setVisible(false);
 }
 
 TestWidget::~TestWidget()
