@@ -32,7 +32,7 @@ void ToolWidget::deleteTool()
     {
         QString toolPath=ui->tool_listWidget->currentItem()->data(Qt::UserRole).toString();
         SqlConnection *conn=SqlConnection::getInstance();
-        if(conn->connect())
+        if(conn->isConnect())
         {
             conn->exec(QString("delete from Tool where path = '%1'").arg(toolPath));
             updateToolList();
@@ -45,7 +45,7 @@ void ToolWidget::updateToolList()
     toolList.clear();
     ui->tool_listWidget->clear();
     SqlConnection *conn=SqlConnection::getInstance();
-    if(conn->connect())
+    if(conn->isConnect())
     {
         toolList = conn->exec("select * from Tool");
     }
@@ -84,10 +84,12 @@ void ToolWidget::updateContent()
 
 QString ToolWidget::getIconPath(QString type)
 {
-    if(type == "CTS"){
-        return "img/cts_icon";
-    }else if(type == "GTS"){
-        return "img/gts_icon";
+    if(type == Config::CTS){
+        return ":/tool/img/cts_icon.jpg";
+    }else if(type == Config::GTS){
+        return ":/tool/img/gts_icon.jpg";
+    }else if(type == Config::VTS){
+        return ":/tool/img/vts_icon.png";
     }
 }
 

@@ -26,7 +26,7 @@ bool PlanUtil::isPlanExists(QString toolPath, QString planName)
 void PlanUtil::execPlan(QString toolPath, QString planName)
 {
     SqlConnection* conn = SqlConnection::getInstance();
-    if(!conn->connect())
+    if(!conn->isConnect())
     {
         return;
     }

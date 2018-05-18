@@ -57,7 +57,7 @@ void OnlineWidget::addOnline(QMap<QString,QVariant> msg)
     qDebug()<<QString("[OnlineWidget]recv online signal from:%1:%2").arg(msg.value("hostName").toString()).arg(msg.value("fromIP").toString());
     if(hostIP == SocketUtil::getMyIP())
     {
-       // return;
+        return;
     }
     for(int i=0;i<mOnlineList.size();i++)
     {

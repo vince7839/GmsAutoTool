@@ -30,13 +30,10 @@ AddTestWidget::AddTestWidget(QWidget *parent) :
     connect(ui->btn_cancel,SIGNAL(clicked()),this,SLOT(close()));
     setWindowModality(Qt::ApplicationModal);
     setWindowTitle(QString::fromUtf8("新建测试"));
-
-    ui->cbox_type->addItems(Config::getTestTypes());
-
+    updateTypeBox();
     updateToolBox();
     updateTestName();
     updateActionBox();
-
     mTimer = new QTimer;
     connect(mTimer,SIGNAL(timeout()),this,SLOT(updateDeviceBox()));
     mTimer->start(500);
@@ -178,7 +175,7 @@ void AddTestWidget::updateToolBox()
     SqlConnection *conn=SqlConnection::getInstance();
     QString query = QString("select * from Tool where type='%1'")
                                                  .arg(ui->cbox_type->currentText());
-    if(conn->connect())
+    if(conn->isConnect())
     {
         mToolList = conn->exec(query);
     }
@@ -195,6 +192,7 @@ void AddTestWidget::startClicked()
        map.insert("device",ui->cbox_device->currentText());
        map.insert("name",ui->lineEdit_name->text());
        map.insert("action",ui->cbox_action->currentData().toString());
+       map.insert("type",ui->cbox_type->currentData().toString());
        if(ui->cbox_action->currentData()==Config::ACTION_ALL){
 
        }else if(ui->cbox_action->currentData()==Config::ACTION_RETRY){
@@ -240,6 +238,14 @@ void AddTestWidget::startClicked()
        }
        emit postStart(map);
        close();
+}
+
+void AddTestWidget::updateTypeBox()
+{
+    QStringList types = Config::getTestTypes();
+    foreach (QString type, types) {
+          ui->cbox_type->addItem(Config::getTypeLabel(type),type);
+    }
 }
 
 void AddTestWidget::updateDeviceBox()

@@ -65,7 +65,7 @@ void AddToolWidget::openFileDialog()
         qDebug()<<output;
         QStringList list = output.split("\n");
         QString line = list.first();
-        QRegExp reg(".*([0-9]+\\.[0-9]+)_(r[0-9]+) .*");
+        QRegExp reg(".*([0-9]+\\.[0-9]+)_(r.+) .*");
         if(reg.exactMatch(line))
         {
             QString platform = reg.cap(1);
@@ -87,7 +87,7 @@ void AddToolWidget::openFileDialog()
 void AddToolWidget::saveTool()
 {
     SqlConnection *conn=SqlConnection::getInstance();
-    if(conn->connect())
+    if(conn->isConnect())
     {
         QString query = QString("select * from Tool where path ='%1'").arg(mToolPath);
         if(conn->exec(query).isEmpty()){

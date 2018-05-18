@@ -8,7 +8,8 @@
 #include<QSqlField>
 #include<QDebug>
 #include<QMessageBox>
-SqlConnection*SqlConnection::sInstance;
+#include<QDir>
+SqlConnection*SqlConnection::sInstance = NULL;
 const QString SqlConnection::CONFIG = "Config";
 const QString SqlConnection::CONFIG_GRAB_SCREEN = "allow_grab_screen";
 const QString SqlConnection::CONFIG_SEND_FILE = "allow_send_file";
@@ -16,17 +17,25 @@ SqlConnection::SqlConnection()
 {   
     QString dbPath = "database/GmsAutoTool.db";
     db = QSqlDatabase::addDatabase("QSQLITE");
+    QDir dir("database");
+    if(!dir.exists()){
+        QDir::current().mkdir("database");
+    }
     db.setDatabaseName(dbPath);
+    if(!db.open()){
+        QMessageBox::warning(0,QString::fromUtf8("错误"),QString::fromUtf8("无法连接数据库！"));
+    }else{
+        if(!db.tables().contains("Tool")){
+            qDebug()<<"[SqlConnection]create tables";
+            db.exec("CREATE TABLE Tool(name TEXT,path TEXT,platform TEXT,version TEXT,type TEXT)");
+        }
+    }
 }
 
-bool SqlConnection::connect()
+bool SqlConnection::isConnect()
 {
-    if(!db.open())
-    {
-        QMessageBox::warning(NULL,QString::fromUtf8("警告"),QString::fromUtf8("连接数据库失败！"));
-        return false;
-    }
-    return true;
+    qDebug()<<"[SqlConnection]SqlConnection is connect:"<<(sInstance != NULL && db.isOpen());
+    return sInstance != NULL && db.isOpen();
 }
 
 void SqlConnection::close(){
@@ -39,7 +48,6 @@ SqlConnection* SqlConnection::getInstance()
     {
         sInstance = new SqlConnection;
     }
-
     return sInstance;
 }
 

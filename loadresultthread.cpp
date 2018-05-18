@@ -29,7 +29,7 @@ void LoadResultThread::parseResultPath()
         query += QString(" where type = '%1'").arg(mType);
     qDebug()<<query;
     SqlConnection *conn=SqlConnection::getInstance();
-    if(!conn->connect())
+    if(!conn->isConnect())
     {
         return;
     }

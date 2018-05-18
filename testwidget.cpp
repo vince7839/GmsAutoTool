@@ -15,6 +15,8 @@
 #include<QMessageBox>
 #include<waitingwidget.h>
 #include<QThread>
+#include<QSqlDatabase>
+#include<QSqlQuery>
 
 TestWidget::TestWidget(QWidget *parent) :
     QWidget(parent),
@@ -30,7 +32,7 @@ TestWidget::TestWidget(QWidget *parent) :
     connect(mTimer,SIGNAL(timeout()),this,SLOT(updateTime()));
     mFileWatcher = new QFileSystemWatcher;
     connect(mFileWatcher,SIGNAL(fileChanged(QString)),this,SLOT(onFileChanged(QString)));
-    ui->pushButton->setVisible(false);
+    //ui->pushButton->setVisible(false);
 }
 
 TestWidget::~TestWidget()
@@ -40,7 +42,7 @@ TestWidget::~TestWidget()
 
 void TestWidget::parseOutput(QString path,QString output)
 {
-    qDebug()<<"output:"<<output;
+  //  qDebug()<<"output:"<<output;
     QRegExp expectTimeReg(".*running ([0-9]+) .*modules, expected to complete in ([0-9]+)h ([0-9]+)m ([0-9]+)s.*");
     QRegExp moduleStartReg(".*Starting .* (.*) with ([0-9]+) test.*");   //more than 1 test will show tests
     QRegExp testFinishReg(".*([0-9]+:[0-9]+:[0-9]+).*([0-9]+)/([0-9]+) .* (.*) .* .*#(.*) (pass|fail).*");
@@ -111,6 +113,7 @@ void TestWidget::startTest(QMap<QString,QString> map)
     QString device = map.value("device");
     QString printInfo = QString("[GmsAutoTool]test name:%1\n").arg(map.value("name"));
     QString action = map.value("action");
+    QString type = map.value("type");
     QFile file(tempName);    
     if(file.open(QIODevice::WriteOnly))
     {
@@ -122,7 +125,7 @@ void TestWidget::startTest(QMap<QString,QString> map)
        return;
     }
     mFileWatcher->addPath(tempName);
-    QString actionCmd = Config::getTestCmd(Config::CTS,Config::getCmdPlatform(platform),action);
+    QString actionCmd = Config::getTestCmd(type,Config::getCmdPlatform(platform),action);
     if(action == Config::ACTION_ALL){
 
     }else if(action == Config::ACTION_RETRY){
@@ -154,8 +157,9 @@ void TestWidget::on_pushButton_clicked()
 {
   /*  QNetworkInterface i = QNetworkInterface::interfaceFromName("eth0");
       qDebug()<<i.hardwareAddress();*/
-    qDebug()<<Config::getTestCmd("CTS","N","plan");
-    qDebug()<<Config::getTestCmd("CTS","O","plan");
+    qDebug()<<Config::getTestCmd("VTS","N","plan");
+    qDebug()<<Config::getTestCmd("VTS","O","plan");
+
 }
 
 void TestWidget::updateContent(){}

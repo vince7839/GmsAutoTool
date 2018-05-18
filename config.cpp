@@ -112,3 +112,12 @@ QString Config::getCmdPlatform(QString num)
     qDebug()<<"[Config]no platform for:"<<num;
     return "";
 }
+
+QString Config::getTypeLabel(QString type)
+{
+    QMap<QString,QString> map;
+    map.insert(CTS,QString::fromUtf8("CTS"));
+    map.insert(GTS,QString::fromUtf8("GTS"));
+    map.insert(VTS,QString::fromUtf8("VTS"));
+    return map.value(type);
+}

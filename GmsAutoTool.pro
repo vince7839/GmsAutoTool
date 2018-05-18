@@ -97,3 +97,6 @@ FORMS += \
     messagedialog.ui \
     waitingwidget.ui \
     failurewidget.ui
+
+RESOURCES += \
+    icon.qrc

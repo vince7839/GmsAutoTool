@@ -9,7 +9,7 @@ class SqlConnection
 public:
     static SqlConnection* getInstance();
     ~SqlConnection();
-    bool connect();
+    bool isConnect();
     void close();
     QList<QMap<QString,QString> > exec(QString);
     void putInt(QString, QString, int);

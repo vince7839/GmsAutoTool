@@ -22,6 +22,7 @@ private slots:
     void enableStart();
     void updateToolBox();
     void startClicked();
+    void updateTypeBox();
     void updateDeviceBox();
     void updateTestName();
     void updateActionBox();
