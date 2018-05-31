@@ -14,9 +14,8 @@ PlanUtil::PlanUtil()
 }
 
 bool PlanUtil::isPlanExists(QString toolPath, QString planName)
-{
-    QDir planDir(QString("%1/../../subplans").arg(toolPath));
-    QString fileName = QString("%1/%2.xml").arg(planDir.absolutePath()).arg(planName);
+{    
+    QString fileName = QString("%1/%2.xml").arg(Config::getPlanPathByTool(toolPath)).arg(planName);
      qDebug()<<"[PlanUtil]plan file name:"<<fileName;
     QFile file(fileName);
     qDebug()<<QString("[PlanUtil]check plan file %1 exists = %2").arg(fileName).arg(file.exists());

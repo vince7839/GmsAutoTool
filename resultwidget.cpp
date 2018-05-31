@@ -32,7 +32,7 @@ ResultWidget::ResultWidget(QWidget *parent) :
     mLoadThread = new LoadResultThread;
     connect(mLoadThread,SIGNAL(loadReady(QList<QMap<QString,QString> >)),this,SLOT(updateTable(QList<QMap<QString,QString> >)));
     connect(ui->cbox_type,SIGNAL(currentTextChanged(QString)),this,SLOT(loadResult()));
-
+    connect(this,SIGNAL(destroyed(QObject*)),mLoadThread,SLOT(terminate()));
     ui->btn_delete->setDisabled(true);
     updateFilterBox();
 }
@@ -45,15 +45,29 @@ ResultWidget::~ResultWidget()
 void ResultWidget::contextMenuEvent(QContextMenuEvent *e)
 {
     QMenu*menu=new QMenu;
-    QAction*openAction=new QAction(QString::fromUtf8("打开"),menu);
+    QAction*openAction = new QAction(QString::fromUtf8("打开"),menu);
     QAction*deleteAction=new QAction(QString::fromUtf8("删除"),menu);
     QAction*sendAction=new QAction(QString::fromUtf8("发送到"),menu);
+    QList<QMap<QString,QVariant> > userList = OnlineWidget::getUserList();
+    if(userList.isEmpty())
+    {
+        sendAction->setEnabled(false);
+    }else{
+        QMenu*userMenu = new QMenu;
+        for(int i = 0;i<userList.size();i++)
+        {
+            QMap<QString,QVariant> map = userList.at(i);
+            QAction* userAction = userMenu->addAction(map.value("hostName").toString());
+            userAction->setData(map.value("fromIP"));
+            connect(userAction,&QAction::triggered,this,&ResultWidget::sendResult);
+         }
+        sendAction->setMenu(userMenu);
+    }
     QAction*detailAction=new QAction(QString::fromUtf8("查看失败项"),menu);
-
-    connect(openAction,SIGNAL(triggered(bool)),this,SLOT(openReport()));
-    connect(deleteAction,SIGNAL(triggered(bool)),this,SLOT(deleteResult()));
-    connect(sendAction,SIGNAL(triggered(bool)),this,SLOT(sendReport()));
-    connect(detailAction,SIGNAL(triggered(bool)),this,SLOT(detailActionClicked()));
+    connect(openAction,&QAction::triggered,this,&ResultWidget::openResult);
+    connect(deleteAction,&QAction::triggered,this,&ResultWidget::deleteResult);
+    connect(sendAction,&QAction::triggered,this,&ResultWidget::sendResult);
+    connect(detailAction,&QAction::triggered,this,&ResultWidget::detailActionClicked);
 
     menu->addAction(openAction);
     menu->addAction(deleteAction);
@@ -112,9 +126,13 @@ void ResultWidget::enableDelete()
 
 void ResultWidget::sendResult()
 {
-    OnlineWidget*w=new OnlineWidget;
-    w->setReportInfo(mResultList.at(ui->result_table_widget->currentRow()));
-    w->show();
+    QAction*action = static_cast<QAction*>(sender());
+    QMap<QString,QVariant> map;
+    map.insert(SocketUtil::KEY_DATA_PATH,mResultList.at(ui->result_table_widget->currentRow()).value("zipPath"));
+    map.insert(SocketUtil::KEY_TO_IP,action->data().toString());
+    map.insert(SocketUtil::KEY_MSG_TYPE,SocketUtil::MSG_EXPECT_FILE);
+    map.insert(SocketUtil::KEY_FILE_NAME,mResultList.at(ui->result_table_widget->currentRow()).value("zipName"));
+    SocketUtil::getInstance()->sendFile(map);
 }
 
 void ResultWidget::openResult()
@@ -132,7 +150,7 @@ void ResultWidget::detailActionClicked()
 
 void ResultWidget::updateFilterBox()
 {
-    QStringList types = Config::getTestTypes();
+    QSet<QString> types = Config::getTestTypes();
     foreach(QString type,types){
         ui->cbox_type->addItem(Config::getTypeLabel(type),type);
     }

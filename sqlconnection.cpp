@@ -53,11 +53,12 @@ SqlConnection* SqlConnection::getInstance()
 
 SqlConnection::~SqlConnection()
 {
-   close();
+   // close();
 }
 
 QList<QMap<QString,QString> > SqlConnection::exec(QString str)
 {
+    qDebug()<<"[SqlConnection]exec:"<<str;
     QList<QMap<QString,QString> > list;
     QSqlQuery query(db);
      query.exec(str);

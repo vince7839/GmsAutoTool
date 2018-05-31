@@ -14,7 +14,7 @@ class WarningWidget : public QWidget
 public:
     static WarningWidget* getInstance();
     ~WarningWidget();
-    void showAndReset();
+    void showWarning();
 public slots:
     void updateTime();
 protected:

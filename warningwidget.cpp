@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QTimer>
 #include <QTime>
+#include<QDesktopWidget>
 WarningWidget* WarningWidget::sInstance;
 WarningWidget::WarningWidget(QWidget *parent) :
     QWidget(parent),
@@ -26,7 +27,11 @@ WarningWidget::WarningWidget(QWidget *parent) :
     ft.setPointSize(20);
     ui->label_time->setFont(ft);
     ui->label_time->setAlignment(Qt::AlignCenter);
+    mSec = 0;
 
+    int x = (QApplication::desktop()->width() - width()) /2;
+    int y = (QApplication::desktop()->height() - height()) /2;
+    move(x,y);
 }
 
 WarningWidget *WarningWidget::getInstance()
@@ -43,10 +48,10 @@ WarningWidget::~WarningWidget()
     delete ui;
 }
 
-void WarningWidget::showAndReset()
+void WarningWidget::showWarning()
 {
-    mSec = 0;
-    mTimer->start(1000);
+    if(!mTimer->isActive())
+        mTimer->start(1000);
     show();
 }
 

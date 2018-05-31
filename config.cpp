@@ -8,10 +8,12 @@
 #include<QSettings>
 #include<QNetworkInterface>
 #include<logutil.h>
+#include<QDir>
 
 const QString Config::CTS = "CTS";
 const QString Config::GTS = "GTS";
 const QString Config::VTS = "VTS";
+const QString Config::GSI = "GSI";
 const QString Config::ANY = "ANY";
 const QString Config::ACTION_ALL = "all";
 const QString Config::ACTION_RETRY = "retry";
@@ -20,19 +22,18 @@ const QString Config::ACTION_SINGLE = "single";
  const QString Config::ACTION_PLAN = "plan";
 
 const QString Config::VERSION = "beta 1.0";
-const QString Config::SETTINGS = "Config";
-const QString Config::SETTING_GRAB_SCREEN = "allow_grab_screen";
-const QString Config::SETTING_RECV_FILE = "allow_recv_file";
+const QString Config::SETTING_SCREEN_SHOT = "screen_shot";
+const QString Config::SETTING_RECV_FILE = "recv_file";
 const QString Config::SETTING_NO_KEY = "no_key";
-const QString Config::SETTING_LABEL_ON = QString::fromUtf8("打开");
-const QString Config::SETTING_LABEL_OFF = QString::fromUtf8("关闭");
-const int Config::ON = 1;
-const int Config::OFF = 0;
+const QString Config::OPTION_LABEL_ON = QString::fromUtf8("打开");
+const QString Config::OPTION_LABEL_OFF = QString::fromUtf8("关闭");
+const QString Config::ON = "on";
+const QString Config::OFF = "off";
 QString Config::TESTING_WARNING = QString::fromUtf8("CTS测试中");
-QString Config::KEY = QTime::currentTime().toString();
 quint16 Config::TCP_PORT = 6666;
 quint16 Config::UDP_PORT = 6667;
-bool Config::IS_ALLOW_SCREEN = false;
+const QStringList Config::TWO_STATES_OPTIONS = QStringList()<<Config::ON<<Config::OFF;
+const QStringList Config::NO_OPTION = QStringList();
 
 Config::Config()
 {
@@ -41,27 +42,54 @@ Config::Config()
 
 QString Config::getTestCmd(QString type,QString platform, QString action)
 {
-   QDomDocument doc;
-   doc.setContent(new QFile("config/Config.xml"));
-   QMap<QString,QString> map,map1,map2;
-   map.insert("type",type);
-   QDomNode testNode = XmlUtil::getChildNode(doc.namedItem("Config"),"Test",map);
-   map1.insert("name",action);
-   QDomNode actionNode = XmlUtil::getChildNode(testNode,"Action",map1);
-   map2.insert("platform",platform);
-   QDomNode cmdNode = XmlUtil::getChildNode(actionNode,"Command",map2);
-   if(cmdNode.isNull())
-   {
-       cmdNode =  actionNode.namedItem("Command"); //default cmd
-   }   
-   qDebug()<<QString("[Config]get cmd for test:%1 platform:%2 action:%3->%4").arg(type).arg(platform).arg(action).arg(cmdNode.toElement().text());
+    QDomNode cmdNode;
+    QString overrideXml = "config/Config.xml";
+    QString internalXml = ":/xml/config/Config.xml";
+    if(QFile::exists(overrideXml)){
+        cmdNode =  getNodeFromXml(type,platform,action,overrideXml);
+    }
+    if(cmdNode.isNull()){
+        cmdNode = getNodeFromXml(type,platform,action,internalXml);
+    }
+    qDebug()<<"[Config]final cmd:"<<cmdNode.toElement().text();
    return cmdNode.toElement().text();
 }
 
-QStringList Config::getTestActions(QString type)
+QDomNode Config::getNodeFromXml(QString type, QString platform, QString action, QString xml)
 {
-    QStringList actions;
+    QDomDocument doc;
+    doc.setContent(new QFile(xml));
+    QMap<QString,QString> map,map1,map2;
+    map.insert("type",type);
+    QDomNode testNode = XmlUtil::getChildNode(doc.namedItem("Config"),"Test",map);
+    map1.insert("name",action);
+    QDomNode actionNode = XmlUtil::getChildNode(testNode,"Action",map1);
+    map2.insert("platform",platform);
+    QDomNode cmdNode = XmlUtil::getChildNode(actionNode,"Command",map2);
+    if(cmdNode.isNull())
+    {
+        QMap<QString,QString> map3;
+        map3.insert("platform",getCmdPlatform(platform));
+        cmdNode =  XmlUtil::getChildNode(actionNode,"Command",map3);
+    }
+    if(cmdNode.isNull())
+    {
+        cmdNode = XmlUtil::getChildNode(actionNode,"Command");//default cmd
+    }
+    qDebug()<<QString("[Config]get cmd  from <%1> for <type %2><platform %3><action %4>:%5")
+                        .arg(xml).arg(type).arg(platform).arg(action).arg(cmdNode.toElement().text());
+    return cmdNode;
+}
+
+QSet<QString> Config::getTestActions(QString type)
+{
+    QSet<QString> actions;
     actions<<ACTION_ALL<<ACTION_RETRY<<ACTION_MODULE<<ACTION_SINGLE<<ACTION_PLAN;
+    if(type == GSI){
+        actions.remove(ACTION_RETRY);
+        actions.remove(ACTION_MODULE);
+        actions.remove(ACTION_SINGLE);
+    }
     return actions;
 }
 
@@ -79,22 +107,13 @@ QString Config::getActionLabel(QString action)
 bool Config::isAllowed(QString action)
 {
    QSettings settings("Sagereal","GmsAutoTool");
-   return settings.value(action).toString()==SETTING_LABEL_ON;
+   return settings.value(action).toString() == ON;
 }
 
-QString Config::getMacAddress()
+QSet<QString> Config::getTestTypes()
 {
-    QNetworkInterface i = QNetworkInterface::interfaceFromName("eth0");
-    QString macAddress = i.hardwareAddress();
-    qDebug()<<macAddress;
-    LogUtil::Log("MAC",macAddress);
-    return macAddress;
-}
-
-QStringList Config::getTestTypes()
-{
-    QStringList types;
-    types<<CTS<<GTS<<VTS;
+    QSet<QString> types;
+    types<<CTS<<GTS<<VTS<<GSI;
     return types;
 }
 
@@ -114,11 +133,33 @@ QString Config::getCmdPlatform(QString num)
     return "";
 }
 
+QString Config::getPlanPathByTool(QString toolPath)
+{
+    QDir planDir(QString("%1/../../subplans").arg(toolPath));
+    return planDir.absolutePath();
+}
+
+QString Config::getResultPathByTool(QString toolPath)
+{
+    return QDir(QString("%1/../../results").arg(toolPath)).absolutePath();
+}
+
+QString Config::getOptionLabel(QString option)
+{
+    QMap<QString,QString> map;
+    map.insert(ON,OPTION_LABEL_ON);
+    map.insert(OFF,OPTION_LABEL_OFF);
+    return map.value(option);
+}
+
 QString Config::getTypeLabel(QString type)
 {
     QMap<QString,QString> map;
     map.insert(CTS,QString::fromUtf8("CTS"));
     map.insert(GTS,QString::fromUtf8("GTS"));
     map.insert(VTS,QString::fromUtf8("VTS"));
-    return map.value(type);
+    map.insert(GSI,QString::fromUtf8("GSI"));
+    QString label = map.value(type);
+    if(label.isEmpty()) label = type;
+    return label;
 }

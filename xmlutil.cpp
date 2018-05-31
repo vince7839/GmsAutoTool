@@ -47,16 +47,47 @@ QDomNode XmlUtil::getChildNode(QDomNode root, QString name, QMap<QString, QStrin
         QDomNode child = root.childNodes().at(i);
         if(child.nodeName() == name)
         {
-            for(int j=0;j<attrNames.size();j++)
-            {
-                QString key = attrNames.at(j);
-                if(child.attributes().namedItem(key).nodeValue()
-                    != attr.value(key))
-                    break;
-                if(j == attrNames.size() - 1)
-                    return child;
+            if(attr.isEmpty()){     //筛选的map为空，则返回属性为空的节点，用于获取默认节点
+                if(child.attributes().isEmpty()) return child;
+            }else{
+                for(int j=0;j<attrNames.size();j++)
+                {
+                    QString key = attrNames.at(j);
+                    if(child.attributes().namedItem(key).nodeValue()
+                        != attr.value(key))
+                        break;
+                    if(j == attrNames.size() - 1)
+                        return child;
+                }
             }
          }
     }
     return QDomNode();
+}
+
+QList<QDomNode> XmlUtil::getNodes(QDomNode root,QString name, QMap<QString, QString> attrs)
+{
+    QList<QDomNode> list;
+    if(root.hasChildNodes())
+    {
+        for(int i = 0;i<root.childNodes().size();i++){
+            QDomNode child = root.childNodes().at(i);
+             list.append(getNodes(child,name,attrs));
+        }
+    }
+    QStringList attrNames = attrs.keys();
+    if(root.nodeName() == name)
+    {
+        for(int j=0;j<attrNames.size();j++)
+        {
+            QString key = attrNames.at(j);
+            if(root.attributes().namedItem(key).nodeValue()
+                != attrs.value(key))
+                break;
+            if(j == attrNames.size() - 1){
+                   list.append(root);
+            }
+        }
+     }
+    return list;
 }

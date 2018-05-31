@@ -1,10 +1,11 @@
 <RCC>
-    <qresource prefix="/tool">
+    <qresource prefix="/icon">
         <file>img/cts_icon.jpg</file>
         <file>img/gts_icon.jpg</file>
         <file>img/vts_icon.jpg</file>
-    </qresource>
-    <qresource prefix="/app">
         <file>img/app_icon.png</file>
+    </qresource>
+    <qresource prefix="/xml">
+        <file>config/Config.xml</file>
     </qresource>
 </RCC>

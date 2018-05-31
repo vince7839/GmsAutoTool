@@ -56,4 +56,16 @@
         <Command>run vts -m %1 -t %2</Command>
     </Action>
 </Test>
+
+<Test type="GSI">
+    <Action name="all">
+        <Command>run cts-on-gsi</Command>
+        <Command platform="8.0">run cts-reference-aosp</Command>
+    </Action>
+    <Action name="plan">
+        <Command>run cts-on-gsi --subplan %1</Command>
+        <Command platform="8.0">run cts-reference-aosp --subplan %1</Command>
+    </Action>
+</Test>
+
 </Config>

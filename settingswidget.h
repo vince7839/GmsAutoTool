@@ -21,19 +21,20 @@ private:
             QString summary;
             QStringList items;
             QString key;
-            SubSetting(QString s,QStringList l,QString k){
+            SubSetting(QString s,QStringList i,QString k){
                 summary = s;
-                items = l;
+                items = i;
                 key = k;
             }
     };
 public:
     explicit SettingsWidget(QWidget *parent = 0);
     ~SettingsWidget();
-    void addRadioModels(QString,QList<SubSetting>);
+    void addRadioSettings(QString,QList<SubSetting>);
     void initValues();
+    QString getOptionLabel(QString option);
 public slots:
-    void settingChanged();
+    void settingChanged(bool isChecked);
     void updateContent();
 private:
     Ui::SettingsWidget *ui;

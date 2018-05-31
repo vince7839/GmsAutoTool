@@ -36,6 +36,7 @@ public slots:
     void clickedHandle();
     void showWarning();
     void updateContent();
+    void flashImg();
 public:
     explicit ExtendWidget(QWidget *parent = 0);
     ~ExtendWidget();
@@ -50,6 +51,7 @@ private:
     static const int BTN_ID_INSTALL_APK;
     static const int BTN_ID_SEND_BROADCAST;
     static const int BTN_ID_SHOW_WARNING;
+    static const int BTN_ID_FLASH_IMG;
 };
 
 #endif // EXTENDWIDGET_H

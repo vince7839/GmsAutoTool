@@ -37,7 +37,6 @@ private:
     LoadResultThread*mLoadThread;
 protected:
     void contextMenuEvent(QContextMenuEvent*);
-
 };
 
 #endif // RESULTWIDGET_H

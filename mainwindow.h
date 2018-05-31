@@ -24,9 +24,13 @@ private slots:
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    void initMenu();
+    void initLinks();
 public slots:
-    void setStatusText(QString);
-
+    void aboutQt();
+    void aboutMine();
+    void updateLinkLabel();
+    void onRequestFinished(QNetworkReply*reply);
 private:
     Ui::MainWindow *ui;
     ToolWidget* toolWidget;
@@ -36,8 +40,11 @@ private:
     OnlineWidget* onlineWidget;
     SettingsWidget* settingsWidget;
     QProcess* checkProcess;
-    QLabel* statusLabel;
-
+    QLabel* mLinkLabel;
+    QList<QMap<QString,QString> > mLinkList;
+protected:
+    void timerEvent(QTimerEvent *event);
+    void closeEvent(QCloseEvent *event);
 };
 
 #endif // MAINWINDOW_H

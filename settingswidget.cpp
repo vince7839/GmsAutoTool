@@ -16,23 +16,19 @@ SettingsWidget::SettingsWidget(QWidget *parent) :
     ui->setupUi(this);
     mScrollLayout = new QVBoxLayout;
 
-    QStringList TWO_STATES_OPTIONS = QStringList()<<Config::SETTING_LABEL_ON<<Config::SETTING_LABEL_OFF;
-    QStringList NO_OPTION = QStringList();
     QList<SubSetting> remoteSettings;
     remoteSettings.append(SubSetting(QString::fromUtf8("允许远程屏幕抓取")
-                                     ,TWO_STATES_OPTIONS,Config::SETTING_GRAB_SCREEN));
+                                     ,Config::TWO_STATES_OPTIONS,Config::SETTING_SCREEN_SHOT));
     remoteSettings.append(SubSetting(QString::fromUtf8("允许远程发送文件")
-                                     ,TWO_STATES_OPTIONS,Config::SETTING_RECV_FILE));
-    addRadioModels(QString::fromUtf8("远程"),remoteSettings);
+                                     ,Config::TWO_STATES_OPTIONS,Config::SETTING_RECV_FILE));
+    addRadioSettings(QString::fromUtf8("远程"),remoteSettings);
 
     QList<SubSetting> versionSettings;
-    versionSettings.append(SubSetting(QString::fromUtf8("当前版本:")+Config::VERSION,NO_OPTION,Config::SETTING_NO_KEY));
-    addRadioModels(QString::fromUtf8("版本号"),versionSettings);
+    versionSettings.append(SubSetting(QString::fromUtf8("当前版本:")+Config::VERSION,Config::NO_OPTION,Config::SETTING_NO_KEY));
+    addRadioSettings(QString::fromUtf8("版本号"),versionSettings);
 
     mScrollLayout->addStretch();
     ui->scrollAreaWidgetContents->setLayout(mScrollLayout);
-
-    initValues();
 }
 
 SettingsWidget::~SettingsWidget()
@@ -40,7 +36,7 @@ SettingsWidget::~SettingsWidget()
     delete ui;
 }
 
-void SettingsWidget::addRadioModels(QString title,QList<SubSetting> subs)
+void SettingsWidget::addRadioSettings(QString title,QList<SubSetting> subs)
 {
     QGroupBox* groupBox = new QGroupBox(title);
     QVBoxLayout* vLayout = new QVBoxLayout;
@@ -49,17 +45,18 @@ void SettingsWidget::addRadioModels(QString title,QList<SubSetting> subs)
             QHBoxLayout* hLayout = new QHBoxLayout;
             hLayout->addWidget(new QLabel(sub.summary));
             QStringList items = sub.items;
-            QButtonGroup* btnGroup = new QButtonGroup;
-
+            QButtonGroup* group = new QButtonGroup;
             for(int i = 0;i<items.size();i++)
             {
-                QRadioButton* btn = new QRadioButton(items.at(i));
-                mSignalMap.insert(btn,sub.key);
-                connect(btn,SIGNAL(clicked()),this,SLOT(settingChanged()));
-                btn->setObjectName(items.at(i));
+                QRadioButton* btn = new QRadioButton(Config::getOptionLabel(items.at(i)));
+                btn->setFocusPolicy(Qt::NoFocus);
+                btn->setProperty("key",sub.key);
+                btn->setProperty("value",items.at(i));
+                connect(btn,SIGNAL(toggled(bool)),this,SLOT(settingChanged(bool)));
+                btn->setChecked(items.at(i)==Config::ON && Config::isAllowed(sub.key)
+                                         || items.at(i)==Config::OFF && !Config::isAllowed(sub.key));
                 hLayout->addWidget(btn);
-                btnGroup->addButton(btn);
-                
+                group->addButton(btn);
             }
             vLayout->addLayout(hLayout);
             groupBox->setLayout(vLayout);
@@ -67,23 +64,16 @@ void SettingsWidget::addRadioModels(QString title,QList<SubSetting> subs)
         mScrollLayout->addWidget(groupBox);
 }
 
-void SettingsWidget::initValues()
-{
-    QSettings settings("Sagereal","GmsAutoTool");
-    foreach(QRadioButton*btn,mSignalMap.keys()){
-        QString key = mSignalMap.value(btn);
-        btn->setChecked(settings.value(key).toString()==btn->objectName());
-        qDebug()<<"init:"<<key<<":"<<settings.value(key).toString();
-    }
-}
-
-void SettingsWidget::settingChanged()
+void SettingsWidget::settingChanged(bool isChecked)
 {
     QRadioButton* btn = (QRadioButton*)sender();
-    QString key = mSignalMap.value(btn);
+    QString key = btn->property("key").toString();
     QSettings settings("Sagereal","GmsAutoTool");
-    settings.setValue(key,btn->objectName());
-    qDebug()<<key<<":"<<btn->objectName();
+    if(isChecked)
+    {
+        settings.setValue(key,btn->property("value"));
+        qDebug()<<QString("[SettingsWidget]setting changed:%1 %2 checked").arg(key).arg(btn->property("value").toString());
+    }
 }
 
 void SettingsWidget::updateContent()

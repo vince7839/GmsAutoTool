@@ -6,6 +6,7 @@
 #include<QMenu>
 #include<QAction>
 #include<QContextMenuEvent>
+QList<QMap<QString,QVariant> > OnlineWidget::mUserList;
 OnlineWidget::OnlineWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::OnlineWidget)
@@ -18,9 +19,9 @@ OnlineWidget::OnlineWidget(QWidget *parent) :
     ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
     mSocketUtil = SocketUtil::getInstance();
-    connect(mSocketUtil,SIGNAL(onUserFounded(QMap<QString,QVariant>)),this,SLOT(addOnline(QMap<QString,QVariant>)));
-    connect(ui->btn_ok,SIGNAL(clicked()),this,SLOT(sendReportToHost()));
-    mSocketUtil->sendAskOnline();   
+    connect(mSocketUtil,&SocketUtil::userFound,this,&OnlineWidget::addUser);
+    connect(mSocketUtil,&SocketUtil::userExit,this,&OnlineWidget::removeUser);
+    mSocketUtil->seekUser();
 }
 
 OnlineWidget::~OnlineWidget()
@@ -30,62 +31,65 @@ OnlineWidget::~OnlineWidget()
 
 void OnlineWidget::updateTable()
 {
-    ui->tableWidget->setRowCount(mOnlineList.size());
+    ui->tableWidget->setRowCount(mUserList.size());
 
-    for(int i=0;i<mOnlineList.size();i++)
+    for(int i=0;i<mUserList.size();i++)
     {
-       QTableWidgetItem* host = new QTableWidgetItem(mOnlineList.at(i).value("hostName").toString());
+       QTableWidgetItem* host = new QTableWidgetItem(mUserList.at(i).value("hostName").toString());
        host->setTextAlignment(Qt::AlignCenter);
        ui->tableWidget->setItem(i,0,host);
 
-       QTableWidgetItem* ip = new QTableWidgetItem(mOnlineList.at(i).value("fromIP").toString());
+       QTableWidgetItem* ip = new QTableWidgetItem(mUserList.at(i).value("fromIP").toString());
        ip->setTextAlignment(Qt::AlignCenter);
        ui->tableWidget->setItem(i,1,ip);
     }
 }
 
-void OnlineWidget::setReportInfo(QMap<QString,QString> info)
+QList<QMap<QString, QVariant> > OnlineWidget::getUserList()
 {
-    mReportPath = info.value("zipPath");
-    mReportName = info.value("zipName");
-    qDebug()<<"mReportPath:"<<mReportPath;
+    return mUserList;
 }
 
-void OnlineWidget::addOnline(QMap<QString,QVariant> msg)
+void OnlineWidget::addUser(QMap<QString,QVariant> msg)
 {
     QString hostIP = msg.value("fromIP").toString();
-    qDebug()<<QString("[OnlineWidget]recv online signal from:%1:%2").arg(msg.value("hostName").toString()).arg(msg.value("fromIP").toString());
-    if(hostIP == SocketUtil::getMyIP())
+    if(hostIP == SocketUtil::getMyIP()||hostIP.isEmpty())
     {
-        return;
+       //    return;
     }
-    for(int i=0;i<mOnlineList.size();i++)
+    for(int i=0;i<mUserList.size();i++)
     {
-        if(mOnlineList.at(i).value("fromIP") == hostIP )
+        if(mUserList.at(i).value("fromIP") == hostIP )
         {
             return;
          }
     }
-    mOnlineList.append(msg);
+    qDebug()<<"[OnlineWidget]add user:"<<msg;
+    mUserList.append(msg);
     updateTable();
-    qDebug()<<"[OnlineWidget]add online user ip:"<<msg.value("fromIP");
 }
 
-void OnlineWidget::sendReportToHost()
+void OnlineWidget::removeUser(QMap<QString, QVariant> info)
 {
-    QMap<QString,QVariant> map;
-    map.insert("path",mReportPath);
-    map.insert("toIP",mOnlineList.at(ui->tableWidget->currentRow()).value("fromIP"));
-    map.insert("type",SocketUtil::MSG_FILE_DOCUMENT);
-    map.insert("fileName",mReportName);
-    mSocketUtil->sendFile(map);
+    qDebug()<<"[OnlineWidget]remove user:"<<info;
+    QString hostIP = info.value("fromIP").toString();
+    for(int i=0;i<mUserList.size();i++)
+    {
+        QMap<QString,QVariant> map = mUserList.at(i);
+        if(map.value("fromIP") == hostIP )
+        {
+            mUserList.removeAll(map);
+            updateTable();
+            return;
+         }
+    }
 }
 
 void OnlineWidget::getHostScreen()
 {
-   QString toIP = mOnlineList.at(ui->tableWidget->currentRow()).value("fromIP").toString();
-   mSocketUtil->sendMessage(toIP,SocketUtil::MSG_EXPECT_SCREEN);
+   QString toIP = mUserList.at(ui->tableWidget->currentRow()).value("fromIP").toString();
    qDebug()<<"[OnlineWidget]send screen request to:"<<toIP;
+   mSocketUtil->sendMessage(toIP,SocketUtil::MSG_EXPECT_SCREEN);
 }
 
 void OnlineWidget::updateContent()

@@ -15,8 +15,9 @@
 #include<QMessageBox>
 #include<waitingwidget.h>
 #include<QThread>
-#include<QSqlDatabase>
-#include<QSqlQuery>
+#include<networkutil.h>
+#include<QFile>
+#include<warningwidget.h>
 
 TestWidget::TestWidget(QWidget *parent) :
     QWidget(parent),
@@ -32,7 +33,7 @@ TestWidget::TestWidget(QWidget *parent) :
     connect(mTimer,SIGNAL(timeout()),this,SLOT(updateTime()));
     mFileWatcher = new QFileSystemWatcher;
     connect(mFileWatcher,SIGNAL(fileChanged(QString)),this,SLOT(onFileChanged(QString)));
-    ui->pushButton->setVisible(false);
+   // ui->pushButton->setVisible(false);
 }
 
 TestWidget::~TestWidget()
@@ -125,7 +126,7 @@ void TestWidget::startTest(QMap<QString,QString> map)
        return;
     }
     mFileWatcher->addPath(tempName);
-    QString actionCmd = Config::getTestCmd(type,Config::getCmdPlatform(platform),action);
+    QString actionCmd = Config::getTestCmd(type,platform,action);
     if(action == Config::ACTION_ALL){
 
     }else if(action == Config::ACTION_RETRY){
@@ -134,7 +135,7 @@ void TestWidget::startTest(QMap<QString,QString> map)
         if(map.value("isOneModule") == "true"){
             actionCmd = actionCmd.arg(map.value("module"));
         }else{
-            actionCmd = Config::getTestCmd(Config::CTS,Config::getCmdPlatform(platform),Config::ACTION_PLAN).arg(map.value("planName"));
+            actionCmd = Config::getTestCmd(Config::CTS,platform,Config::ACTION_PLAN).arg(map.value("planName"));
         }
     }else if(action == Config::ACTION_SINGLE){
        actionCmd =  actionCmd.arg(map.value("module")).arg(map.value("test"));
@@ -151,15 +152,21 @@ void TestWidget::startTest(QMap<QString,QString> map)
     p->start("gnome-terminal",arg);
     map.insert("testId",tempName);
     addTestProgress(map);
+    WarningWidget::getInstance()->show();
 }
 
 void TestWidget::on_pushButton_clicked()
 {
-  /*  QNetworkInterface i = QNetworkInterface::interfaceFromName("eth0");
-      qDebug()<<i.hardwareAddress();*/
-    qDebug()<<Config::getTestCmd("VTS","N","plan");
-    qDebug()<<Config::getTestCmd("VTS","O","plan");
-
+    QStringList types = QStringList()<<"CTS"<<"GTS"<<"VTS"<<"GSI";
+    QStringList platforms = QStringList()<<"7.0"<<"8.0"<<"O";
+    QStringList actions = QStringList()<<"all"<<"retry"<<"single"<<"module"<<"plan";
+    foreach (QString type, types) {
+        foreach (QString platform, platforms) {
+            foreach (QString action, actions) {
+                Config::getTestCmd(type,platform,action);
+            }
+        }
+    }
 }
 
 void TestWidget::updateContent(){}

@@ -17,6 +17,7 @@ const int ExtendWidget::BTN_ID_PUSH_FILE = 1;
 const int ExtendWidget::BTN_ID_INSTALL_APK = 2;
 const int ExtendWidget::BTN_ID_SEND_BROADCAST = 3;
 const int ExtendWidget::BTN_ID_SHOW_WARNING = 4;
+const int ExtendWidget::BTN_ID_FLASH_IMG = 5;
 
 void ExtendWidget::configPC()
 {
@@ -140,18 +141,32 @@ void ExtendWidget::clickedHandle()
     case BTN_ID_SHOW_WARNING:
         showWarning();
         break;
+    case BTN_ID_FLASH_IMG:
+        flashImg();
+        break;
     }
 }
 
 void ExtendWidget::showWarning()
 {
     WarningWidget *w = WarningWidget::getInstance();
-    w->showAndReset();
+    w->showWarning();
 }
 
 void ExtendWidget::updateContent()
 {
 
+}
+
+void ExtendWidget::flashImg()
+{
+    QString path = QFileDialog::getOpenFileName(this,QString::fromUtf8("选择镜像"),"/home",QString::fromUtf8("镜像文件(*.img)"));
+    if(path.isEmpty()) return;
+    QMessageBox::information(this,QString::fromUtf8("提示"),QString::fromUtf8("刷机即将开始，请确认手机已处于fastboot模式，在出现提醒后按音量上键"));
+    QProcess* p = new QProcess;
+    QString cmd = QString("fastboot oem unlock && fastboot -w && fastboot flash system %1 && fastboot reboot;exec bash").arg(path);
+    QStringList arg = QStringList()<<"-x"<<"bash"<<"-c"<<cmd;
+    p->start("gnome-terminal",arg);
 }
 
 ExtendWidget::ExtendWidget(QWidget *parent) :
@@ -166,6 +181,8 @@ ExtendWidget::ExtendWidget(QWidget *parent) :
                                ,QString::fromUtf8("开始配置"),BTN_ID_CONFIG_PC));
     modelList.append(ModelData(QString::fromUtf8("导入media文件"),QString::fromUtf8("导入测试所需的多媒体文件")
                                ,QString::fromUtf8("选择文件"),BTN_ID_PUSH_FILE));
+    modelList.append(ModelData(QString::fromUtf8("刷入Google镜像"),QString::fromUtf8("GSI测试所需的镜像文件")
+                               ,QString::fromUtf8("选择镜像"),BTN_ID_FLASH_IMG));
     modelList.append(ModelData(QString::fromUtf8("安装APK"),QString::fromUtf8("将电脑中的APK安装到手机")
                                ,QString::fromUtf8("选择APK"),BTN_ID_INSTALL_APK));
     modelList.append(ModelData(QString::fromUtf8("发送测试广播"),QString::fromUtf8("某些情况需要特定广播触发")

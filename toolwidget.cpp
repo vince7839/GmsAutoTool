@@ -84,13 +84,15 @@ void ToolWidget::updateContent()
 
 QString ToolWidget::getIconPath(QString type)
 {
+    QString icon = "";
     if(type == Config::CTS){
-        return ":/tool/img/cts_icon.jpg";
+        icon =  ":/icon/img/cts_icon.jpg";
     }else if(type == Config::GTS){
-        return ":/tool/img/gts_icon.jpg";
+        icon =  ":/icon/img/gts_icon.jpg";
     }else if(type == Config::VTS){
-        return ":/tool/img/vts_icon.jpg";
+        icon =  ":/icon/img/vts_icon.jpg";
     }
+    return icon;
 }
 
 ToolWidget::ToolWidget(QWidget *parent) :
@@ -112,16 +114,6 @@ ToolWidget::ToolWidget(QWidget *parent) :
     ui->tool_listWidget->setResizeMode(QListView::Adjust);
     ui->tool_listWidget->setFlow(QListView::LeftToRight);
     ui->tool_listWidget->setSelectionMode(QAbstractItemView::SingleSelection);
-
-    QSettings settings("Sagereal","GmsAutoTool");
-    QString mac = Config::getMacAddress();
-    if(settings.value("MAC")!=mac)
-    {
-
-    }
-
-   // updateToolList();
-
 }
 
 ToolWidget::~ToolWidget()

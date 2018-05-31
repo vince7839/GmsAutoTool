@@ -12,16 +12,18 @@
 #include<QDir>
 #include<screenwidget.h>
 #include<QNetworkInterface>
+#include<QScreen>
 
-const int SocketUtil::MSG_FIND_SERVER = 0;
-const int SocketUtil::MSG_ME_SERVER = 1;
-const int SocketUtil::MSG_WHO_ONLINE = 2;
-const int SocketUtil::MSG_ME_ONLINE = 3;
+const int SocketUtil::MSG_SEEK_SERVER = 0;
+const int SocketUtil::MSG_SERVER = 1;
+const int SocketUtil::MSG_SEEK_ONLINE = 2;
+const int SocketUtil::MSG_ONLINE = 3;
 const int SocketUtil::MSG_EXPECT_SCREEN = 4;
-const int SocketUtil::MSG_FILE_SCREEN = 5;
+const int SocketUtil::MSG_IMAGE_SCREEN = 5;
 const int SocketUtil::MSG_REFUSE_SCREEN = 6;
-const int SocketUtil::MSG_FILE_DOCUMENT = 7;
-const int SocketUtil::MSG_REFUSE_DOCUMENT = 8;
+const int SocketUtil::MSG_EXPECT_FILE = 7;
+const int SocketUtil::MSG_REFUSE_FILE = 8;
+const int SocketUtil::MSG_OFFLINE = 9;
 
 const QString SocketUtil::KEY_FROM_IP = "fromIP";
 const QString SocketUtil::KEY_TO_IP = "toIP";
@@ -33,28 +35,19 @@ const QString SocketUtil::KEY_FILE_NAME = "fileName";
 SocketUtil* SocketUtil::sSocketUtil;
 
 SocketUtil::SocketUtil()
-{
-
-    mUdpSocket=new QUdpSocket;
+{    
+    mUdpSocket = new QUdpSocket;
     if( ! mUdpSocket->bind(Config::UDP_PORT) ){
-        qDebug()<<"udp bind fail!";
+        qDebug()<<"[SocketUtil]udp port bind fail";
     }
     connect(mUdpSocket,SIGNAL(readyRead()),this,SLOT(recvUdp()));
-
     mTcpSocketSelf = new QTcpSocket;
-    QList<QMap<QString,QString> > list=SqlConnection::getInstance()->exec("select * from Config");
-    if( !list.isEmpty() )
-    {
-        mIsServer=list.at(0).value("is_server") == "true";
-    }
-
-    mTcpServer=new QTcpServer;
-    connect(mTcpServer,SIGNAL(newConnection()),this,SLOT(newConnect()));
+    mTcpServer = new QTcpServer;
+    connect(mTcpServer,&QTcpServer::newConnection,this,&SocketUtil::acceptConnection);
     if( !mTcpServer->listen(QHostAddress::Any,Config::TCP_PORT) )
     {
-        QMessageBox::warning(0,QString::fromUtf8(""),QString::fromUtf8("tcp listen error!"));
+        QMessageBox::warning(0,QString::fromUtf8("警告"),QString::fromUtf8("TCP端口监听失败，将无法进行局域网通信！"));
     }
-
     sendMeOnline();
 }
 
@@ -62,13 +55,14 @@ SocketUtil* SocketUtil::getInstance()
 {
     if(sSocketUtil == NULL)
     {
-        sSocketUtil=new SocketUtil;
+        sSocketUtil = new SocketUtil;
     }
     return sSocketUtil;
 }
 
 void SocketUtil::sendUdp(QMap<QString, QVariant> msg)
 {
+   qDebug()<<"[SocketUtil]sendUdp:"<<msg;
     msg.insert(KEY_FROM_IP,getMyIP());
     msg.insert(KEY_HOST_NAME,QHostInfo::localHostName());
     QByteArray block;
@@ -76,30 +70,24 @@ void SocketUtil::sendUdp(QMap<QString, QVariant> msg)
     out.setVersion(QDataStream::Qt_5_6);
     out<<msg;
     mUdpSocket->writeDatagram(block,QHostAddress::Broadcast,Config::UDP_PORT) ;//也会给自己发一份
-    qDebug()<<"sendUdp:"<<msg;
 }
 
 void SocketUtil::handleMessage(QMap<QString, QVariant> msg)
 {
-    qDebug()<<"handleMessage:"<<msg.value(KEY_FROM_IP).toString()<<" "<<msg.value(KEY_MSG_TYPE);
-    if(/*msg.value("fromIP") == getMyIP()*/msg.value("key") == Config::KEY)
-   {
-     qDebug()<<"recv myself message";
-    // return;
-   }
+    qDebug()<<QString("[SocketUtil]handleMessage:from %1 to %2,type:%3")
+              .arg(msg.value(KEY_FROM_IP).toString()).arg(msg.value(KEY_TO_IP).toString()).arg(msg.value(KEY_MSG_TYPE).toString());
    QMap<QString,QVariant> map;
    map.insert(KEY_TO_IP,msg.value(KEY_FROM_IP));
-   map.insert("key",Config::KEY);
    switch(msg.value(KEY_MSG_TYPE).toInt())
    {
-    case MSG_FIND_SERVER:
+    case MSG_SEEK_SERVER:
          if(mIsServer)
          {
-           map.insert(KEY_MSG_TYPE,MSG_ME_SERVER);
+           map.insert(KEY_MSG_TYPE,MSG_SERVER);
            sendUdp(map);
           }
           break;
-    case MSG_ME_SERVER:
+    case MSG_SERVER:
           if(mServerIp.isEmpty())
           {
             mServerIp=msg.value(KEY_FROM_IP).toString();
@@ -107,59 +95,58 @@ void SocketUtil::handleMessage(QMap<QString, QVariant> msg)
              //已找到一个服务器,仍有客户端回应自己是服务器
           }
           break;
-    case MSG_WHO_ONLINE:
+    case MSG_SEEK_ONLINE:
           sendMeOnline();
           break;
-    case MSG_ME_ONLINE:
-          emit onUserFounded(msg);
+    case MSG_ONLINE:
+          emit userFound(msg);
           break;
+   case MSG_OFFLINE:
+         emit userExit(map);
+         break;
     case MSG_EXPECT_SCREEN:
-          if(Config::isAllowed(Config::SETTING_GRAB_SCREEN))
+          if(Config::isAllowed(Config::SETTING_SCREEN_SHOT))
           {
-              map.insert(KEY_MSG_TYPE,MSG_FILE_SCREEN);
+              map.insert(KEY_MSG_TYPE,MSG_IMAGE_SCREEN);
               sendFile(map);
           }else{
               map.insert(KEY_MSG_TYPE,MSG_REFUSE_SCREEN);
               sendTcp(map);
           }
           break;
-   case MSG_FILE_SCREEN:
+   case MSG_IMAGE_SCREEN:
        {
         QPixmap pixmap;
         QDataStream in(msg.value(KEY_DATA).toByteArray());
         in >> pixmap;
-        ScreenWidget* w = new ScreenWidget;
-        w->showPixmap(pixmap);
+        ScreenWidget::getInstance()->showPixmap(pixmap,msg.value(KEY_FROM_IP).toString());
        }
         break;
    case MSG_REFUSE_SCREEN:
        QMessageBox::information(NULL,QString::fromUtf8("提示"),QString::fromUtf8("对方已设置不允许抓取屏幕!"));
-        emit onScreenFinished(msg);
         break;
-   case MSG_FILE_DOCUMENT:
-        qDebug()<<"MSG_FILE_DOCUMENT";
+   case MSG_EXPECT_FILE:
         if(Config::isAllowed(Config::SETTING_RECV_FILE)){
             QDir dir = QDir::current();
-            qDebug()<<dir.currentPath();
             if( !dir.exists("FileRecv")){
-                qDebug()<<"the directory FileRecv does not exist";
+                qDebug()<<"[SocketUtil]directory FileRecv does not exist";
                 dir.mkdir("FileRecv");
             }
-            QByteArray byteArray = msg.value(KEY_DATA).toByteArray();                        
+            QByteArray byteArray = msg.value(KEY_DATA).toByteArray();
             QFile file("FileRecv/"+msg.value(KEY_FILE_NAME).toString());//会自动创建文件夹
             if(file.open(QIODevice::ReadWrite))
             {
                 file.write(byteArray);
                 file.close();
-                emit onDocumentRecved(msg);
-                QMessageBox::information(0,QString::fromUtf8("提示"),QString::fromUtf8("已成功接收文件%1").arg(file.fileName()));
+                QMessageBox::information(0,QString::fromUtf8("提示"),QString::fromUtf8("成功接收文件%1,已保存在%2")
+                                         .arg(file.fileName()).arg(QFileInfo(file).absolutePath()));
             }
         }else{
-            map.insert(KEY_MSG_TYPE,MSG_REFUSE_DOCUMENT);
+            map.insert(KEY_MSG_TYPE,MSG_REFUSE_FILE);
             sendTcp(map);
         }
         break;
-    case MSG_REFUSE_DOCUMENT:
+    case MSG_REFUSE_FILE:
        QMessageBox::information(NULL,QString::fromUtf8("提示"),QString::fromUtf8("对方已设置不允许接收远程文件！"));
        break;
    }
@@ -168,56 +155,76 @@ void SocketUtil::handleMessage(QMap<QString, QVariant> msg)
 QString SocketUtil::getMyIP()
 {
     QString ip;
-    foreach(QHostAddress address,QNetworkInterface::allAddresses())
-    {
-       if(address.protocol() == QAbstractSocket::IPv4Protocol && address != QHostAddress::LocalHost )
+   QNetworkInterface i = QNetworkInterface::interfaceFromName("eth0");
+   if(!i.isValid()){
+        i =  QNetworkInterface::interfaceFromName("eno1");
+   }
+    foreach(QNetworkAddressEntry entry,i.addressEntries()){
+        QHostAddress hostAddres = entry.ip();
+       if(hostAddres.protocol() == QAbstractSocket::IPv4Protocol)
        {
-            if(address.toString().startsWith("172"))
-            {
-                ip = address.toString();
-            }
-            qDebug()<<"[SocketUtil]find my ip:"<<address.toString();
+            ip =  hostAddres.toString();
        }
     }
     qDebug()<<"[SocketUtil]get my ip return:"<<ip;
     return ip;
 }
 
-void SocketUtil::sendAskOnline()
+QString SocketUtil::getMacAddress()
+{
+    QNetworkInterface i = QNetworkInterface::interfaceFromName("eth0");
+    QString macAddress = i.hardwareAddress();
+    qDebug()<<"[SocketUtil]mac address:"<<macAddress;
+    return macAddress;
+}
+
+void SocketUtil::seekUser()
 {
     QMap<QString,QVariant> map;
-    map.insert(KEY_MSG_TYPE,MSG_WHO_ONLINE);
+    map.insert(KEY_MSG_TYPE,MSG_SEEK_ONLINE);
     sendUdp(map);
 }
 
 void SocketUtil::sendTcp(QMap<QString, QVariant> param)
 {
-    qDebug()<<"sendTcp:"<<param.value(KEY_TO_IP)<<" "<<param.value(KEY_MSG_TYPE);
-    param.insert(KEY_FROM_IP,getMyIP());
-    QString type = param.value(KEY_MSG_TYPE).toString();
+     param.insert(KEY_FROM_IP,getMyIP());
+    qDebug()<<QString("[SocketUtil]sendTcp:from %1 to %2,type:%3")
+              .arg(param.value(KEY_FROM_IP).toString()).arg(param.value(KEY_TO_IP).toString()).arg(param.value(KEY_MSG_TYPE).toString());
     QByteArray block;
     QDataStream out(&block,QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_5_6);
     out<<(qint64)0;
     out<<param;
     out.device()->seek(0);
-    out<<(qint64)(block.size()-sizeof(qint64));
+    out<<(qint64)(block.size() - sizeof(qint64));
+    mTcpSocketSelf->abort();
     mTcpSocketSelf->connectToHost(param.value(KEY_TO_IP).toString(),Config::TCP_PORT);
     if(mTcpSocketSelf->waitForConnected()){
-        qDebug()<<"tcp write";
+        qDebug()<<"[SocketUtil]start tcp write to:"<<mTcpSocketSelf->peerAddress();
         mTcpSocketSelf->write(block);
+        mTcpSocketSelf->disconnectFromHost();
     }
 }
 
 void SocketUtil::sendMeOnline()
 {
+    qDebug()<<"[SocketUtil]sendMeOnline";
     QMap<QString,QVariant> map;
-    map.insert(KEY_MSG_TYPE,MSG_ME_ONLINE);
+    map.insert(KEY_MSG_TYPE,MSG_ONLINE);
+    sendUdp(map);
+}
+
+void SocketUtil::sendMeOffline()
+{
+    qDebug()<<"[SocketUtil]sendMeOffline";
+    QMap<QString,QVariant> map;
+    map.insert(KEY_MSG_TYPE,MSG_OFFLINE);
     sendUdp(map);
 }
 
 void SocketUtil::sendMessage(QString ip, int msgType)
 {
+   qDebug()<<QString("[SocketUtil]sendMessage:%2 to %1").arg(ip) .arg(msgType);
     QMap<QString,QVariant> map;
     map.insert(KEY_MSG_TYPE,MSG_EXPECT_SCREEN);
     map.insert(KEY_TO_IP,ip);
@@ -226,22 +233,19 @@ void SocketUtil::sendMessage(QString ip, int msgType)
 
 void SocketUtil::recvTcp()
 {
-    qDebug()<<"recv Tcp";
-    static qint64 blockSize=0;
+    qDebug()<<"[SocketUtil]recv Tcp";
     QMap<QString,QVariant> msg;
     QDataStream in(mTcpSocketClient);
     in.setVersion(QDataStream::Qt_5_6);
-
     while( mTcpSocketClient->bytesAvailable() > 0)   //循环接收 保证消息不遗漏
     {
-        if(blockSize==0)
+        if(mBlockSize==0)
         {
             if(mTcpSocketClient->bytesAvailable() < sizeof(qint64)) return;
-            in>>blockSize;
+            in>>mBlockSize;
         }
-        if(mTcpSocketClient->bytesAvailable()<blockSize) return;
-        in>>msg;
-        blockSize=0;
+        if(mTcpSocketClient->bytesAvailable()<mBlockSize) return;
+        in>>msg;               
         handleMessage(msg);
     }
 }
@@ -250,12 +254,13 @@ void SocketUtil::sendFile(QMap<QString, QVariant> param)
 {
     int type = param.value(KEY_MSG_TYPE).toInt();
     QByteArray byteArray;
-    if(MSG_FILE_SCREEN == type)
+    if(MSG_IMAGE_SCREEN == type)
     {
-       QPixmap pixmap = QPixmap::grabWindow(QApplication::desktop()->winId());
+        QScreen*screen = QGuiApplication::primaryScreen();
+       QPixmap pixmap = screen->grabWindow(QApplication::desktop()->winId());
        QDataStream out(&byteArray,QIODevice::ReadWrite);
        out << pixmap;
-    }else if(MSG_FILE_DOCUMENT == type)
+    }else if(MSG_EXPECT_FILE == type)
     {
        QFile file(param.value(KEY_DATA_PATH).toString());
        file.open(QIODevice::ReadOnly);
@@ -278,13 +283,22 @@ void SocketUtil::recvUdp()
       in.setVersion(QDataStream::Qt_5_6);
       in>>msg;
       handleMessage(msg);
-      qDebug()<<"recvUdp:"<<msg;
+      qDebug()<<"[SocketUtil]recvUdp:"<<msg;
      }
 }
 
-void SocketUtil::newConnect()
+void SocketUtil::acceptConnection()
 {
-    qDebug()<<"new connect!";
+    qDebug()<<"[SocketUtil]new connection!";
     mTcpSocketClient = mTcpServer->nextPendingConnection();
-    connect(mTcpSocketClient,SIGNAL(readyRead()),this,SLOT(recvTcp()));
+    mBlockSize = 0;
+    connect(mTcpSocketClient,&QTcpSocket::readyRead,this,&SocketUtil::recvTcp);
+    connect(mTcpSocketClient,&QTcpSocket::disconnected,this,&SocketUtil::continueAccept);
+    mTcpServer->pauseAccepting();
+}
+
+void SocketUtil::continueAccept()
+{
+    qDebug()<<"[SocketUtil]continue accept";
+    mTcpServer->resumeAccepting();
 }

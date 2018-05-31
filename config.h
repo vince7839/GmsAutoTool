@@ -2,6 +2,7 @@
 #define CONFIG_H
 
 #include <QString>
+#include<QDomNode>
 class Config
 {
 public:
@@ -9,6 +10,7 @@ public:
     static const QString CTS;
     static const QString GTS;
     static const QString VTS;
+    static const QString GSI;
     static const QString ANY;
     static const QString ACTION_ALL;
     static const QString ACTION_RETRY;
@@ -17,27 +19,29 @@ public:
     static const QString ACTION_PLAN;
     static quint16 TCP_PORT;
     static quint16 UDP_PORT;
-    static bool IS_ALLOW_SCREEN;
-    static QString KEY;
     static QString TESTING_WARNING;
     static const QString VERSION;
-    static const QString SETTINGS;
-    static const QString SETTING_GRAB_SCREEN;
+    static const QString SETTING_SCREEN_SHOT;
     static const QString SETTING_RECV_FILE;
     static const QString SETTING_NO_KEY;
-    static const QString SETTING_LABEL_ON;
-    static const QString SETTING_LABEL_OFF;
-    static const int ON;
-    static const int OFF;
+    static const QString OPTION_LABEL_ON;
+    static const QString OPTION_LABEL_OFF;
+    static const QString ON;
+    static const QString OFF;
+    static const QStringList TWO_STATES_OPTIONS;
+    static const QStringList NO_OPTION;
 
-    static bool isAllowed(QString);
-    static QString getMacAddress();
-    static QStringList getTestTypes();
+    static bool isAllowed(QString key);
+    static QSet<QString> getTestTypes();
     static QString getTypeLabel(QString type);
     static QString getTestCmd(QString,QString,QString);
-    static QStringList getTestActions(QString);
+    static QDomNode getNodeFromXml(QString type, QString platform, QString action, QString xml);
+    static QSet<QString> getTestActions(QString);
     static QString getActionLabel(QString);
-    static QString getCmdPlatform(QString);    
+    static QString getCmdPlatform(QString);
+    static QString getPlanPathByTool(QString toolPath);
+    static QString getResultPathByTool(QString toolPath);
+    static QString getOptionLabel(QString option);
 };
 
 #endif // CONFIG_H

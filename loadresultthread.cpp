@@ -20,7 +20,7 @@ const QString LoadResultThread::KEY_END_TIME = "end_time";
 
 void LoadResultThread::loadAsType(QString type)
 {
-    qDebug()<<"load type:"<<type;
+    qDebug()<<"[LoadResultThread]load type:"<<type;
     mType = type;
     start();
 }
@@ -45,7 +45,7 @@ void LoadResultThread::parseResultPath()
     QList<QMap<QString,QString> > list=conn->exec(query);
     for(int i=0;i<list.size();i++){
         QString toolPath = list.at(i).value("path");
-        QString resultDirPath = QDir(QString("%1/../../results").arg(toolPath)).absolutePath();
+        QString resultDirPath = Config::getResultPathByTool(toolPath);
         QDir resultDir(resultDirPath);
         qDebug()<<"[LoadResultThread]tool result dir:"<<resultDir.absolutePath();
         foreach(QFileInfo info,resultDir.entryInfoList())

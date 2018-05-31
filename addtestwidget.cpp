@@ -22,6 +22,7 @@ AddTestWidget::AddTestWidget(QWidget *parent) :
     ui->setupUi(this);
     initBoxUi();
     connect(ui->cbox_type,SIGNAL(currentIndexChanged(QString)),this,SLOT(updateToolBox()));
+    connect(ui->cbox_type,&QComboBox::currentTextChanged,this,&AddTestWidget::updateActionBox);
     connect(ui->cbox_tool,SIGNAL(currentTextChanged(QString)),this,SLOT(onToolChanged()));
     connect(ui->cbox_device,SIGNAL(currentTextChanged(QString)),this,SLOT(enableStart()));
     connect(ui->cbox_action,SIGNAL(currentTextChanged(QString)),this,SLOT(enableStart()));
@@ -173,10 +174,15 @@ void AddTestWidget::updateToolBox()
 {
     ui->cbox_tool->clear();
     SqlConnection *conn=SqlConnection::getInstance();
-    QString query = QString("select * from Tool where type='%1'")
-                                                 .arg(ui->cbox_type->currentText());
+    QString type = ui->cbox_type->currentText();
+    QString filter = QString("type = '%1'").arg(type);
+    if(type == Config::GSI)
+    {
+        filter = QString("(type = '%1' AND platform = '8.0') OR (type = '%2' AND platform > '8.0')").arg(Config::CTS).arg(Config::VTS);
+    }
     if(conn->isConnect())
     {
+        QString query = QString("SELECT * FROM Tool WHERE %1").arg(filter);
         mToolList = conn->exec(query);
     }
     for(int i = 0;i < mToolList.size();i++)
@@ -242,7 +248,7 @@ void AddTestWidget::startClicked()
 
 void AddTestWidget::updateTypeBox()
 {
-    QStringList types = Config::getTestTypes();
+    QSet<QString> types = Config::getTestTypes();
     foreach (QString type, types) {
           ui->cbox_type->addItem(Config::getTypeLabel(type),type);
     }
@@ -291,7 +297,7 @@ void AddTestWidget::updateTestName()
 void AddTestWidget::updateActionBox()
 {
     ui->cbox_action->clear();
-    QStringList actions = Config::getTestActions(ui->cbox_type->currentText());
+    QSet<QString> actions = Config::getTestActions(ui->cbox_type->currentText());
     foreach(QString act,actions)
     {
         ui->cbox_action->addItem(Config::getActionLabel(act),act);
@@ -301,7 +307,7 @@ void AddTestWidget::updateActionBox()
 void AddTestWidget::updateActionInfo()
 {
     QString action = ui->cbox_action->currentData().toString();  
-    qDebug()<<"[AddTestWidget]current session:"<<action;
+    qDebug()<<"[AddTestWidget]current action:"<<action;
     mRetryBox->setVisible(action==Config::ACTION_RETRY);
     mModuleBox->setVisible(action==Config::ACTION_MODULE);
     mSingleBox->setVisible(action==Config::ACTION_SINGLE);
@@ -344,8 +350,8 @@ void AddTestWidget::updatePlanBox()
     QString toolPath = ui->cbox_tool->currentData().toString();
     QComboBox* planBox = mPlanBox->findChild<QComboBox*>("cboxPlan");
     planBox->clear();
-    QString dirPath = QDir(QString("%1/../../subplans").arg(toolPath)).absolutePath();
-    QDir planDir(dirPath);
+
+    QDir planDir(Config::getPlanPathByTool(toolPath));
     if(planDir.exists())
     {
         foreach(QFileInfo f,planDir.entryInfoList())
