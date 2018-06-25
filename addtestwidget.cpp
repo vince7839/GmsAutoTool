@@ -178,7 +178,7 @@ void AddTestWidget::updateToolBox()
     QString filter = QString("type = '%1'").arg(type);
     if(type == Config::GSI)
     {
-        filter = QString("(type = '%1' AND platform = '8.0') OR (type = '%2' AND platform > '8.0')").arg(Config::CTS).arg(Config::VTS);
+        filter = QString("type = '%1' AND platform > '8.0'").arg(Config::VTS);
     }
     if(conn->isConnect())
     {

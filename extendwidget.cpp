@@ -11,6 +11,7 @@
 #include<QPushButton>
 #include<warningwidget.h>
 #include<QProcess>
+#include<projectwidget.h>
 
 const int ExtendWidget::BTN_ID_CONFIG_PC = 0;
 const int ExtendWidget::BTN_ID_PUSH_FILE = 1;
@@ -18,6 +19,7 @@ const int ExtendWidget::BTN_ID_INSTALL_APK = 2;
 const int ExtendWidget::BTN_ID_SEND_BROADCAST = 3;
 const int ExtendWidget::BTN_ID_SHOW_WARNING = 4;
 const int ExtendWidget::BTN_ID_FLASH_IMG = 5;
+const int ExtendWidget::BTN_ID_PROJECT_GMS = 6;
 
 void ExtendWidget::configPC()
 {
@@ -144,6 +146,9 @@ void ExtendWidget::clickedHandle()
     case BTN_ID_FLASH_IMG:
         flashImg();
         break;
+    case BTN_ID_PROJECT_GMS:
+        projectGms();
+        break;
     }
 }
 
@@ -169,6 +174,12 @@ void ExtendWidget::flashImg()
     p->start("gnome-terminal",arg);
 }
 
+void ExtendWidget::projectGms()
+{
+    ProjectWidget*p = new ProjectWidget;
+    p->show();
+}
+
 ExtendWidget::ExtendWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ExtendWidget)
@@ -183,6 +194,8 @@ ExtendWidget::ExtendWidget(QWidget *parent) :
                                ,QString::fromUtf8("选择文件"),BTN_ID_PUSH_FILE));
     modelList.append(ModelData(QString::fromUtf8("刷入Google镜像"),QString::fromUtf8("GSI测试所需的镜像文件")
                                ,QString::fromUtf8("选择镜像"),BTN_ID_FLASH_IMG));
+    modelList.append(ModelData(QString::fromUtf8("GMS状态查询"),QString::fromUtf8("项目的GMS进度")
+                               ,QString::fromUtf8("开始查询"),BTN_ID_PROJECT_GMS));
     modelList.append(ModelData(QString::fromUtf8("安装APK"),QString::fromUtf8("将电脑中的APK安装到手机")
                                ,QString::fromUtf8("选择APK"),BTN_ID_INSTALL_APK));
     modelList.append(ModelData(QString::fromUtf8("发送测试广播"),QString::fromUtf8("某些情况需要特定广播触发")

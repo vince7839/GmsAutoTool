@@ -33,7 +33,7 @@ TestWidget::TestWidget(QWidget *parent) :
     connect(mTimer,SIGNAL(timeout()),this,SLOT(updateTime()));
     mFileWatcher = new QFileSystemWatcher;
     connect(mFileWatcher,SIGNAL(fileChanged(QString)),this,SLOT(onFileChanged(QString)));
-   // ui->pushButton->setVisible(false);
+    //ui->pushButton->setVisible(false);
 }
 
 TestWidget::~TestWidget()
@@ -152,13 +152,13 @@ void TestWidget::startTest(QMap<QString,QString> map)
     p->start("gnome-terminal",arg);
     map.insert("testId",tempName);
     addTestProgress(map);
-    WarningWidget::getInstance()->show();
+    WarningWidget::getInstance()->showWarning();
 }
 
 void TestWidget::on_pushButton_clicked()
 {
-    QStringList types = QStringList()<<"CTS"<<"GTS"<<"VTS"<<"GSI";
-    QStringList platforms = QStringList()<<"7.0"<<"8.0"<<"O";
+ /*   QStringList types = QStringList()<<"CTS"<<"GTS";
+    QStringList platforms = QStringList()<<"7.0"<<"8.0";
     QStringList actions = QStringList()<<"all"<<"retry"<<"single"<<"module"<<"plan";
     foreach (QString type, types) {
         foreach (QString platform, platforms) {
@@ -166,7 +166,11 @@ void TestWidget::on_pushButton_clicked()
                 Config::getTestCmd(type,platform,action);
             }
         }
-    }
+    }*/
+    QProcess*p = new QProcess;
+    QStringList arg = QStringList()<<"-x"<<"bash"<<"-c"<<"/home/liaowenxing/GMS/CTS/O/android-cts/tools/cts-tradefed;exec bash";
+    p->start("gnome-terminal",arg);
+
 }
 
 void TestWidget::updateContent(){}

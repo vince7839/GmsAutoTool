@@ -8,7 +8,7 @@ class NetworkUtil:public QObject
 Q_OBJECT
 public:
     NetworkUtil();
-    void get(QString url);
+    void get(QString url,QMap<QString,QString> map = QMap<QString,QString>());
     void post(QString url);
 signals:
     void finished(QNetworkReply*reply);

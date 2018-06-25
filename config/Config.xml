@@ -66,6 +66,15 @@
         <Command>run cts-on-gsi --subplan %1</Command>
         <Command platform="8.0">run cts-reference-aosp --subplan %1</Command>
     </Action>
+    <Action name="retry">
+        <Command>run cts-on-gsi -r %1</Command>
+    </Action>
+    <Action name="module">
+        <Command>run cts-on-gsi -m %1</Command>
+    </Action>
+    <Action name="single">
+        <Command>run cts-on-gsi -m %1 -t %2</Command>
+    </Action>
 </Test>
 
 </Config>

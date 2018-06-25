@@ -14,7 +14,6 @@ ScreenWidget::ScreenWidget(QWidget *parent) :
     ui->cbox_interval->addItems(QStringList()<<QString::fromUtf8("从不")<<QString::fromUtf8("1秒")
                                 <<QString::fromUtf8("5秒")<<QString::fromUtf8("30秒"));
     connect(ui->cbox_interval,SIGNAL(currentIndexChanged(int)),this,SLOT(updateInterval(int)));
-    updateInterval(0);
 }
 
 void ScreenWidget::timerEvent(QTimerEvent *event)
@@ -24,7 +23,9 @@ void ScreenWidget::timerEvent(QTimerEvent *event)
 
 void ScreenWidget::closeEvent(QCloseEvent *event)
 {
-    killTimer(mTimerId);
+    if(mTimerId != 0)
+        killTimer(mTimerId);
+        mTimerId = 0;
 }
 
 void ScreenWidget::showPixmap(QPixmap pixmap,QString ip)
@@ -35,6 +36,7 @@ void ScreenWidget::showPixmap(QPixmap pixmap,QString ip)
     float scale = (float)pixmap.height()/(float)pixmap.width();
     setFixedSize(1000,1000*scale);
     show();
+    updateInterval(ui->cbox_interval->currentIndex());
 }
 
 ScreenWidget::~ScreenWidget()
@@ -56,8 +58,11 @@ void ScreenWidget::updateInterval(int index)
     int intervals[4] = {0,1,5,30};
     int sec = intervals[index];
     qDebug()<<"[ScreenWidget]update interval:"<<sec;
-    killTimer(mTimerId);
+    if(mTimerId != 0)
+        killTimer(mTimerId);
     if(index != 0){
         mTimerId = startTimer(sec*1000);
+    }else{
+        mTimerId = 0;
     }
 }

@@ -30,6 +30,7 @@ public:
     static const QString OFF;
     static const QStringList TWO_STATES_OPTIONS;
     static const QStringList NO_OPTION;
+    static const int TASK_URL;
 
     static bool isAllowed(QString key);
     static QSet<QString> getTestTypes();
@@ -42,6 +43,8 @@ public:
     static QString getPlanPathByTool(QString toolPath);
     static QString getResultPathByTool(QString toolPath);
     static QString getOptionLabel(QString option);
+    static QString getServerUrl();
+    static QString getUpdateUrl(int entity);
 };
 
 #endif // CONFIG_H

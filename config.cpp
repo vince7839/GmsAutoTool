@@ -34,6 +34,7 @@ quint16 Config::TCP_PORT = 6666;
 quint16 Config::UDP_PORT = 6667;
 const QStringList Config::TWO_STATES_OPTIONS = QStringList()<<Config::ON<<Config::OFF;
 const QStringList Config::NO_OPTION = QStringList();
+const int Config::TASK_URL = 0;
 
 Config::Config()
 {
@@ -86,9 +87,9 @@ QSet<QString> Config::getTestActions(QString type)
     QSet<QString> actions;
     actions<<ACTION_ALL<<ACTION_RETRY<<ACTION_MODULE<<ACTION_SINGLE<<ACTION_PLAN;
     if(type == GSI){
-        actions.remove(ACTION_RETRY);
-        actions.remove(ACTION_MODULE);
-        actions.remove(ACTION_SINGLE);
+      //  actions.remove(ACTION_RETRY);
+      //  actions.remove(ACTION_MODULE);
+      //  actions.remove(ACTION_SINGLE);
     }
     return actions;
 }
@@ -150,6 +151,20 @@ QString Config::getOptionLabel(QString option)
     map.insert(ON,OPTION_LABEL_ON);
     map.insert(OFF,OPTION_LABEL_OFF);
     return map.value(option);
+}
+
+QString Config::getServerUrl()
+{
+    return QString("http://localhost:8080/GmsServer/");
+}
+
+QString Config::getUpdateUrl(int entity)
+{
+    QString suffix;
+    if(entity == TASK_URL){
+        suffix = "task_update?";
+    }
+    return getServerUrl().append(suffix);
 }
 
 QString Config::getTypeLabel(QString type)
