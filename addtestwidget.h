@@ -34,6 +34,7 @@ private slots:
     void onToolChanged();
     void switchPlanMode(bool isChecked);
     void openPlanFile();
+    void devicesChanged(bool checked);
 public:
     explicit AddTestWidget(QWidget *parent = 0);
     ~AddTestWidget();
@@ -52,6 +53,7 @@ private:
     QGroupBox* mSingleBox;
     QGroupBox* mPlanBox;
     QSet<QString> mModuleSet;
+    QSet<QString> mDeviceSet;
 };
 
 #endif // ADDTESTWIDGET_H

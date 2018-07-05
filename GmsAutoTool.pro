@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT     +=    core gui sql xml   network
+QT     +=    core gui sql xml  network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -53,7 +53,9 @@ SOURCES += \
     networkutil.cpp \
     projectwidget.cpp \
     projecteditwidget.cpp \
-    taskdelegate.cpp
+    taskdelegate.cpp \
+    checkdelegate.cpp \
+    taskparam.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -85,7 +87,9 @@ HEADERS += \
     networkutil.h \
     projectwidget.h \
     projecteditwidget.h \
-    taskdelegate.h
+    taskdelegate.h \
+    checkdelegate.h \
+    taskparam.h
 
 FORMS += \
     mainwindow.ui \

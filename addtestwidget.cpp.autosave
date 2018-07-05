@@ -15,8 +15,8 @@
 #include<waitingwidget.h>
 #include<QRadioButton>
 #include<QFileDialog>
-#include<checkdelegate.h>
-#include<taskdelegate.h>
+#include<taskparam.h>
+
 AddTestWidget::AddTestWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::AddTestWidget)
@@ -205,7 +205,7 @@ void AddTestWidget::updateToolBox()
 
 void AddTestWidget::startClicked()
 {
-       QMap<QString,QString> map;
+       QMap<QString,QObject> map;
        QString toolPath = mToolList.at(ui->cbox_tool->currentIndex()).value("path");
        map.insert("platform",mToolList.at(ui->cbox_tool->currentIndex()).value("platform"));
        map.insert("toolPath",toolPath);
@@ -213,6 +213,14 @@ void AddTestWidget::startClicked()
        map.insert("name",ui->lineEdit_name->text());
        map.insert("action",ui->cbox_action->currentData().toString());
        map.insert("type",ui->cbox_type->currentData().toString());
+       
+       //
+       TaskP
+       
+       
+       
+       
+       
        if(ui->cbox_action->currentData()==Config::ACTION_ALL){
 
        }else if(ui->cbox_action->currentData()==Config::ACTION_RETRY){
