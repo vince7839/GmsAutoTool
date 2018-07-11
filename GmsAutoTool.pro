@@ -24,93 +24,101 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += \
-        main.cpp \
-    mainwindow.cpp \
-    addtoolwidget.cpp \
-    sqlconnection.cpp \
-    addtestwidget.cpp \
-    resultwidget.cpp \
-    toolwidget.cpp \
-    testwidget.cpp \
-    plandialog.cpp \
-    solutionwidget.cpp \
-    addsolutionwidget.cpp \
-    loadresultthread.cpp \
-    extendwidget.cpp \
-    xmlutil.cpp \
-    logutil.cpp \
-    socketutil.cpp \
-    onlinewidget.cpp \
-    tabstyle.cpp \
-    screenwidget.cpp \
-    warningwidget.cpp \
-    settingswidget.cpp \
-    messagedialog.cpp \
-    config.cpp \
-    planutil.cpp \
-    waitingwidget.cpp \
-    failturewidget.cpp \
-    networkutil.cpp \
-    projectwidget.cpp \
-    projecteditwidget.cpp \
-    taskdelegate.cpp \
-    checkdelegate.cpp \
-    taskparam.cpp
+    util/config.cpp \
+    util/loadresultthread.cpp \
+    util/logutil.cpp \
+    util/networkutil.cpp \
+    util/planutil.cpp \
+    util/socketutil.cpp \
+    util/sqlconnection.cpp \
+    util/taskparam.cpp \
+    util/xmlutil.cpp \
+    main.cpp \
+    view/addsolutionwidget.cpp \
+    view/addtoolwidget.cpp \
+    view/extendwidget.cpp \
+    view/failturewidget.cpp \
+    view/mainwindow.cpp \
+    view/messagedialog.cpp \
+    view/onlinewidget.cpp \
+    view/plandialog.cpp \
+    view/projecteditwidget.cpp \
+    view/projectwidget.cpp \
+    view/resultwidget.cpp \
+    view/screenwidget.cpp \
+    view/settingswidget.cpp \
+    view/solutionwidget.cpp \
+    view/tabstyle.cpp \
+    view/taskdelegate.cpp \
+    view/toolwidget.cpp \
+    view/waitingwidget.cpp \
+    view/warningwidget.cpp \
+    view/buildtaskwidget.cpp \
+    view/taskwidget.cpp \
+    util/executor.cpp \
+    util/cmdbuilder.cpp
+
 
 HEADERS += \
-    mainwindow.h \
-    addtoolwidget.h \
-    sqlconnection.h \
-    addtestwidget.h \
-    resultwidget.h \
-    toolwidget.h \
-    testwidget.h \
-    plandialog.h \
-    solutionwidget.h \
-    addsolutionwidget.h \
-    loadresultthread.h \
-    extendwidget.h \
-    xmlutil.h \
-    logutil.h \
-    socketutil.h \
-    onlinewidget.h \
-    tabstyle.h \
-    screenwidget.h \
-    warningwidget.h \
-    settingswidget.h \
-    messagedialog.h \
-    updatable.h \
-    config.h \
-    planutil.h \
-    waitingwidget.h \
-    failurewidget.h \
-    networkutil.h \
-    projectwidget.h \
-    projecteditwidget.h \
-    taskdelegate.h \
-    checkdelegate.h \
-    taskparam.h
+    util/config.h \
+    util/loadresultthread.h \
+    util/logutil.h \
+    util/networkutil.h \
+    util/planutil.h \
+    util/socketutil.h \
+    util/sqlconnection.h \
+    util/taskparam.h \
+    util/xmlutil.h \
+    view/addsolutionwidget.h \
+    view/addtoolwidget.h \
+    view/extendwidget.h \
+    view/failurewidget.h \
+    view/mainwindow.h \
+    view/messagedialog.h \
+    view/onlinewidget.h \
+    view/plandialog.h \
+    view/projecteditwidget.h \
+    view/projectwidget.h \
+    view/resultwidget.h \
+    view/screenwidget.h \
+    view/settingswidget.h \
+    view/solutionwidget.h \
+    view/tabstyle.h \
+    view/taskdelegate.h \
+    view/toolwidget.h \
+    view/updatable.h \
+    view/waitingwidget.h \
+    view/warningwidget.h \
+    view/buildtaskwidget.h \
+    view/taskwidget.h \
+    util/executor.h \
+    util/cmdbuilder.h
+
 
 FORMS += \
-    mainwindow.ui \
-    addtoolwidget.ui \
-    addtestwidget.ui \
-    resultwidget.ui \
-    toolwidget.ui \
-    testwidget.ui \
-    plandialog.ui \
-    solutionwidget.ui \
-    addsolutionwidget.ui \
-    extendwidget.ui \
-    onlinewidget.ui \
-    screenwidget.ui \
-    warningwidget.ui \
-    settingswidget.ui \
-    messagedialog.ui \
-    waitingwidget.ui \
-    failurewidget.ui \
-    projectwidget.ui \
-    projecteditwidget.ui
+    ui/addsolutionwidget.ui \
+    ui/addtoolwidget.ui \
+    ui/extendwidget.ui \
+    ui/failurewidget.ui \
+    ui/mainwindow.ui \
+    ui/messagedialog.ui \
+    ui/onlinewidget.ui \
+    ui/plandialog.ui \
+    ui/projecteditwidget.ui \
+    ui/projectwidget.ui \
+    ui/resultwidget.ui \
+    ui/screenwidget.ui \
+    ui/settingswidget.ui \
+    ui/solutionwidget.ui \
+    ui/toolwidget.ui \
+    ui/waitingwidget.ui \
+    ui/warningwidget.ui \
+    ui/buildtaskwidget.ui \
+    ui/taskwidget.ui
+
 
 RESOURCES += \
     icon.qrc
+
+DISTFILES += \
+    database/GmsAutoTool.db

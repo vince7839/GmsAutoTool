@@ -8,4 +8,7 @@
     <qresource prefix="/xml">
         <file>config/Config.xml</file>
     </qresource>
+    <qresource prefix="/script">
+        <file>script/start.py</file>
+    </qresource>
 </RCC>
