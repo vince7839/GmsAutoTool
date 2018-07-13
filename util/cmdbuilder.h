@@ -4,13 +4,20 @@
 #include <QObject>
 #include<util/taskparam.h>
 #include<QDomNode>
+class CmdBuilder;
 class CmdBuilder
 {
 public:
     CmdBuilder();
-    QString build(TaskParam* taskParam);
-    QString getActionCmd(QString type,QString platform,QString action);
-    QDomNode getNodeFromXml();
+    CmdBuilder(TaskParam* taskParam);
+    CmdBuilder* buildTaskCmd();
+    CmdBuilder* buildShell();
+    QString create();
+    static QString getActionCmd(QString type,QString platform,QString action);
+    static QDomNode getNodeFromXml(QString type,QString platform,QString action,QString xml);
+private:
+    TaskParam *taskParam;
+    QString cmd;
 };
 
 #endif // CMDBUILDER_H

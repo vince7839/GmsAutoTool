@@ -150,7 +150,7 @@ void ResultWidget::detailActionClicked()
 
 void ResultWidget::updateFilterBox()
 {
-    QSet<QString> types = Config::getTestTypes();
+    QStringList types = Config::getTestTypes();
     foreach(QString type,types){
         ui->cbox_type->addItem(Config::getTypeLabel(type),type);
     }

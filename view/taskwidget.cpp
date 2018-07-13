@@ -19,6 +19,7 @@
 #include<QFile>
 #include<view/warningwidget.h>
 #include<util/executor.h>
+#include<util/cmdbuilder.h>
 
 TaskWidget::TaskWidget(QWidget *parent) :
     QWidget(parent),
@@ -107,11 +108,9 @@ void TaskWidget::newTask()
 
 void TaskWidget::executeTask(TaskParam* taskParam)
 {
-
-    QString bashCmd = QString("trap 'rm %3' SIGHUP SIGINT;(python script/start.py %1 '%2';rm %3)|tee -a %3").arg(toolPath)
-            .arg(actionCmd).arg(tempName);
-    qDebug()<<bashCmd;
-    Executor::execute(bashCmd);
+    CmdBuilder* cmdBuilder = new CmdBuilder(taskParam);
+    QString cmd = cmdBuilder->buildTaskCmd()->buildShell()->create();
+    Executor::execute(cmd);
    // map.insert("testId",tempName);
   //  addTestProgress(map);
     WarningWidget::getInstance()->showWarning();
@@ -129,10 +128,12 @@ void TaskWidget::on_pushButton_clicked()
             }
         }
     }*/
-    pa = new QProcess;
+  /*  pa = new QProcess;
     QStringList arg = QStringList()<<"-x"<<"bash"<<"-c"<<"/home/liaowenxing/GMS/CTS/O/android-cts/tools/cts-tradefed run commandAndExit cts --shard-count 2  -s ASDFGGH2222  -s vgg5545HGHGHO";
-    pa->start("gnome-terminal",arg);
+    pa->start("gnome-terminal",arg);*/
   //  connect(pa,&QProcess::readyRead,this,&TaskWidget::testOutput);
+    CmdBuilder*b = new CmdBuilder;
+    qDebug()<<b->buildShell()->create();
 }
 
 void TaskWidget::updateContent(){}

@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no' ?>
+<SubPlan version="2.0">
+  <Entry include="armeabi-v7a CtsAppTestCases android.app.cts.SystemFeaturesTest#testSensorFeatures" />
+  <Entry include="armeabi-v7a CtsOsTestCases" />
+  <Entry include="armeabi-v7a CtsPermission2TestCases android.permission2.cts.PrivappPermissionsTest#testPrivappPermissionsEnforcement" />
+  <Entry include="armeabi-v7a CtsSensorTestCases android.hardware.cts.SensorTest#testBatchAndFlush" />
+  <Entry include="armeabi-v7a CtsSensorTestCases android.hardware.cts.SensorTest#testSensorOperations" />
+  <Entry include="armeabi-v7a CtsCameraTestCases android.hardware.camera2.cts.RecordingTest#testBasicRecording" />
+  <Entry include="armeabi-v7a CtsCameraTestCases android.hardware.camera2.cts.RecordingTest#testBasicVideoStabilizationRecording" />
+  <Entry include="armeabi-v7a CtsCameraTestCases android.hardware.camera2.cts.RecordingTest#testRecordingFramerateLowToHigh" />
+  <Entry include="armeabi-v7a CtsCameraTestCases android.hardware.camera2.cts.RecordingTest#testRecordingFromPersistentSurface" />
+  <Entry include="armeabi-v7a CtsCameraTestCases android.hardware.cts.CameraTest#testPreviewFpsRange" />  
+</SubPlan>

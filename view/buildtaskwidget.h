@@ -27,7 +27,7 @@ private slots:
     void updateDeviceBox();
     void updateTestName();
     void updateActionBox();
-    void updateActionInfo();
+    void updateDynamicBox();
     void updateSessionBox();
     void updatePlanBox();
     void updateModuleBox();
@@ -36,11 +36,19 @@ private slots:
     void switchPlanMode(bool isChecked);
     void openPlanFile();
     void devicesChanged(bool checked);
+    void onTypeChanged();
+    void onActionChanged();
 public:
     explicit BuildTaskWidget(QWidget *parent = 0);
     ~BuildTaskWidget();
     bool isListChanged(QStringList,QStringList);
-    void initBoxUi();
+    void initUI();
+    void initDeviceBox();
+    void initModuleBox();
+    void initRetryBox();
+    void initSingleBox();
+    void initQuickBox();
+    void initPlanBox();
 protected:
      void closeEvent(QCloseEvent *event);
 
@@ -53,6 +61,7 @@ private:
     QGroupBox* mModuleBox;
     QGroupBox* mSingleBox;
     QGroupBox* mPlanBox;
+    QGroupBox* mQuickBox;
     QSet<QString> mModuleSet;
     QSet<QString> mDeviceSet;
 };

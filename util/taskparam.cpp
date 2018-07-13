@@ -1,15 +1,5 @@
 #include "taskparam.h"
 
-QString TaskParam::getAction() const
-{
-    return action;
-}
-
-void TaskParam::setAction(const QString &value)
-{
-    action = value;
-}
-
 QString TaskParam::getSession() const
 {
     return session;
@@ -35,16 +25,6 @@ bool TaskParam::isMultiDevice()
     return device.size() != 1;
 }
 
-QString TaskParam::getType() const
-{
-    return type;
-}
-
-void TaskParam::setType(const QString &value)
-{
-    type = value;
-}
-
 QString TaskParam::getItem() const
 {
     return item;
@@ -53,6 +33,36 @@ QString TaskParam::getItem() const
 void TaskParam::setItem(const QString &value)
 {
     item = value;
+}
+
+QString TaskParam::getTestAction() const
+{
+    return testAction;
+}
+
+void TaskParam::setTestAction(const QString &value)
+{
+    testAction = value;
+}
+
+QString TaskParam::getTestType() const
+{
+    return testType;
+}
+
+void TaskParam::setTestType(const QString &value)
+{
+    testType = value;
+}
+
+QString TaskParam::getCmdType() const
+{
+    return cmdType;
+}
+
+void TaskParam::setCmdType(const QString &value)
+{
+    cmdType = value;
 }
 
 TaskParam::TaskParam()

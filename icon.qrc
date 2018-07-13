@@ -6,7 +6,10 @@
         <file>img/app_icon.png</file>
     </qresource>
     <qresource prefix="/xml">
-        <file>config/Config.xml</file>
+        <file>xml/Config.xml</file>
+        <file>xml/mmi_plan.xml</file>
+        <file>xml/drv_plan.xml</file>
+        <file>xml/audio_plan.xml</file>
     </qresource>
     <qresource prefix="/script">
         <file>script/start.py</file>

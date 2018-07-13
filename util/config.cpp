@@ -19,8 +19,16 @@ const QString Config::ACTION_ALL = "all";
 const QString Config::ACTION_RETRY = "retry";
 const QString Config::ACTION_MODULE = "module";
 const QString Config::ACTION_SINGLE = "single";
- const QString Config::ACTION_PLAN = "plan";
-
+const QString Config::ACTION_PLAN = "plan";
+const QString Config::ACTION_QUICK = "quick";
+const QString Config::CMD_ALL = "all";
+const QString Config::CMD_RETRY = "retry";
+const QString Config::CMD_MODULE = "module";
+const QString Config::CMD_SINGLE = "single";
+const QString Config::CMD_PLAN = "plan";
+const QString Config::QUICK_MMI = "quick_mmi";
+const QString Config::QUICK_DRV = "quick_drv";
+const QString Config::QUICK_AUDIO= "quick_audio";
 const QString Config::VERSION = "beta 1.0";
 const QString Config::SETTING_SCREEN_SHOT = "screen_shot";
 const QString Config::SETTING_RECV_FILE = "recv_file";
@@ -41,55 +49,12 @@ Config::Config()
     
 }
 
-QString Config::getTestCmd(QString type,QString platform, QString action)
+QStringList Config::getTestActions(QString type)
 {
-    QDomNode cmdNode;
-    QString overrideXml = "config/Config.xml";
-    QString internalXml = ":/xml/config/Config.xml";
-    if(QFile::exists(overrideXml)){
-        cmdNode =  getNodeFromXml(type,platform,action,overrideXml);
-    }
-    if(cmdNode.isNull()){
-        cmdNode = getNodeFromXml(type,platform,action,internalXml);
-    }
-    qDebug()<<"[Config]final cmd:"<<cmdNode.toElement().text();
-   return cmdNode.toElement().text();
-}
-
-QDomNode Config::getNodeFromXml(QString type, QString platform, QString action, QString xml)
-{
-    QDomDocument doc;
-    doc.setContent(new QFile(xml));
-    QMap<QString,QString> map,map1,map2;
-    map.insert("type",type);
-    QDomNode testNode = XmlUtil::getChildNode(doc.namedItem("Config"),"Test",map);
-    map1.insert("name",action);
-    QDomNode actionNode = XmlUtil::getChildNode(testNode,"Action",map1);
-    map2.insert("platform",platform);
-    QDomNode cmdNode = XmlUtil::getChildNode(actionNode,"Command",map2);
-    if(cmdNode.isNull())
-    {
-        QMap<QString,QString> map3;
-        map3.insert("platform",getCmdPlatform(platform));
-        cmdNode =  XmlUtil::getChildNode(actionNode,"Command",map3);
-    }
-    if(cmdNode.isNull())
-    {
-        cmdNode = XmlUtil::getChildNode(actionNode,"Command");//default cmd
-    }
-    qDebug()<<QString("[Config]get cmd  from <%1> for <type %2><platform %3><action %4>:%5")
-                        .arg(xml).arg(type).arg(platform).arg(action).arg(cmdNode.toElement().text());
-    return cmdNode;
-}
-
-QSet<QString> Config::getTestActions(QString type)
-{
-    QSet<QString> actions;
-    actions<<ACTION_ALL<<ACTION_RETRY<<ACTION_MODULE<<ACTION_SINGLE<<ACTION_PLAN;
-    if(type == GSI){
-      //  actions.remove(ACTION_RETRY);
-      //  actions.remove(ACTION_MODULE);
-      //  actions.remove(ACTION_SINGLE);
+    QStringList actions;
+    actions<<ACTION_ALL<<ACTION_RETRY<<ACTION_MODULE<<ACTION_SINGLE<<ACTION_PLAN<<ACTION_QUICK;
+    if(type != CTS){
+       actions.removeAll(ACTION_QUICK);
     }
     return actions;
 }
@@ -100,8 +65,9 @@ QString Config::getActionLabel(QString action)
     map.insert(ACTION_ALL,QString::fromUtf8("全测"));
     map.insert(ACTION_RETRY,QString::fromUtf8("复测"));
     map.insert(ACTION_MODULE,QString::fromUtf8("模块测试"));
-    map.insert(ACTION_SINGLE,QString::fromUtf8("单项测试"));
+    map.insert(ACTION_SINGLE,QString::fromUtf8("单测"));
     map.insert(ACTION_PLAN,QString::fromUtf8("执行Plan"));
+    map.insert(ACTION_QUICK,QString::fromUtf8("一键测试"));
     return map.value(action);
 }
 
@@ -111,14 +77,14 @@ bool Config::isAllowed(QString action)
    return settings.value(action).toString() == ON;
 }
 
-QSet<QString> Config::getTestTypes()
+QStringList Config::getTestTypes()
 {
-    QSet<QString> types;
+    QStringList types;
     types<<CTS<<GTS<<VTS<<GSI;
     return types;
 }
 
-QString Config::getCmdPlatform(QString num)
+QString Config::getCharPlatform(QString num)
 {
     QStringList numPrefix;
     numPrefix<<"8"<<"7"<<"6"<<"5";
@@ -132,12 +98,6 @@ QString Config::getCmdPlatform(QString num)
     }
     qDebug()<<"[Config]no platform for:"<<num;
     return "";
-}
-
-QString Config::getPlanPathByTool(QString toolPath)
-{
-    QDir planDir(QString("%1/../../subplans").arg(toolPath));
-    return planDir.absolutePath();
 }
 
 QString Config::getResultPathByTool(QString toolPath)
@@ -165,6 +125,21 @@ QString Config::getUpdateUrl(int entity)
         suffix = "task_update?";
     }
     return getServerUrl().append(suffix);
+}
+
+QStringList Config::getQuickTypes()
+{
+    QStringList types = QStringList()<<QUICK_MMI<<QUICK_DRV<<QUICK_AUDIO;
+    return types;
+}
+
+QString Config::getQuickLabel(QString type)
+{
+    QMap<QString,QString> map;
+    map.insert(QUICK_MMI,QString::fromUtf8("MMI送测自检"));
+    map.insert(QUICK_DRV,QString::fromUtf8("驱动Camera自检"));
+    map.insert(QUICK_AUDIO,QString::fromUtf8("音频自检"));
+    return map.value(type);
 }
 
 QString Config::getTypeLabel(QString type)

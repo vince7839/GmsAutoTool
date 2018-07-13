@@ -17,6 +17,15 @@ public:
     static const QString ACTION_MODULE;
     static const QString ACTION_SINGLE;
     static const QString ACTION_PLAN;
+    static const QString ACTION_QUICK;
+    static const QString CMD_ALL;
+    static const QString CMD_RETRY;
+    static const QString CMD_MODULE;
+    static const QString CMD_SINGLE;
+    static const QString CMD_PLAN;
+    static const QString QUICK_MMI;
+    static const QString QUICK_DRV;
+    static const QString QUICK_AUDIO;
     static quint16 TCP_PORT;
     static quint16 UDP_PORT;
     static QString TESTING_WARNING;
@@ -33,18 +42,18 @@ public:
     static const int TASK_URL;
 
     static bool isAllowed(QString key);
-    static QSet<QString> getTestTypes();
+    static QStringList getTestTypes();
     static QString getTypeLabel(QString type);
-    static QString getTestCmd(QString,QString,QString);
-    static QDomNode getNodeFromXml(QString type, QString platform, QString action, QString xml);
-    static QSet<QString> getTestActions(QString);
+    static QStringList getTestActions(QString);
     static QString getActionLabel(QString);
-    static QString getCmdPlatform(QString);
-    static QString getPlanPathByTool(QString toolPath);
+    static QString getCharPlatform(QString);
     static QString getResultPathByTool(QString toolPath);
     static QString getOptionLabel(QString option);
     static QString getServerUrl();
     static QString getUpdateUrl(int entity);
+    static QStringList getQuickTypes();
+    static QString getQuickLabel(QString type);
+
 };
 
 #endif // CONFIG_H

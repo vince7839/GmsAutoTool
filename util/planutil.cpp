@@ -8,6 +8,8 @@
 #include<util/config.h>
 #include<util/sqlconnection.h>
 #include<view/plandialog.h>
+#include<util/cmdbuilder.h>
+#include<QDateTime>
 PlanUtil::PlanUtil()
 {
 
@@ -15,8 +17,8 @@ PlanUtil::PlanUtil()
 
 bool PlanUtil::isPlanExists(QString toolPath, QString planName)
 {    
-    QString fileName = QString("%1/%2.xml").arg(Config::getPlanPathByTool(toolPath)).arg(planName);
-     qDebug()<<"[PlanUtil]plan file name:"<<fileName;
+    QString fileName = QString("%1/%2.xml").arg(getPlanDirPath(toolPath)).arg(planName);
+    qDebug()<<"[PlanUtil]plan file name:"<<fileName;
     QFile file(fileName);
     qDebug()<<QString("[PlanUtil]check plan file %1 exists = %2").arg(fileName).arg(file.exists());
     return file.exists();
@@ -37,8 +39,8 @@ void PlanUtil::execPlan(QString toolPath, QString planName)
     }else{
         QMap<QString,QString> map = list.first();
         QString type = map.value("type");
-        QString platform = Config::getCmdPlatform(map.value("platform"));
-        QString planCmd = Config::getTestCmd(type,platform,Config::ACTION_PLAN);
+        QString platform = Config::getCharPlatform(map.value("platform"));
+        QString planCmd = CmdBuilder::getActionCmd(type,platform,Config::ACTION_PLAN);
         planCmd.arg(planName);
         QString bashCmd = QString("%1 %2;exec bash").arg(toolPath).arg(planCmd);
         qDebug()<<"[PlanUtil]plan cmd:"<<planCmd;
@@ -49,10 +51,35 @@ void PlanUtil::execPlan(QString toolPath, QString planName)
     }
 }
 
+void PlanUtil::copyPlan(QString toolPath, QString xmlPath)
+{
+    qDebug()<<"[PlanUtil::copyPlan]xml:"<<xmlPath;
+    QFileInfo originFile(xmlPath);
+    if(!originFile.exists()){
+        qDebug()<<"[PlanUtil::copyPlan]origin file not exists";
+        return;
+    }
+    QString fileName = QString("%1/%2").arg(getPlanDirPath(toolPath)).arg(originFile.fileName());
+    qDebug()<<"[PlanUtil::copyPlan]new file name:"<<fileName;
+    QFile file(fileName);
+    if(file.exists()){
+        file.remove();
+    }
+    QFile::copy(xmlPath,fileName);
+}
+
+QString PlanUtil::getPlanDirPath(QString toolPath)
+{
+    QDir planDir(QString("%1/../../subplans").arg(toolPath));
+    return planDir.absolutePath();
+}
+
 void PlanUtil::createPlan(QString toolPath, QString planName, QSet<QString> testSet)
 {
     QDir rootDir(QString("%1/../..").arg(toolPath));
     QDir planDir(QString("%1/subplans").arg(rootDir.absolutePath()));
+    qDebug()<<"[PlanUtil]root dir:"<<rootDir.absolutePath();
+    qDebug()<<"[PlanUtil]plan dir:"<<planDir.absolutePath();
     if( !planDir.exists())
     {
         rootDir.mkdir("subplans");
@@ -62,17 +89,24 @@ void PlanUtil::createPlan(QString toolPath, QString planName, QSet<QString> test
     rootNode.setAttribute("version","2.0");
     for(QString test:testSet)
     {
-      QDomElement entryNode=doc.createElement("Entry");
-      entryNode.setAttribute("include",QString("armeabi-v7a %1").arg(test));
-      rootNode.appendChild(entryNode);
+        QDomElement entryNode=doc.createElement("Entry");
+        entryNode.setAttribute("include",QString("armeabi-v7a %1").arg(test));
+        rootNode.appendChild(entryNode);
     }
-     doc.appendChild(rootNode);
-     QFile file(QString("%1/%2.xml").arg(planDir.absolutePath()).arg(planName));
-     if(file.open(QIODevice::WriteOnly))
-     {
-         QTextStream out(&file);
-         out<<"<?xml version='1.0' encoding='UTF-8' standalone='no' ?>\n";
-         doc.save(out,2);
-         file.close();
+    doc.appendChild(rootNode);
+    QFile file(QString("%1/%2.xml").arg(planDir.absolutePath()).arg(planName));
+    if(file.open(QIODevice::WriteOnly))
+    {
+        QTextStream out(&file);
+        out<<"<?xml version='1.0' encoding='UTF-8' standalone='no' ?>\n";
+        doc.save(out,2);
+        file.close();
     }
+}
+
+QString PlanUtil::createAutoPlan(QString toolPath, QSet<QString> items)
+{
+    QString planName = QString("GmsAutoTool_%1").arg(QDateTime::currentMSecsSinceEpoch());
+    createPlan(toolPath,planName,items);
+    return planName;
 }
