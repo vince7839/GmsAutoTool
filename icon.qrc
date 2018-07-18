@@ -1,17 +1,17 @@
 <RCC>
     <qresource prefix="/icon">
-        <file>img/cts_icon.jpg</file>
-        <file>img/gts_icon.jpg</file>
-        <file>img/vts_icon.jpg</file>
-        <file>img/app_icon.png</file>
+        <file>resource/img/app_icon.png</file>
+        <file>resource/img/cts_icon.jpg</file>
+        <file>resource/img/gts_icon.jpg</file>
+        <file>resource/img/vts_icon.jpg</file>
     </qresource>
     <qresource prefix="/xml">
-        <file>xml/Config.xml</file>
-        <file>xml/mmi_plan.xml</file>
-        <file>xml/drv_plan.xml</file>
-        <file>xml/audio_plan.xml</file>
+        <file>resource/xml/audio_plan.xml</file>
+        <file>resource/xml/Config.xml</file>
+        <file>resource/xml/drv_plan.xml</file>
+        <file>resource/xml/mmi_plan.xml</file>
     </qresource>
     <qresource prefix="/script">
-        <file>script/start.py</file>
+        <file>resource/script/start.py</file>
     </qresource>
 </RCC>

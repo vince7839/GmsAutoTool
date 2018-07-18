@@ -33,6 +33,8 @@ const QString Config::VERSION = "beta 1.0";
 const QString Config::SETTING_SCREEN_SHOT = "screen_shot";
 const QString Config::SETTING_RECV_FILE = "recv_file";
 const QString Config::SETTING_NO_KEY = "no_key";
+const QString Config::SETTING_DOWNLOAD_PATH = "download_path";
+const QString Config::SETTING_RECV_PATH = "recv_path";
 const QString Config::OPTION_LABEL_ON = QString::fromUtf8("打开");
 const QString Config::OPTION_LABEL_OFF = QString::fromUtf8("关闭");
 const QString Config::ON = "on";
@@ -54,7 +56,7 @@ QStringList Config::getTestActions(QString type)
     QStringList actions;
     actions<<ACTION_ALL<<ACTION_RETRY<<ACTION_MODULE<<ACTION_SINGLE<<ACTION_PLAN<<ACTION_QUICK;
     if(type != CTS){
-       actions.removeAll(ACTION_QUICK);
+        actions.removeAll(ACTION_QUICK);
     }
     return actions;
 }
@@ -73,8 +75,8 @@ QString Config::getActionLabel(QString action)
 
 bool Config::isAllowed(QString action)
 {
-   QSettings settings("Sagereal","GmsAutoTool");
-   return settings.value(action).toString() == ON;
+    QSettings settings("Sagereal","GmsAutoTool");
+    return settings.value(action).toString() == ON;
 }
 
 QStringList Config::getTestTypes()
@@ -140,6 +142,54 @@ QString Config::getQuickLabel(QString type)
     map.insert(QUICK_DRV,QString::fromUtf8("驱动Camera自检"));
     map.insert(QUICK_AUDIO,QString::fromUtf8("音频自检"));
     return map.value(type);
+}
+
+QString Config::getDownloadPath()
+{
+    //QSettings setting("Sagereal","GmsAutoTool");
+    //return setting.value("download").toString();
+    QDir currentDir = QDir(QDir::currentPath());
+    QDir downloadDir = QDir(QDir::currentPath().append("/download"));
+    if(!downloadDir.exists()){
+        qDebug()<<"[Config::getDownloadPath]download dir not exists:"<<downloadDir.absolutePath();
+        currentDir.mkdir("download");
+    }
+    return downloadDir.absolutePath();
+}
+
+QString Config::getDefaultPath(QString key)
+{
+    QDir currentDir = QDir(QDir::currentPath());
+    if(key == SETTING_DOWNLOAD_PATH){
+        QDir downloadDir = QDir(QDir::currentPath().append("/download"));
+        if(!downloadDir.exists()){
+            qDebug()<<"[Config::getDownloadPath]download dir not exists:"<<downloadDir.absolutePath();
+            currentDir.mkdir("download");
+        }
+        return downloadDir.absolutePath();
+    }else if(key == SETTING_RECV_PATH){
+        QDir recvDir = QDir(QDir::currentPath().append("/FileRecv"));
+        if(!recvDir.exists()){
+            qDebug()<<"[Config::getDownloadPath]recv dir not exists:"<<recvDir.absolutePath();
+            currentDir.mkdir("FileRecv");
+        }
+        return recvDir.absolutePath();
+    }
+    return "";
+}
+
+void Config::saveSetting(QString key, QString value)
+{
+    qDebug()<<"[Config::saveSetting]"<<key<<value;
+    QSettings settings("Sagereal","GmsAutoTool");
+    settings.setValue(key,value);
+    qDebug()<<QString("[Config::saveSetting]%1 %2").arg(key).arg(value);
+}
+
+QString Config::getSetting(QString key)
+{
+    QSettings settings("Sagereal","GmsAutoTool");
+    return settings.value(key).toString();
 }
 
 QString Config::getTypeLabel(QString type)

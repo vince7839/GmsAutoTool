@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include<view/updatable.h>
+#include<QListWidgetItem>
 
 namespace Ui {
 class ToolWidget;
@@ -20,6 +21,8 @@ public slots:
     void deleteTool();
     void updateToolList();
     void renameTool();
+    void onDoubleClicked(QListWidgetItem *item);
+    void download();
 
 public:
     explicit ToolWidget(QWidget *parent = 0);

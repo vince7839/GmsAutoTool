@@ -33,8 +33,7 @@ TaskWidget::TaskWidget(QWidget *parent) :
     mTimer = new QTimer;
     mTimer->setSingleShot(false);
     connect(mTimer,SIGNAL(timeout()),this,SLOT(updateTime()));
-    mFileWatcher = new QFileSystemWatcher;
-    connect(mFileWatcher,SIGNAL(fileChanged(QString)),this,SLOT(onFileChanged(QString)));
+
     //ui->pushButton->setVisible(false);
 }
 
@@ -45,56 +44,7 @@ TaskWidget::~TaskWidget()
 
 void TaskWidget::parseOutput(QString path,QString output)
 {
-  //  qDebug()<<"output:"<<output;
-    QRegExp expectTimeReg(".*running ([0-9]+) .*modules, expected to complete in ([0-9]+)h ([0-9]+)m ([0-9]+)s.*");
-    QRegExp moduleStartReg(".*Starting .* (.*) with ([0-9]+) test.*");   //more than 1 test will show tests
-    QRegExp testFinishReg(".*([0-9]+:[0-9]+:[0-9]+).*([0-9]+)/([0-9]+) .* (.*) .* .*#(.*) (pass|fail).*");
-    QRegExp nameReg("\\[GmsAutoTool\\]test name:(.*)");
-    ProgressView* view = mViewMap.value(path);
-    if(view == NULL)
-    {
-        return;
-    }
-    view->checkTime.restart();
-    if(expectTimeReg.exactMatch(output))
-    {
-        qDebug()<<"[TaskWidget]output matches 'expect time'";
-        QString moduleNum = expectTimeReg.capturedTexts().at(1);
-        int num = moduleNum.toInt();
-        view->moduleCount = num;
-        view->bar->setRange(0,num);
-        view->labelModuleCount->setText(QString("0/%2").arg(num));
-        qDebug()<<"[TaskWidget]output parse module num "<<moduleNum;
-        QString hour = expectTimeReg.capturedTexts().at(2);
-        QString minute = expectTimeReg.capturedTexts().at(3);
-        QString second = expectTimeReg.capturedTexts().at(4);
-        qDebug()<<hour<<minute<<second;
-        view->labelExpectTime->setText(QString("%1:%2:%3").arg(hour).arg(minute).arg(second));
-    }else if(moduleStartReg.exactMatch(output)){
-        qDebug()<<"[TaskWidget]start a new module";
-        QString moduleName = moduleStartReg.cap(1);
-        view->currentModuleIndex += 1;
-        view->bar->setValue(view->currentModuleIndex);
-        view->labelModuleCount->setText(QString("%1/%2").arg(view->currentModuleIndex).arg(view->moduleCount));
-        view->labelRecent->setText(QString::fromUtf8("测试模块:%1").arg(moduleName));
-    }else if(testFinishReg.exactMatch(output)){
-       // qDebug()<<"test finish:"<<output;
-        QString finishTime = testFinishReg.cap(1);
-        QString testIndex = testFinishReg.cap(2);
-        QString testCount = testFinishReg.cap(3);
-        QString moduleName = testFinishReg.cap(4);
-        QString testName = testFinishReg.cap(5);
-        QString testResult = testFinishReg.cap(6);
 
-        view->labelSubCount->setText(QString("%1/%2").arg(testIndex).arg(testCount));
-        view->bar2->setRange(0,testCount.toInt());
-        view->bar2->setValue(testIndex.toInt());
-        view->labelRecent->setText(QString::fromUtf8("测试模块:%1").arg(moduleName));
-
-    }else if(nameReg.exactMatch(output)){
-        qDebug()<<"find test name:"<<nameReg.cap(1);
-        view->box->setTitle(nameReg.cap(1));
-    }
 }
 
 void TaskWidget::newTask()
@@ -132,35 +82,10 @@ void TaskWidget::on_pushButton_clicked()
     QStringList arg = QStringList()<<"-x"<<"bash"<<"-c"<<"/home/liaowenxing/GMS/CTS/O/android-cts/tools/cts-tradefed run commandAndExit cts --shard-count 2  -s ASDFGGH2222  -s vgg5545HGHGHO";
     pa->start("gnome-terminal",arg);*/
   //  connect(pa,&QProcess::readyRead,this,&TaskWidget::testOutput);
-    CmdBuilder*b = new CmdBuilder;
-    qDebug()<<b->buildShell()->create();
+    Config::saveSetting("","");
 }
 
 void TaskWidget::updateContent(){}
-
-void TaskWidget::onFileChanged(QString path)
-{
-    QFile file(path);
-    if(file.open(QIODevice::ReadOnly))
-    {
-        QStringList list = QString(file.readAll()).split("\n");
-        list.removeLast();
-        ProgressView* view = mViewMap.value(path);
-        //qDebug()<<"[TaskWidget]view is null:"<<(view == NULL);
-        if(!list.isEmpty() && view != NULL)
-        { 
-            for(int i = view->rowIndex;i < list.size();i++)
-            {
-                QString output = list.at(i);
-                if(!output.isEmpty()){
-                    parseOutput(path,output);
-                }
-            }
-            view->rowIndex = list.size() ;
-        }
-        file.close();
-    }
-}
 
 void TaskWidget::addTestProgress(QMap<QString, QString> map)
 {
@@ -210,7 +135,7 @@ void TaskWidget::updateTime()
 }
 
 void TaskWidget::restoreView()
-{
+{/*
     QDir dir("temp");
     QFileInfoList list = dir.entryInfoList();
     if(!list.isEmpty()){
@@ -224,7 +149,7 @@ void TaskWidget::restoreView()
                 onFileChanged(info.filePath());
             }
         }
-    }
+    }*/
 }
 
 void TaskWidget::testOutput()

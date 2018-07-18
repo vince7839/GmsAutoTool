@@ -26,7 +26,6 @@ public slots:
     void newTask();
     void executeTask(TaskParam*taskParam);
     void updateContent();
-    void onFileChanged(QString);
     void addTestProgress(QMap<QString,QString>);
     void updateTime();
     void restoreView();

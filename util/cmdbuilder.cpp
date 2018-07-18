@@ -19,8 +19,10 @@ CmdBuilder* CmdBuilder::buildShell()
 {
     QString tempName = QString("temp/%1").arg(QDateTime::currentMSecsSinceEpoch());
     QString scriptPath = "script/start.py";
-    cmd = QString("trap 'rm %4' SIGHUP SIGINT;(python %1 %2 '%3';rm %4)|tee -a %4;exec bash").arg(scriptPath).arg(taskParam->getToolPath())
-            .arg(cmd).arg(tempName);
+//    cmd = QString("trap 'rm %4' SIGHUP SIGINT;(python %1 %2 '%3';rm %4)|tee -a %4;exec bash").arg(scriptPath).arg(taskParam->getToolPath())
+//            .arg(cmd).arg(tempName);
+    cmd = QString("python %1 %2 '%3';exec bash").arg(scriptPath)
+            .arg(taskParam->getToolPath()).arg(cmd);
     qDebug()<<"[CmdBuilder]buildShell:"<<cmd;
     return this;
   /*  QFile file(tempName);
@@ -79,7 +81,7 @@ QString CmdBuilder::getActionCmd(QString type, QString platform, QString action)
 {
     QDomNode cmdNode;
     QString overrideXml = "config/Config.xml";
-    QString internalXml = ":/xml/xml/Config.xml";
+    QString internalXml = ":/xml/resource/xml/Config.xml";
     if(QFile::exists(overrideXml)){
         cmdNode =  getNodeFromXml(type,platform,action,overrideXml);
     }

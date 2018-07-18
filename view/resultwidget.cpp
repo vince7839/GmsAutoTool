@@ -137,10 +137,12 @@ void ResultWidget::sendResult()
 
 void ResultWidget::openResult()
 {
-    QString resultPath = mResultList.at(ui->result_table_widget->currentRow()).value("xmlPath");
+    QString resultPath = mResultList.at(ui->result_table_widget->currentRow()).value("failuresHtml");
     qDebug()<<"[ResultWidget]open report:"<<resultPath;
-    QProcess* p = new QProcess;
-    p->start("firefox",QStringList()<<resultPath);
+    if(!resultPath.isEmpty()){
+        QProcess* p = new QProcess;
+        p->start("firefox",QStringList()<<resultPath);
+    }
 }
 
 void ResultWidget::detailActionClicked()

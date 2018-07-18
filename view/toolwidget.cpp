@@ -11,6 +11,46 @@
 #include<QFile>
 #include<QMenu>
 #include<QContextMenuEvent>
+#include<view/buildtaskwidget.h>
+#include<view/downloadwidget.h>
+
+ToolWidget::ToolWidget(QWidget *parent) :
+    QWidget(parent),
+    ui(new Ui::ToolWidget)
+{
+    ui->setupUi(this);
+    connect(ui->btn_add_tool,SIGNAL(clicked()),this,SLOT(openAddWidget()));
+    connect(ui->tool_listWidget,SIGNAL(itemSelectionChanged()),this,SLOT(enableDelBtn()));
+    connect(ui->tool_listWidget,&QListWidget::itemDoubleClicked,this,&ToolWidget::onDoubleClicked);
+    connect(ui->btn_download,&QPushButton::clicked,this,&ToolWidget::download);
+
+    ui->tool_listWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->tool_listWidget->setViewMode(QListView::IconMode);
+    ui->tool_listWidget->setIconSize(QSize(100,100));
+    ui->tool_listWidget->setFocusPolicy(Qt::NoFocus);
+    ui->tool_listWidget->setMovement(QListView::Static);
+    ui->tool_listWidget->setResizeMode(QListView::Adjust);
+    ui->tool_listWidget->setFlow(QListView::LeftToRight);
+    ui->tool_listWidget->setSelectionMode(QAbstractItemView::SingleSelection);
+
+    ui->label_hint->setText(QString::fromUtf8("<font color='blue'>双击工具开始测试</font>"));
+    ui->tool_listWidget->setContextMenuPolicy(Qt::ActionsContextMenu);
+}
+
+ToolWidget::~ToolWidget()
+{
+    delete ui;
+}
+
+void ToolWidget::contextMenuEvent(QContextMenuEvent *event)
+{
+    QMenu*menu=new QMenu;
+    QAction*deleteAction=new QAction(QString::fromUtf8("移除"),menu);
+    connect(deleteAction,&QAction::triggered,this,&ToolWidget::deleteTool);
+    menu->addAction(deleteAction);
+    deleteAction->setEnabled(!ui->tool_listWidget->selectedItems().isEmpty());
+    menu->exec(mapToGlobal(event->pos()));
+}
 
 void ToolWidget::openAddWidget()
 {
@@ -21,7 +61,7 @@ void ToolWidget::openAddWidget()
 
 void ToolWidget::enableDelBtn()
 {
-    ui->btn_del_tool->setDisabled(ui->tool_listWidget->selectedItems().isEmpty());
+
 }
 
 void ToolWidget::deleteTool()
@@ -73,7 +113,23 @@ void ToolWidget::renameTool()
 {
     qDebug()<<"rename tool";
    QListWidgetItem*item = ui->tool_listWidget->currentItem();
-    ui->tool_listWidget->editItem(item);
+   ui->tool_listWidget->editItem(item);
+}
+
+void ToolWidget::onDoubleClicked(QListWidgetItem *item)
+{
+    QString toolPath = item->data(Qt::UserRole).toString();
+    qDebug()<<"[ToolWidget::onDoubleClicked]data:"<<toolPath;
+    BuildTaskWidget*w = new BuildTaskWidget;
+    if(w->setCurrentTool(toolPath)){
+        w->show();
+    }
+}
+
+void ToolWidget::download()
+{
+DownloadWidget* w= new DownloadWidget;
+w->show();
 }
 
 void ToolWidget::updateContent()
@@ -86,47 +142,11 @@ QString ToolWidget::getIconPath(QString type)
 {
     QString icon = "";
     if(type == Config::CTS){
-        icon =  ":/icon/img/cts_icon.jpg";
+        icon =  ":/icon/resource/img/cts_icon.jpg";
     }else if(type == Config::GTS){
-        icon =  ":/icon/img/gts_icon.jpg";
+        icon =  ":/icon/resource/img/gts_icon.jpg";
     }else if(type == Config::VTS){
-        icon =  ":/icon/img/vts_icon.jpg";
+        icon =  ":/icon/resource/img/vts_icon.jpg";
     }
     return icon;
-}
-
-ToolWidget::ToolWidget(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::ToolWidget)
-{
-    ui->setupUi(this);
-    connect(ui->btn_add_tool,SIGNAL(clicked()),this,SLOT(openAddWidget()));
-    connect(ui->tool_listWidget,SIGNAL(itemSelectionChanged()),this,SLOT(enableDelBtn()));
-    connect(ui->btn_del_tool,SIGNAL(clicked()),this,SLOT(deleteTool()));
-
-    ui->btn_del_tool->setEnabled(false);
-
-    ui->tool_listWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    ui->tool_listWidget->setViewMode(QListView::IconMode);
-    ui->tool_listWidget->setIconSize(QSize(100,100));
-    ui->tool_listWidget->setFocusPolicy(Qt::NoFocus);
-    ui->tool_listWidget->setMovement(QListView::Static);
-    ui->tool_listWidget->setResizeMode(QListView::Adjust);
-    ui->tool_listWidget->setFlow(QListView::LeftToRight);
-    ui->tool_listWidget->setSelectionMode(QAbstractItemView::SingleSelection);
-}
-
-ToolWidget::~ToolWidget()
-{
-    delete ui;
-}
-
-void ToolWidget::contextMenuEvent(QContextMenuEvent *event)
-{/*
-    QMenu*menu=new QMenu;
-    QAction*renameAction=new QAction(QString::fromUtf8("重命名"),menu);
-    connect(renameAction,SIGNAL(triggered(bool)),this,SLOT(renameTool()));
-    menu->addAction(renameAction);
-    menu->exec(mapToGlobal(event->pos()));
-    */
 }

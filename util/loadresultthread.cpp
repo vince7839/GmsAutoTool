@@ -59,12 +59,16 @@ void LoadResultThread::parseResultPath()
                     map.insert("toolPath",toolPath);
                     map.insert("resultDir",info.absoluteFilePath());
                     map.insert("resultName",info.fileName());
-                    map.insert("xmlPath",xmlFile.absoluteFilePath());
                     map.insert("zipPath",info.absoluteFilePath().append(".zip"));
                     map.insert("zipName",info.fileName().append(".zip"));
-                  //  qDebug()<<"[LoadResultThread]result info:"<<map;
+                    map.insert("xmlPath",xmlFile.absoluteFilePath());
+                    QFileInfo failureHtml(QString("%1/test_result_failures.html").arg(info.absoluteFilePath()));
+                    if(failureHtml.exists()){
+                        map.insert("failuresHtml",failureHtml.absoluteFilePath());
+                    }
                     mResultList.append(map);
                 }
+
             }
         }
     }

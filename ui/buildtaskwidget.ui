@@ -53,7 +53,7 @@
     <widget class="QComboBox" name="cbox_tool"/>
    </item>
    <item row="5" column="0">
-    <widget class="QLabel" name="label_4">
+    <widget class="QLabel" name="label_name">
      <property name="text">
       <string>测试标识</string>
      </property>

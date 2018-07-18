@@ -33,6 +33,8 @@ public:
     static const QString SETTING_SCREEN_SHOT;
     static const QString SETTING_RECV_FILE;
     static const QString SETTING_NO_KEY;
+    static const QString SETTING_DOWNLOAD_PATH;
+    static const QString SETTING_RECV_PATH;
     static const QString OPTION_LABEL_ON;
     static const QString OPTION_LABEL_OFF;
     static const QString ON;
@@ -53,7 +55,10 @@ public:
     static QString getUpdateUrl(int entity);
     static QStringList getQuickTypes();
     static QString getQuickLabel(QString type);
-
+    static QString getDownloadPath();
+    static QString getDefaultPath(QString key);
+    static void saveSetting(QString key,QString value);
+    static QString getSetting(QString key);
 };
 
 #endif // CONFIG_H

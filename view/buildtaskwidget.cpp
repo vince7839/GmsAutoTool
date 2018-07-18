@@ -16,49 +16,36 @@
 #include<QRadioButton>
 #include<QFileDialog>
 #include<util/taskparam.h>
+#include<util/devicelistener.h>
+#include<util/cmdbuilder.h>
+#include<util/executor.h>
+#include<view/warningwidget.h>
 
 BuildTaskWidget::BuildTaskWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::BuildTaskWidget)
 {
     ui->setupUi(this);
+  //  ui->label_name->setVisible(false);
+  //  ui->lineEdit_name->setVisible(false);
     initUI();
     connect(ui->cbox_type,&QComboBox::currentTextChanged,this,&BuildTaskWidget::onTypeChanged);
     connect(ui->cbox_tool,SIGNAL(currentTextChanged(QString)),this,SLOT(onToolChanged()));
-    connect(ui->cbox_device,SIGNAL(currentTextChanged(QString)),this,SLOT(enableStart()));
     connect(ui->cbox_action,&QComboBox::currentTextChanged,this,&BuildTaskWidget::onActionChanged);
     connect(ui->btn_start,SIGNAL(clicked()),this,SLOT(startClicked()));
     connect(ui->btn_cancel,SIGNAL(clicked()),this,SLOT(close()));
     setWindowModality(Qt::ApplicationModal);
     setWindowTitle(QString::fromUtf8("新建测试"));
     updateTypeBox();
-    updateToolBox();
     updateTestName();
-    updateActionBox();
 
-    mTimer = new QTimer;
-    connect(mTimer,SIGNAL(timeout()),this,SLOT(updateDeviceBox()));
-    mTimer->start(500);
+    mListener = new DeviceListener;
+    connect(mListener,&DeviceListener::deviceChanged,this,&BuildTaskWidget::updateDeviceBox);
 }
 
 BuildTaskWidget::~BuildTaskWidget()
 {
     delete ui;
-}
-
-bool BuildTaskWidget::isListChanged(QStringList before,QStringList after)
-{
-    if(before.size() != after.size()){
-        return true;
-    }
-    if(!before.isEmpty()){
-        foreach (QString item, before) {
-            if(!after.contains(item)){
-                return true;
-            }
-        }
-    }
-    return false;
 }
 
 void BuildTaskWidget::initDeviceBox()
@@ -70,7 +57,6 @@ void BuildTaskWidget::initDeviceBox()
     QLineEdit* lineEdit = new QLineEdit(QString::fromUtf8("已选择0台设备"));
     lineEdit->setReadOnly(true);
     ui->cbox_device->setLineEdit(lineEdit);
-    lineEdit->show();
 }
 
 void BuildTaskWidget::initUI()
@@ -89,18 +75,6 @@ void BuildTaskWidget::initModuleBox()
     QLabel* moduleSelectLabel = new QLabel(QString::fromUtf8("选择模块"));
     QComboBox* cboxModule = new QComboBox;
     QLineEdit* moduleLineEdit = new QLineEdit;
-    //   QLabel* planNameLabel = new QLabel(QString::fromUtf8("Plan名称"));
-    //  QLabel* planWarningLabel = new QLabel;
-    //   QLineEdit* planNameEdit = new QLineEdit;
-    //   QHBoxLayout*hLayoutModule2 = new QHBoxLayout;
-    //    planWarningLabel->setObjectName("planWarningLabel");
-    //   planNameEdit->setObjectName("planNameEdit");
-    //   connect(planNameEdit,SIGNAL(textChanged(QString)),this,SLOT(enableStart()));
-    //    planNameLabel->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
-    //    hLayoutModule2->addWidget(planNameLabel);
-    //   hLayoutModule2->addWidget(planNameEdit);
-    //   hLayoutModule2->addWidget(planWarningLabel);
-    //  vLayoutModule->addLayout(hLayoutModule2);
     QHBoxLayout*hLayoutModule1 = new QHBoxLayout;
 
     QVBoxLayout* vLayoutModule = new QVBoxLayout;
@@ -158,12 +132,11 @@ void BuildTaskWidget::initSingleBox()
     vLayout->addLayout(hLayout2);
     mSingleBox->setLayout(vLayout);
     ui->boxLayout->addWidget(mSingleBox);
-
 }
 
 void BuildTaskWidget::initQuickBox()
 {
-    mQuickBox = new QGroupBox;
+    mQuickBox = new QGroupBox(QString::fromUtf8("自测信息"));
     QHBoxLayout* hLayout = new QHBoxLayout;
     QLabel* label = new QLabel(QString::fromUtf8("自测选项"));
     label->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
@@ -181,42 +154,56 @@ void BuildTaskWidget::initQuickBox()
 
 void BuildTaskWidget::initPlanBox()
 {
-    mPlanBox = new QGroupBox;
-    QRadioButton* radio1 = new QRadioButton(QString::fromUtf8("选择Plan"));
-    radio1->setChecked(true);
-    radio1->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
+    mPlanBox = new QGroupBox(QString::fromUtf8("Plan信息"));
     QComboBox* planBox = new QComboBox;
+    QLabel* label =new QLabel(QString::fromUtf8("选择Plan"));
+    label->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
     planBox->setObjectName("cboxPlan");
-    QHBoxLayout*hLayout1 = new QHBoxLayout;
-    hLayout1->addWidget(radio1);
-    hLayout1->addWidget(planBox);
-    /*QRadioButton* radioFile = new QRadioButton(QString::fromUtf8("分包测试"));
-    radioFile->setObjectName("fileRadioBtn");
-    connect(radioFile,SIGNAL(toggled(bool)),this,SLOT(switchPlanMode(bool)));
-    QLineEdit* fileLineEdit = new QLineEdit;
-    connect(fileLineEdit,SIGNAL(textChanged(QString)),this,SLOT(enableStart()));
-    fileLineEdit->setObjectName("fileLineEdit");
-    fileLineEdit->setReadOnly(true);
-    fileLineEdit->setFocusPolicy(Qt::NoFocus);
-    QHBoxLayout*hLayout2 = new QHBoxLayout;
-    QPushButton*btnFile = new QPushButton(QString::fromUtf8("选择文件"));
-    btnFile->setObjectName("btnFile");
-    btnFile->setEnabled(false);
-    connect(btnFile,SIGNAL(clicked()),this,SLOT(openPlanFile()));
-    hLayout2->addWidget(radioFile);
-    hLayout2->addWidget(fileLineEdit);
-    hLayout2->addWidget(btnFile);*/
-
-    QVBoxLayout* vLayout = new QVBoxLayout;
-    vLayout->addLayout(hLayout1);
-    // vLayout->addLayout(hLayout2);
-    mPlanBox->setLayout(vLayout);
+    QHBoxLayout*hLayout = new QHBoxLayout;
+    hLayout->addWidget(label);
+    hLayout->addWidget(planBox);
+    mPlanBox->setLayout(hLayout);
     ui->boxLayout->addWidget(mPlanBox);
+}
+
+bool BuildTaskWidget::setCurrentTool(QString toolPath)
+{
+    QList<QMap<QString,QString> >list = SqlConnection::getInstance()->exec(
+                QString("SELECT * FROM Tool WHERE path = '%1'").arg(toolPath));
+
+    if(list.size() != 1){
+        return false;
+    }else{
+        QString type = list.first().value("type");
+        int typeIndex = ui->cbox_type->findData(type);
+        qDebug()<<QString("[BuildTaskWidget::setCurrentTool]typeIndex:%1").arg(typeIndex);
+        if(typeIndex == -1){
+            return false;
+        }else{
+            ui->cbox_type->setCurrentIndex(typeIndex);
+            int toolIndex = ui->cbox_tool->findData(toolPath);
+            qDebug()<<QString("[BuildTaskWidget::setCurrentTool]toolIndex:%1").arg(toolIndex);
+            if(toolIndex == -1){
+                return false;
+            }else{
+                ui->cbox_tool->setCurrentIndex(toolIndex);
+                return true;
+            }
+        }
+    }
+}
+
+void BuildTaskWidget::executeTask(TaskParam *taskParam)
+{
+    CmdBuilder* cmdBuilder = new CmdBuilder(taskParam);
+    QString cmd = cmdBuilder->buildTaskCmd()->buildShell()->create();
+    Executor::execute(cmd);
+    WarningWidget::getInstance()->showWarning();
 }
 
 void BuildTaskWidget::closeEvent(QCloseEvent *event)
 {
-    mTimer->stop();
+    mListener->stop();
 }
 
 void BuildTaskWidget::updateToolBox()
@@ -234,8 +221,11 @@ void BuildTaskWidget::updateToolBox()
         QString query = QString("SELECT * FROM Tool WHERE %1").arg(filter);
         mToolList = conn->exec(query);
     }
-    for(int i = 0;i < mToolList.size();i++)
-        ui->cbox_tool->addItem(mToolList.at(i).value("name"),mToolList.at(i).value("path"));
+    for(int i = 0;i < mToolList.size();i++){
+        QString data = mToolList.at(i).value("path");
+        ui->cbox_tool->addItem(mToolList.at(i).value("name"),data);
+        qDebug()<<"[BuildTaskWidget::updateToolBox]data:"<<data;
+    }
 }
 
 void BuildTaskWidget::startClicked()
@@ -247,7 +237,7 @@ void BuildTaskWidget::startClicked()
     taskParam->setTestType(ui->cbox_type->currentData().toString());
     taskParam->setPlatform(mToolList.at(ui->cbox_tool->currentIndex()).value("platform"));
     taskParam->setToolPath(toolPath);
-    taskParam->setDevice(mDeviceSet);
+    taskParam->setDevice(mSelectedDevice);
     taskParam->setTaskName(ui->lineEdit_name->text());
     QString action = ui->cbox_action->currentData().toString();
     taskParam->setTestAction(action);
@@ -272,37 +262,11 @@ void BuildTaskWidget::startClicked()
             taskParam->setPlanName(planName);
         }
     }else if(action == Config::ACTION_SINGLE){
-        /*
-           QString moduleName = mSingleBox->findChild<QLineEdit*>("moduleNameEdit")->text();
-           QString testName = mSingleBox->findChild<QLineEdit*>("testNameEdit")->text();
-           map.insert("module",moduleName);
-           map.insert("test",testName);*/
         cmdType = Config::CMD_SINGLE;
         taskParam->setItem(mSingleBox->findChild<QLineEdit*>("testNameEdit")->text());
     }else if(action == Config::ACTION_PLAN){
         cmdType = Config::CMD_PLAN;
         taskParam->setPlanName(mPlanBox->findChild<QComboBox*>("cboxPlan")->currentText());
-        /*   bool isFilePlan = mPlanBox->findChild<QRadioButton*>("fileRadioBtn")->isChecked();
-           QString planName;
-           if(isFilePlan){
-               QString filePath = mPlanBox->findChild<QLineEdit*>("fileLineEdit")->text();
-               QFileInfo oldFile(filePath);
-               QString newFilePath = QFileInfo(QString("%1/../../subplans/%2")
-                                           .arg(toolPath).arg(oldFile.fileName())).absoluteFilePath();
-               if(QFile::exists(newFilePath))
-               {
-                    QMessageBox::warning(this,QString::fromUtf8("警告"),QString::fromUtf8("%1已存在").arg(newFilePath));
-                    return;
-               }
-               QFile::copy(filePath,newFilePath);
-               planName = oldFile.completeBaseName();
-               qDebug()<<"[BuildTaskWidget]old file path:"<<filePath;
-               qDebug()<<"[BuildTaskWidget]new file path:"<<newFilePath;
-           }else{
-               planName = mPlanBox->findChild<QComboBox*>("cboxPlan")->currentText();
-           }
-           qDebug()<<"[BuildTaskWidget]start plan name:"<<planName;
-           map.insert("planName",planName);*/
     } else if(action == Config::ACTION_QUICK){
         cmdType = Config::CMD_PLAN;
         QString quickType = mQuickBox->findChild<QComboBox*>("quickType")->currentData().toString();
@@ -322,7 +286,8 @@ void BuildTaskWidget::startClicked()
         taskParam->setPlanName(planName);
     }
     taskParam->setCmdType(cmdType);
-    emit taskBuilt(taskParam);
+   // emit taskBuilt(taskParam);
+    executeTask(taskParam);
     close();
 }
 
@@ -330,42 +295,29 @@ void BuildTaskWidget::updateTypeBox()
 {
     QStringList types = Config::getTestTypes();
     foreach (QString type, types) {
+        qDebug()<<"[BuildTaskWidget::updateTypeBox]add type data:"<<type;
         ui->cbox_type->addItem(Config::getTypeLabel(type),type);
     }
 }
 
-void BuildTaskWidget::updateDeviceBox()
+void BuildTaskWidget::updateDeviceBox(QStringList devices)
 {
-    QProcess* p = new QProcess(this);
-    p->start("adb devices");
-    if(p->waitForFinished())
-    {
-        QString output = p->readAll();
-        //  qDebug()<<"[BuildTaskWidget]adb devices output:"<<output;
-        QStringList newList;
-        QStringList list = output.split("\n");
-        foreach (QString line, list)
-        {
-            //  qDebug()<<"[BuildTaskWidget]output line:"<<line;
-            QRegExp reg ("(.*)\tdevice");
-            if(reg.exactMatch(line)){
-                newList.append(reg.cap(1));
-            }
-        }
-        if(isListChanged(mDeviceList,newList)){
-            qDebug()<<"[BuildTaskWidget]device list changed";
-            ui->cbox_device->clear();
-            mDeviceList = newList;
-            QListWidget* listWidget = ui->cbox_device->findChild<QListWidget*>("deviceListWidget");
-            foreach (QString device,mDeviceList) {
-                QListWidgetItem* item = new QListWidgetItem;
-                listWidget->addItem(item);
-                QCheckBox* checkBox = new QCheckBox(device);
-                connect(checkBox,&QCheckBox::toggled,this,&BuildTaskWidget::devicesChanged);
-                listWidget->setItemWidget(item,checkBox);
-            }
+    ui->cbox_device->clear();
+    QListWidget* listWidget = ui->cbox_device->findChild<QListWidget*>("deviceListWidget");
+    foreach (QString device,devices) {
+        QListWidgetItem* item = new QListWidgetItem;
+        listWidget->addItem(item);
+        QCheckBox* checkBox = new QCheckBox(device);
+        connect(checkBox,&QCheckBox::toggled,this,&BuildTaskWidget::deviceSelected);
+        listWidget->setItemWidget(item,checkBox);
+    }
+    foreach (QString seleted, mSelectedDevice) {
+        if(!devices.contains(seleted)){
+            mSelectedDevice.remove(seleted);
         }
     }
+    ui->cbox_device->lineEdit()->setText(QString::fromUtf8("共%1台设备，已选择%2台")
+                                         .arg(devices.size()).arg(mSelectedDevice.size()));
 }
 
 void BuildTaskWidget::updateTestName()
@@ -417,7 +369,6 @@ void BuildTaskWidget::updateSessionBox()
     if(p->waitForFinished())
     {
         QString output = p->readAll();
-        // qDebug()<<output;
         QStringList list = output.split("\n");
         for(int i=0;i<list.size();i++)
         {
@@ -431,7 +382,7 @@ void BuildTaskWidget::updateSessionBox()
                 QString item = QString("id:%1 | pass:%2 | fail:%3")
                         .arg(sessionId).arg(pass).arg(fail);
                 cboxSession->addItem(item,sessionId);
-                //   qDebug()<<reg.cap(1)<<reg.cap(2)<<reg.cap(3);
+                qDebug()<<reg.cap(1)<<reg.cap(2)<<reg.cap(3);
             }
         }
     }
@@ -457,7 +408,7 @@ void BuildTaskWidget::updatePlanBox()
 }
 
 void BuildTaskWidget::updateModuleBox()
-{    
+{
     QString toolPath = ui->cbox_tool->currentData().toString();
     QListWidget*listWidget = mModuleBox->findChild<QListWidget*>("moduleList");
     listWidget->clear();
@@ -509,15 +460,6 @@ void BuildTaskWidget::onToolChanged()
     enableStart();
 }
 
-void BuildTaskWidget::switchPlanMode(bool isChecked)
-{
-    qDebug()<<"[BuildTaskWidget]plan mode file:"<<isChecked;
-    QPushButton* btnFile = mPlanBox->findChild<QPushButton*>("btnFile");
-    btnFile->setEnabled(isChecked);
-    mPlanBox->findChild<QComboBox*>("cboxPlan")->setEnabled(!isChecked);
-    enableStart();
-}
-
 void BuildTaskWidget::openPlanFile()
 {
     QString planFilePath  = QFileDialog::getOpenFileName(this,QString::fromUtf8("选择Plan文件"),"/home","*.xml");
@@ -528,16 +470,18 @@ void BuildTaskWidget::openPlanFile()
     lineEdit->setText(planFilePath);
 }
 
-void BuildTaskWidget::devicesChanged(bool checked)
+void BuildTaskWidget::deviceSelected(bool checked)
 {
     QCheckBox* checkBox = dynamic_cast<QCheckBox*>(sender());
     QString device = checkBox->text();
     if(checked)
-        mDeviceSet.insert(device);
+        mSelectedDevice.insert(device);
     else
-        mDeviceSet.remove(device);
+        mSelectedDevice.remove(device);
 
-    ui->cbox_device->lineEdit()->setText(QString::fromUtf8("已选择%1台设备").arg(mDeviceSet.size()));
+    ui->cbox_device->lineEdit()->setText(QString::fromUtf8("共%1台设备，已选择%2台")
+                                         .arg(ui->cbox_device->count()).arg(mSelectedDevice.size()));
+    enableStart();
 }
 
 void BuildTaskWidget::onTypeChanged()
@@ -565,7 +509,7 @@ void BuildTaskWidget::toolFilter()
 }
 
 void BuildTaskWidget::enableStart()
-{  
+{
     QString action =  ui->cbox_action->currentData().toString();
     QString toolPath = ui->cbox_tool->currentData().toString();
     bool isSingleOk = true;
@@ -574,32 +518,14 @@ void BuildTaskWidget::enableStart()
     if(action == Config::ACTION_RETRY){
 
     }else if(action == Config::ACTION_MODULE){
-        /*  QLineEdit* planNameEdit = mModuleBox->findChild<QLineEdit*>("planNameEdit");
-        QString planName = planNameEdit->text();
-        bool isMultiModule = mModuleSet.size() > 1;
-        planNameEdit->setPlaceholderText(QString::fromUtf8(isMultiModule ? "多模块测试需要建立Plan":"单模块测试无需建立Plan"));
-        planNameEdit->setEnabled(isMultiModule);
-        QLabel* warningLabel = mModuleBox->findChild<QLabel*>("planWarningLabel");
-        bool isPlanNameOk = false;
-        if(planName.isEmpty()){
-            warningLabel->setText(QString::fromUtf8(isMultiModule ? "<font color=red>输入Plan名<font>" : ""));
-        }else{
-            isPlanNameOk = !PlanUtil::isPlanExists(toolPath,planName);
-            warningLabel->setText(QString::fromUtf8(isPlanNameOk ? "" : "<font color=red>Plan已存在！<font>"));
-        }
-        isModuleOk = !mModuleSet.isEmpty() && (isPlanNameOk||!isMultiModule);*/
         isModuleOk = !mModuleSet.isEmpty();
-        //qDebug()<<QString("[BuildTaskWidget]plan name %1 is ok = %2").arg(planName).arg(isPlanNameOk);
     }else if(action == Config::ACTION_SINGLE){
         QString singleModuleName = mSingleBox->findChild<QLineEdit*>("moduleNameEdit")->text();
         QString singleTestName = mSingleBox->findChild<QLineEdit*>("testNameEdit")->text();
         isSingleOk =  !singleModuleName.isEmpty() && !singleTestName.isEmpty();
     }else if(action == Config::ACTION_PLAN){
-        /*   bool isFilePlan = mPlanBox->findChild<QRadioButton*>("fileRadioBtn")->isChecked();
-        isPlanOk =  (!isFilePlan && !mPlanBox->findChild<QComboBox*>("cboxPlan")->currentText().isEmpty())
-                                ||(isFilePlan && !mPlanBox->findChild<QLineEdit*>("fileLineEdit")->text().isEmpty());*/
         isPlanOk = !mPlanBox->findChild<QComboBox*>("cboxPlan")->currentText().isEmpty();
     }
-    ui->btn_start->setEnabled(!toolPath.isEmpty() && !ui->cbox_device->currentText().isEmpty()
+    ui->btn_start->setEnabled(!toolPath.isEmpty() && !mSelectedDevice.isEmpty()
                               && isSingleOk && isModuleOk && isPlanOk);
 }
