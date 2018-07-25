@@ -50,6 +50,7 @@ public:
     void initPlanBox();
     bool setCurrentTool(QString toolPath);
     void executeTask(TaskParam*taskParam);
+    bool prepare();
 protected:
      void closeEvent(QCloseEvent *event);
 

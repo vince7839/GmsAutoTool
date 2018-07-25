@@ -14,4 +14,10 @@
     <qresource prefix="/script">
         <file>resource/script/start.py</file>
     </qresource>
+    <qresource prefix="/plugin">
+        <file>resource/plugin/aapt</file>
+        <file>resource/plugin/adb</file>
+        <file>resource/plugin/fastboot</file>
+        <file>resource/plugin/pexpect.zip</file>
+    </qresource>
 </RCC>

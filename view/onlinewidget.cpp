@@ -8,7 +8,7 @@
 #include<QContextMenuEvent>
 QList<QMap<QString,QVariant> > OnlineWidget::mUserList;
 OnlineWidget::OnlineWidget(QWidget *parent) :
-    QWidget(parent),
+    BaseWidget(parent),
     ui(new Ui::OnlineWidget)
 {
     ui->setupUi(this);

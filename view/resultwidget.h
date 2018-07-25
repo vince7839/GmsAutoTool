@@ -5,14 +5,14 @@
 #include"QTableWidgetItem"
 #include "failurewidget.h"
 #include "QLinkedList"
-#include<view/updatable.h>
 #include<util/loadresultthread.h>
+#include<view/basewidget.h>
 
 namespace Ui {
 class ResultWidget;
 }
 
-class ResultWidget : public QWidget,public Updatable
+class ResultWidget : public BaseWidget
 {
     Q_OBJECT
 public slots:

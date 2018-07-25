@@ -5,6 +5,7 @@
 #include<QDateTime>
 #include<QDebug>
 #include<util/config.h>
+#include<QFileInfo>
 CmdBuilder::CmdBuilder()
 {
 
@@ -18,10 +19,11 @@ CmdBuilder::CmdBuilder(TaskParam *taskParam)
 CmdBuilder* CmdBuilder::buildShell()
 {
     QString tempName = QString("temp/%1").arg(QDateTime::currentMSecsSinceEpoch());
-    QString scriptPath = "script/start.py";
+    QString scriptPath = Config::getScriptPath();
 //    cmd = QString("trap 'rm %4' SIGHUP SIGINT;(python %1 %2 '%3';rm %4)|tee -a %4;exec bash").arg(scriptPath).arg(taskParam->getToolPath())
 //            .arg(cmd).arg(tempName);
-    cmd = QString("python %1 %2 '%3';exec bash").arg(scriptPath)
+    QFileInfo file(taskParam->getToolPath());
+    cmd = QString("cd %1;python %2 %3 '%4';exec bash").arg(file.absolutePath()).arg(scriptPath)
             .arg(taskParam->getToolPath()).arg(cmd);
     qDebug()<<"[CmdBuilder]buildShell:"<<cmd;
     return this;

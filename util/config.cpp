@@ -35,6 +35,7 @@ const QString Config::SETTING_RECV_FILE = "recv_file";
 const QString Config::SETTING_NO_KEY = "no_key";
 const QString Config::SETTING_DOWNLOAD_PATH = "download_path";
 const QString Config::SETTING_RECV_PATH = "recv_path";
+const QString Config::SETTING_SERVER_IP = "server_ip";
 const QString Config::OPTION_LABEL_ON = QString::fromUtf8("打开");
 const QString Config::OPTION_LABEL_OFF = QString::fromUtf8("关闭");
 const QString Config::ON = "on";
@@ -144,52 +145,54 @@ QString Config::getQuickLabel(QString type)
     return map.value(type);
 }
 
-QString Config::getDownloadPath()
-{
-    //QSettings setting("Sagereal","GmsAutoTool");
-    //return setting.value("download").toString();
-    QDir currentDir = QDir(QDir::currentPath());
-    QDir downloadDir = QDir(QDir::currentPath().append("/download"));
-    if(!downloadDir.exists()){
-        qDebug()<<"[Config::getDownloadPath]download dir not exists:"<<downloadDir.absolutePath();
-        currentDir.mkdir("download");
-    }
-    return downloadDir.absolutePath();
-}
-
-QString Config::getDefaultPath(QString key)
-{
-    QDir currentDir = QDir(QDir::currentPath());
-    if(key == SETTING_DOWNLOAD_PATH){
-        QDir downloadDir = QDir(QDir::currentPath().append("/download"));
-        if(!downloadDir.exists()){
-            qDebug()<<"[Config::getDownloadPath]download dir not exists:"<<downloadDir.absolutePath();
-            currentDir.mkdir("download");
-        }
-        return downloadDir.absolutePath();
-    }else if(key == SETTING_RECV_PATH){
-        QDir recvDir = QDir(QDir::currentPath().append("/FileRecv"));
-        if(!recvDir.exists()){
-            qDebug()<<"[Config::getDownloadPath]recv dir not exists:"<<recvDir.absolutePath();
-            currentDir.mkdir("FileRecv");
-        }
-        return recvDir.absolutePath();
-    }
-    return "";
-}
-
 void Config::saveSetting(QString key, QString value)
 {
     qDebug()<<"[Config::saveSetting]"<<key<<value;
     QSettings settings("Sagereal","GmsAutoTool");
     settings.setValue(key,value);
-    qDebug()<<QString("[Config::saveSetting]%1 %2").arg(key).arg(value);
 }
 
 QString Config::getSetting(QString key)
 {
     QSettings settings("Sagereal","GmsAutoTool");
-    return settings.value(key).toString();
+    QString value = settings.value(key).toString();
+    if(value.isEmpty()){
+        value = getDefaultSetting(key);
+    }
+    return value;
+}
+
+QString Config::getDefaultSetting(QString key)
+{
+    QString value = "";
+    if(key == SETTING_DOWNLOAD_PATH){
+        if(!QDir::current().exists("download")){
+            qDebug()<<"[Config::getDownloadPath]mkdir download";
+           QDir::current().mkdir("download");
+        }
+        value = QDir::currentPath().append("/download");
+    }else if(key == SETTING_RECV_PATH){
+        if(!QDir::current().exists("FileRecv")){
+            qDebug()<<"[Config::getDownloadPath]mkdir FileRecv";
+            QDir::current().mkdir("FileRecv");
+        }
+        value = QDir::currentPath().append("FileRecv");
+    }else if(key == SETTING_SERVER_IP){
+        value = "172.16.87.93";
+    }
+    qDebug()<<"[Config::getDefaultSetting]"<<key<<value;
+    return value;
+}
+
+bool Config::isIp(QString text)
+{
+    QRegExp rx("((1?\\d{1,2}|2[0-5]{2})\\.){3}(1?\\d{1,2}|2[0-5]{2})");
+    return rx.exactMatch(text);
+}
+
+QString Config::getScriptPath()
+{
+    return "/tmp/GmsAutoTool/start.py";
 }
 
 QString Config::getTypeLabel(QString type)

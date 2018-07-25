@@ -20,14 +20,15 @@
 #include<util/cmdbuilder.h>
 #include<util/executor.h>
 #include<view/warningwidget.h>
+#include<util/config.h>
 
 BuildTaskWidget::BuildTaskWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::BuildTaskWidget)
 {
     ui->setupUi(this);
-  //  ui->label_name->setVisible(false);
-  //  ui->lineEdit_name->setVisible(false);
+    //  ui->label_name->setVisible(false);
+    //  ui->lineEdit_name->setVisible(false);
     initUI();
     connect(ui->cbox_type,&QComboBox::currentTextChanged,this,&BuildTaskWidget::onTypeChanged);
     connect(ui->cbox_tool,SIGNAL(currentTextChanged(QString)),this,SLOT(onToolChanged()));
@@ -195,10 +196,42 @@ bool BuildTaskWidget::setCurrentTool(QString toolPath)
 
 void BuildTaskWidget::executeTask(TaskParam *taskParam)
 {
+    if(!prepare()){
+        return;
+    }
     CmdBuilder* cmdBuilder = new CmdBuilder(taskParam);
-    QString cmd = cmdBuilder->buildTaskCmd()->buildShell()->create();
-    Executor::execute(cmd);
+    QString taskCmd = cmdBuilder->buildTaskCmd()->create();
+    QString cmd = cmdBuilder->buildShell()->create();
+    Executor::execInTerminal(cmd);
+    close();
     WarningWidget::getInstance()->showWarning();
+    QMessageBox::information(this,QString::fromUtf8("提示")
+                             ,QString::fromUtf8("自动生成的命令为%1").arg(taskCmd));
+}
+
+bool BuildTaskWidget::prepare()
+{
+    QDir dir("/tmp/GmsAutoTool");
+    if(dir.exists()){
+        dir.removeRecursively();
+    }
+   QDir("/tmp").mkdir("GmsAutoTool");
+
+    QString scriptPath = Config::getScriptPath();
+    QFile::copy(":/script/resource/script/start.py",scriptPath);
+
+    qDebug()<<"[BuildTaskWidget::prepare]pexpect exists:"<<QFile::exists("/usr/local/lib/python2.7/dist-packages/pexpect-3.0.egg-info");
+    if(!QFile::exists("/usr/local/lib/python2.7/dist-packages/pexpect-3.0.egg-info")){
+        QMessageBox::information(this,QString::fromUtf8("提示")
+                                 ,QString::fromUtf8("即将进行初始化配置，请在接下来弹出的控制台中输入您的Linux密码"));
+        QString zipPath = "/tmp/GmsAutoTool/pexpect.zip";
+        QFile::copy(":/plugin/resource/plugin/pexpect.zip",zipPath);
+        QString cmd = QString::fromUtf8("echo '解压插件...';unzip -q %1 -d %2 && cd %3 && sudo python %4 install && echo '完成！！！'")
+                .arg(zipPath).arg("/tmp/GmsAutoTool").arg("/tmp/GmsAutoTool/pexpect").arg("setup.py");
+        Executor::execInTerminal(cmd);
+        return false;
+    }
+    return true;
 }
 
 void BuildTaskWidget::closeEvent(QCloseEvent *event)
@@ -263,7 +296,9 @@ void BuildTaskWidget::startClicked()
         }
     }else if(action == Config::ACTION_SINGLE){
         cmdType = Config::CMD_SINGLE;
+        mModuleSet.insert(mSingleBox->findChild<QLineEdit*>("moduleNameEdit")->text());
         taskParam->setItem(mSingleBox->findChild<QLineEdit*>("testNameEdit")->text());
+        taskParam->setModule(mModuleSet);
     }else if(action == Config::ACTION_PLAN){
         cmdType = Config::CMD_PLAN;
         taskParam->setPlanName(mPlanBox->findChild<QComboBox*>("cboxPlan")->currentText());
@@ -286,9 +321,8 @@ void BuildTaskWidget::startClicked()
         taskParam->setPlanName(planName);
     }
     taskParam->setCmdType(cmdType);
-   // emit taskBuilt(taskParam);
+    // emit taskBuilt(taskParam);
     executeTask(taskParam);
-    close();
 }
 
 void BuildTaskWidget::updateTypeBox()

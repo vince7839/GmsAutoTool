@@ -15,12 +15,11 @@ const QString SqlConnection::CONFIG_GRAB_SCREEN = "allow_grab_screen";
 const QString SqlConnection::CONFIG_SEND_FILE = "allow_send_file";
 SqlConnection::SqlConnection()
 {   
-    QString dbPath = "database/GmsAutoTool.db";
-    db = QSqlDatabase::addDatabase("QSQLITE");
-    QDir dir("database");
-    if(!dir.exists()){
+    if(!QDir::current().exists("database")){
         QDir::current().mkdir("database");
     }
+    QString dbPath = "database/GmsAutoTool.db";
+    db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName(dbPath);
     if(!db.open()){
         QMessageBox::warning(0,QString::fromUtf8("错误"),QString::fromUtf8("无法连接数据库！"));
@@ -71,7 +70,6 @@ QList<QMap<QString,QString> > SqlConnection::exec(QString str)
          }
      list.append(map);
      }
-
      return list;
 }
 

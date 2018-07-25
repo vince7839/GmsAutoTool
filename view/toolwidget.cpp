@@ -15,7 +15,7 @@
 #include<view/downloadwidget.h>
 
 ToolWidget::ToolWidget(QWidget *parent) :
-    QWidget(parent),
+    BaseWidget(parent),
     ui(new Ui::ToolWidget)
 {
     ui->setupUi(this);

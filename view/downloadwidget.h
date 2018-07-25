@@ -20,7 +20,7 @@ public:
 public slots:
     void onFilterChanged();
     void downloadClicked();
-    void fileDownload(QNetworkReply*reply);
+    void dealDownload(QString path,QString type);
 private:
     Ui::DownloadWidget *ui;
 };

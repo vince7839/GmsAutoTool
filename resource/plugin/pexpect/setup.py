@@ -1,0 +1,38 @@
+from distutils.core import setup
+
+from pexpect import __version__
+
+setup (name='pexpect',
+    version=__version__,
+    py_modules=['pxssh', 'fdpexpect', 'FSM', 'screen', 'ANSI'],
+    packages=['pexpect'],
+    description='Pexpect allows easy control of interactive console applications.',
+    author='Noah Spurrier; Thomas Kluyver; Jeff Quast',
+    author_email='noah@noah.org; thomas@kluyver.me.uk; contact@jeffquast.com',
+    url='http://pexpect.readthedocs.org/',
+    license='ISC license',
+    platforms='UNIX',
+    classifiers = [
+        'Development Status :: 5 - Production/Stable',
+        'Environment :: Console',
+        'Intended Audience :: Developers',
+        'Intended Audience :: System Administrators',
+        'License :: OSI Approved :: ISC License (ISCL)',
+        'Operating System :: POSIX',
+        'Operating System :: MacOS :: MacOS X',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2.6',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Topic :: Software Development',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Topic :: Software Development :: Quality Assurance',
+        'Topic :: Software Development :: Testing',
+        'Topic :: System',
+        'Topic :: System :: Archiving :: Packaging',
+        'Topic :: System :: Installation/Setup',
+        'Topic :: System :: Shells',
+        'Topic :: System :: Software Distribution',
+        'Topic :: Terminals',
+    ],
+)

@@ -20,9 +20,10 @@ public:
     ~AddToolWidget();
     QMap<QString,QString> getToolInfo(QString);
     QString getPlatform(QString);
+    void setToolPath(QString path);
+    void parseTool();
 private:
     Ui::AddToolWidget *ui;
-    QString mToolPath;
 };
 
 #endif // ADDTOOLWIDGET_H

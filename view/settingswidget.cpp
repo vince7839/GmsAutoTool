@@ -10,10 +10,11 @@
 #include<QSettings>
 #include<QFileDialog>
 
-QString SettingsWidget::SubSetting::RADIO_SETTING = "radio";
-QString SettingsWidget::SubSetting::PATH_SETTING = "path";
+QString SettingsWidget::SubSetting::RADIO_STYLE = "radio";
+QString SettingsWidget::SubSetting::PATH_STYLE = "path";
+QString SettingsWidget::SubSetting::IP_STYLE = "ip";
 SettingsWidget::SettingsWidget(QWidget *parent) :
-    QWidget(parent),
+    BaseWidget(parent),
     ui(new Ui::SettingsWidget)
 {
     ui->setupUi(this);
@@ -30,6 +31,10 @@ SettingsWidget::SettingsWidget(QWidget *parent) :
     pathSettings.append(new PathSetting(QString::fromUtf8("下载的工具保存至"),Config::SETTING_DOWNLOAD_PATH));
     pathSettings.append(new PathSetting(QString::fromUtf8("接收的报告保存至"),Config::SETTING_RECV_PATH));
     addSettingBox(QString::fromUtf8("路径设置"),pathSettings);
+
+    QList<SubSetting*> ipSettings;
+    ipSettings.append(new IpSetting("服务器IP",Config::SETTING_SERVER_IP));
+    addSettingBox(QString::fromUtf8("服务器设置"),ipSettings);
 
     QList<SubSetting*> versionSettings;
     versionSettings.append(new RadioSetting(QString::fromUtf8("当前版本:").append(Config::VERSION)
@@ -50,11 +55,13 @@ void SettingsWidget::addSettingBox(QString title, QList<SubSetting*> subs)
     BoxBuilder* builder = new BoxBuilder(this,title);
     for(int i = 0;i<subs.size();i++){
         SubSetting* sub = subs.at(i);
-        QString type = sub->getType();
-        if(type == SubSetting::RADIO_SETTING){
+        QString style = sub->getStyle();
+        if(style == SubSetting::RADIO_STYLE){
             builder->buildRadioSub(static_cast<RadioSetting*>(sub));
-        }else if(type == SubSetting::PATH_SETTING){
+        }else if(style == SubSetting::PATH_STYLE){
             builder->buildPathSub(static_cast<PathSetting*>(sub));
+        }else if(style == SubSetting::IP_STYLE){
+            builder->buildIpSub(static_cast<IpSetting*>(sub));
         }
     }
     mScrollLayout->addWidget(builder->create());
@@ -83,9 +90,25 @@ void SettingsWidget::openDirDialog()
     QString path = QFileDialog::getExistingDirectory(this,QString::fromUtf8("下载的工具保存至"),"/home");
     qDebug()<<"[SettingsWidget::openDirDialog]path:"<<path;
     if(path.isEmpty()){
-        path = Config::getDefaultPath(key);
+        return;
     }
     QLineEdit* edit = findChild<QLineEdit*>(key);
     edit->setText(path);
     Config::saveSetting(key,path);
+}
+
+bool SettingsWidget::eventFilter(QObject *watched, QEvent *event)
+{
+    QString key = watched->property("key").toString();
+    if(key == Config::SETTING_SERVER_IP && event->type() == QEvent::FocusOut){
+         qDebug()<<"[SettingsWidget::eventFilter]";
+        QLineEdit* edit = static_cast<QLineEdit*>(watched);
+        QString text = edit->text();
+        if(key == Config::SETTING_SERVER_IP && Config::isIp(text)){
+            qDebug()<<"[SettingsWidget::eventFilter]save:"<<text;
+            Config::saveSetting(key,text);
+        }
+        edit->setText(Config::getSetting(key));
+    }
+    return QWidget::eventFilter(watched,event);
 }

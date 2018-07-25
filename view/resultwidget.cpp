@@ -16,7 +16,7 @@
 #include<util/config.h>
 
 ResultWidget::ResultWidget(QWidget *parent) :
-    QWidget(parent),
+    BaseWidget(parent),
     ui(new Ui::ResultWidget)
 {
     ui->setupUi(this);

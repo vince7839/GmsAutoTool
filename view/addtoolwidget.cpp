@@ -44,21 +44,25 @@ QMap<QString, QString> AddToolWidget::getToolInfo(QString path)
     return map;
 }
 
-void AddToolWidget::openFileDialog()
+void AddToolWidget::setToolPath(QString path)
 {
-    mToolPath = QFileDialog::getOpenFileName(this, QString::fromUtf8("选择脚本"), "/home", QString::fromUtf8("启动脚本(*-tradefed)"));
-    ui->lineEdit_path->setText(mToolPath);
-    if(mToolPath.isEmpty())
-    {
+    ui->lineEdit_path->setText(path);
+    parseTool();
+}
+
+void AddToolWidget::parseTool()
+{
+    setCursor(Qt::WaitCursor);
+    QString toolPath = ui->lineEdit_path->text();
+    if(toolPath.isEmpty()||!QFile::exists(toolPath)){
         return;
     }
-    setCursor(Qt::WaitCursor);
-    QFileInfo info(mToolPath);
+    QFileInfo info(toolPath);
     QString scriptName = info.fileName();
     QString toolType = scriptName.left(3).toUpper();
     ui->lineEdit_type->setText(toolType);
     QProcess* p = new QProcess;
-    p->start(mToolPath);
+    p->start(toolPath);
     if(p->waitForFinished())
     {
         QString output = p->readAll();
@@ -84,12 +88,24 @@ void AddToolWidget::openFileDialog()
     setCursor(Qt::ArrowCursor);
 }
 
+void AddToolWidget::openFileDialog()
+{
+    QString toolPath = QFileDialog::getOpenFileName(this, QString::fromUtf8("选择脚本"), "/home", QString::fromUtf8("启动脚本(*-tradefed)"));
+    ui->lineEdit_path->setText(toolPath);
+    if(toolPath.isEmpty())
+    {
+        return;
+    }
+    parseTool();
+}
+
 void AddToolWidget::saveTool()
 {
     SqlConnection *conn=SqlConnection::getInstance();
     if(conn->isConnect())
     {
-        QString query = QString("select * from Tool where path ='%1'").arg(mToolPath);
+        QString toolPath = ui->lineEdit_path->text();
+        QString query = QString("select * from Tool where path ='%1'").arg(toolPath);
         if(conn->exec(query).isEmpty()){
             query = QString("insert into Tool(name,path,platform,version,type) values('%1','%2','%3','%4','%5')")
                            .arg(ui->lineEdit_name->text()).arg(ui->lineEdit_path->text()).arg(ui->lineEdit_platform->text())

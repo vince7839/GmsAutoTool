@@ -5,7 +5,6 @@
 #include <QVBoxLayout>
 #include <QList>
 #include <QRadioButton>
-#include<view/updatable.h>
 #include<QMap>
 #include<QGroupBox>
 #include<QLabel>
@@ -14,20 +13,23 @@
 #include<QVariant>
 #include<QLineEdit>
 #include<QPushButton>
+#include<view/basewidget.h>
+#include<QRegExpValidator>
 namespace Ui {
 class SettingsWidget;
 }
 
-class SettingsWidget : public QWidget,public Updatable
+class SettingsWidget : public BaseWidget
 {
     Q_OBJECT
 public:
 
     class SubSetting{
     public :
-        static QString RADIO_SETTING;
-        static QString PATH_SETTING;
-        virtual QString getType() = 0;
+        static QString RADIO_STYLE;
+        static QString PATH_STYLE;
+        static QString IP_STYLE;
+        virtual QString getStyle() = 0;
         virtual QString getSummary() = 0;
         virtual QString getKey() = 0;
     };
@@ -42,8 +44,8 @@ public:
             items = i;
             key = k;
         }
-        QString getType(){
-            return RADIO_SETTING;
+        QString getStyle(){
+            return RADIO_STYLE;
         }
         QString getSummary(){
             return summary;
@@ -61,8 +63,27 @@ public:
             summary = s;
             key = k;
         }
-        QString getType(){
-            return PATH_SETTING;
+        QString getStyle(){
+            return PATH_STYLE;
+        }
+        QString getSummary(){
+            return summary;
+        }
+        QString getKey(){
+            return key;
+        }
+    };
+
+    class IpSetting:public SubSetting{
+        QString summary;
+        QString key;
+    public:
+        IpSetting(QString s,QString k){
+            summary = s;
+            key =k;
+        }
+        QString getStyle(){
+            return IP_STYLE;
         }
         QString getSummary(){
             return summary;
@@ -118,6 +139,21 @@ public:
             vLayout->addLayout(hLayout);
             return this;
         }
+
+        BoxBuilder*buildIpSub(IpSetting*sub){
+            QHBoxLayout* hLayout = new QHBoxLayout;
+            hLayout->addWidget(new QLabel(sub->getSummary()));
+            QLineEdit *edit = new QLineEdit;
+            QRegExp rx("((1?\\d{1,2}|2[0-5]{2})\\.){3}(1?\\d{1,2}|2[0-5]{2})");
+            edit->setValidator(new QRegExpValidator(rx));
+            edit->installEventFilter(parent);
+            edit->setProperty("key",sub->getKey());
+            edit->setText(Config::getSetting(sub->getKey()));
+            hLayout->addWidget(edit);
+            vLayout->addLayout(hLayout);
+            return this;
+        }
+
         QGroupBox* create(){
             return  box;
         }
@@ -133,6 +169,8 @@ public slots:
     void settingChanged(bool isChecked);
     void updateContent();
     void openDirDialog();
+protected:
+    bool eventFilter(QObject *watched, QEvent *event);
 private:
     Ui::SettingsWidget *ui;
     QVBoxLayout* mScrollLayout;

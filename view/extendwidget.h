@@ -5,23 +5,22 @@
 #include<QVBoxLayout>
 #include<QPushButton>
 #include<QMap>
-#include<view/updatable.h>
-
+#include<view/basewidget.h>
 namespace Ui {
 class ExtendWidget;
 }
 
-class ExtendWidget : public QWidget,public Updatable
+class ExtendWidget : public BaseWidget
 {
     Q_OBJECT
 public:
-    class ModelData{
+    class Module{
         public:
             QString title;
             QString summary;
             QString btnText;
             int id;
-        ModelData(QString t,QString s,QString b,int i){
+        Module(QString t,QString s,QString b,int i){
             title = t;
             summary = s;
             btnText = b;
@@ -30,7 +29,7 @@ public:
     };
 public slots:
     void configPC();
-    void pushFile();
+    void copyMedia();
     void installAPK();
     void sendBroadcast();
     void clickedHandle();
@@ -41,14 +40,13 @@ public slots:
 public:
     explicit ExtendWidget(QWidget *parent = 0);
     ~ExtendWidget();
-    void addModel(ModelData);
+    void addModules(QList<Module> list);
 
 private:
     Ui::ExtendWidget *ui;
     QVBoxLayout* mScrollLayout;
-    QMap<QPushButton*,int> mButtonMap;
     static const int BTN_ID_CONFIG_PC;
-    static const int BTN_ID_PUSH_FILE;
+    static const int BTN_ID_COPY_MEDIA;
     static const int BTN_ID_INSTALL_APK;
     static const int BTN_ID_SEND_BROADCAST;
     static const int BTN_ID_SHOW_WARNING;

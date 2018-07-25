@@ -2,14 +2,14 @@
 #define TOOLWIDGET_H
 
 #include <QWidget>
-#include<view/updatable.h>
 #include<QListWidgetItem>
+#include<view/basewidget.h>
 
 namespace Ui {
 class ToolWidget;
 }
 
-class ToolWidget : public QWidget,public Updatable
+class ToolWidget : public BaseWidget
 {
     Q_OBJECT
 public:

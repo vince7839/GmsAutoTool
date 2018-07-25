@@ -5,7 +5,6 @@
 #include<QProcess>
 #include<QNetworkReply>
 #include<view/onlinewidget.h>
-#include<view/updatable.h>
 #include<QMap>
 #include<QVBoxLayout>
 #include<QProgressBar>
@@ -14,12 +13,13 @@
 #include<QGroupBox>
 #include<QFileSystemWatcher>
 #include<util/taskparam.h>
+#include<view/basewidget.h>
 
 namespace Ui {
 class TaskWidget;
 }
 
-class TaskWidget : public QWidget,public Updatable
+class TaskWidget : public BaseWidget
 {
     Q_OBJECT
 public slots:

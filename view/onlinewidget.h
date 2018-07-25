@@ -4,12 +4,13 @@
 #include <QWidget>
 #include<util/socketutil.h>
 #include<QMap>
-#include<view/updatable.h>
+#include<view/basewidget.h>
+
 namespace Ui {
 class OnlineWidget;
 }
 
-class OnlineWidget : public QWidget,public Updatable
+class OnlineWidget : public BaseWidget
 {
     Q_OBJECT
 public:

@@ -22,7 +22,7 @@
 #include<util/cmdbuilder.h>
 
 TaskWidget::TaskWidget(QWidget *parent) :
-    QWidget(parent),
+    BaseWidget(parent),
     ui(new Ui::TaskWidget)
 {
     ui->setupUi(this);
@@ -33,8 +33,6 @@ TaskWidget::TaskWidget(QWidget *parent) :
     mTimer = new QTimer;
     mTimer->setSingleShot(false);
     connect(mTimer,SIGNAL(timeout()),this,SLOT(updateTime()));
-
-    //ui->pushButton->setVisible(false);
 }
 
 TaskWidget::~TaskWidget()
@@ -60,7 +58,7 @@ void TaskWidget::executeTask(TaskParam* taskParam)
 {
     CmdBuilder* cmdBuilder = new CmdBuilder(taskParam);
     QString cmd = cmdBuilder->buildTaskCmd()->buildShell()->create();
-    Executor::execute(cmd);
+    Executor::execInTerminal(cmd);
    // map.insert("testId",tempName);
   //  addTestProgress(map);
     WarningWidget::getInstance()->showWarning();
@@ -78,11 +76,13 @@ void TaskWidget::on_pushButton_clicked()
             }
         }
     }*/
-  /*  pa = new QProcess;
-    QStringList arg = QStringList()<<"-x"<<"bash"<<"-c"<<"/home/liaowenxing/GMS/CTS/O/android-cts/tools/cts-tradefed run commandAndExit cts --shard-count 2  -s ASDFGGH2222  -s vgg5545HGHGHO";
-    pa->start("gnome-terminal",arg);*/
-  //  connect(pa,&QProcess::readyRead,this,&TaskWidget::testOutput);
-    Config::saveSetting("","");
+    QProcess* p = new QProcess;
+    p->start("bash -c 'python --version'");
+    QString out = "";
+    if(p->waitForFinished()){
+        out = p->readAll();
+    }
+   qDebug()<<"[BuildTaskWidget::prepare]pexpect check:"<<out;
 }
 
 void TaskWidget::updateContent(){}
@@ -154,5 +154,5 @@ void TaskWidget::restoreView()
 
 void TaskWidget::testOutput()
 {
-    qDebug()<<pa->readAll();
+    qDebug()<<"out put"<<pa->readAll();
 }

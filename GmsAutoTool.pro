@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT     +=    core gui sql xml    network
+QT     +=    core gui sql xml   network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -60,7 +60,11 @@ SOURCES += \
     view/devicedialog.cpp \
     util/devicelistener.cpp \
     util/tasklistener.cpp \
-    view/downloadwidget.cpp
+    view/downloadwidget.cpp \
+    entity/tool.cpp \
+    view/basewidget.cpp \
+    util/extendutil.cpp \
+    util/downloadutil.cpp
 
 
 HEADERS += \
@@ -90,7 +94,6 @@ HEADERS += \
     view/tabstyle.h \
     view/taskdelegate.h \
     view/toolwidget.h \
-    view/updatable.h \
     view/waitingwidget.h \
     view/warningwidget.h \
     view/buildtaskwidget.h \
@@ -100,7 +103,11 @@ HEADERS += \
     view/devicedialog.h \
     util/devicelistener.h \
     util/tasklistener.h \
-    view/downloadwidget.h
+    view/downloadwidget.h \
+    entity/tool.h \
+    view/basewidget.h \
+    util/extendutil.h \
+    util/downloadutil.h
 
 
 FORMS += \

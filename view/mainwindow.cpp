@@ -8,7 +8,6 @@
 #include <QMenuBar>
 #include <util/config.h>
 #include <QSettings>
-#include <view/updatable.h>
 #include <QProcess>
 #include <QDebug>
 #include <QMessageBox>
@@ -36,10 +35,10 @@ MainWindow::MainWindow(QWidget *parent) :
     settingsWidget = new SettingsWidget;
 
     ui->tabWidget->addTab(toolWidget,QString::fromUtf8("工具管理"));
-    //ui->tabWidget->addTab(testWidget,QString::fromUtf8("开始测试"));
+   // ui->tabWidget->addTab(testWidget,QString::fromUtf8("开始测试"));
     ui->tabWidget->addTab(resultWidget,QString::fromUtf8("测试报告"));
     ui->tabWidget->addTab(extendWidget,QString::fromUtf8("扩展工具"));
-    ui->tabWidget->addTab(onlineWidget,QString::fromUtf8("在线主机"));
+    ui->tabWidget->addTab(onlineWidget,QString::fromUtf8("内网工具"));
     ui->tabWidget->addTab(settingsWidget,QString::fromUtf8("设置选项"));
     ui->tabWidget->tabBar()->setStyle(new TabStyle);
     int x = (QApplication::desktop()->width() - width()) /2;
@@ -157,9 +156,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::updateTabContent(int index)
 {
-  //  qDebug()<<"[MainWindow] tab changed:"<<index;
-    Updatable*u = dynamic_cast<Updatable*>(ui->tabWidget->currentWidget());
-    u->updateContent();
+    qDebug()<<"[MainWindow] tab changed:"<<index;
+    BaseWidget*tab = static_cast<BaseWidget*>(ui->tabWidget->currentWidget());
+    tab->updateContent();
 }
 
 void MainWindow::onProcessOutput()

@@ -21,7 +21,7 @@ void NetworkUtil::get(QString url,QMap<QString,QString>params)
     }
     qDebug()<<"[NetworkUtil]get:"+url;
     mRequest.setUrl(QUrl(url));
-    mManager->get(mRequest);
+    QNetworkReply*r =  mManager->get(mRequest);
 }
 
 void NetworkUtil::post(QString url)
@@ -33,16 +33,4 @@ void NetworkUtil::onFinished(QNetworkReply *reply)
 {
     qDebug()<<"[NetworkUtil]onFinished";
     emit finished(reply);
-    /*
-    QXmlStreamReader reader(src);
-    while(!reader.atEnd()){
-       if(reader.isStartElement()){
-
-           qDebug()<<reader.name();
-       }
-        reader.readNext();
-    }
-if(reader.hasError()){
-    qDebug()<<reader.errorString();
-}*/
 }

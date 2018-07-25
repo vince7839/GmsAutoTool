@@ -6,7 +6,9 @@ class Executor
 {
 public:
     Executor();
-    static void execute(QString cmd);
+    static void execInTerminal(QString cmd);
+    static void execInBack(QString cmd,QStringList arg);
+    static void waitFinish(QString cmd,QStringList arg);
 };
 
 #endif // EXECUTOR_H

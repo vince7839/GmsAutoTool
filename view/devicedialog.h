@@ -14,6 +14,7 @@ class DeviceDialog : public QDialog
 public:
     explicit DeviceDialog(QWidget *parent = 0);
     ~DeviceDialog();
+    QString selectDevice();
 public slots:
     void updateDeviceBox(QStringList devices);
 
