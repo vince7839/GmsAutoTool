@@ -170,7 +170,7 @@ void FailureWidget::changeState(QTreeWidgetItem*item)
 }
 
 FailureWidget::FailureWidget(QWidget *parent) :
-    QWidget(parent),
+    PopWidget(parent),
     ui(new Ui::FailureWidget)
 {
     ui->setupUi(this);

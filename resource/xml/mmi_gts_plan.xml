@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no' ?>
+<SubPlan version="2.0">
+  <Entry include="armeabi-v7a GtsBackupHostTestCases com.google.android.gts.backup.WallpaperRestoreHostSideTest#testRestoreLiveWallpaper" />
+  <Entry include="armeabi-v7a GtsBackupHostTestCases com.google.android.gts.backup.WallpaperRestoreHostSideTest#testRestoreSameImageToBoth" />
+  <Entry include="armeabi-v7a GtsBackupHostTestCases com.google.android.gts.backup.BackupHostTest#testGmsBackupTransportIsDefault" />
+  <Entry include="armeabi-v7a GtsGmscoreHostTestCases com.google.android.gts.security.AttestationRootHostTest#testEcAttestationChain" />
+  <Entry include="armeabi-v7a GtsGmscoreHostTestCases com.google.android.gts.security.AttestationRootHostTest#testRsaAttestationChain" />
+  <Entry include="armeabi-v7a GtsInstallPackagesWhitelistDeviceTestCases com.google.android.installpackageswhitelist.gts.GtsInstallPackagesWhitelistDeviceTest#testInstallerPackagesAgainstWhitelist" />
+  <Entry include="armeabi-v7a GtsNmgiarcTestCases com.google.android.nmgiarc.gts.CarrierServicesTests#testAcsaPropertySetCorrectly" />
+  <Entry include="armeabi-v7a GtsOsTestCases com.google.android.os.gts.SysConfigTest#testValidSysConfigPresent" />
+  <Entry include="armeabi-v7a GtsPackageManagerHostTestCases com.google.android.pm.gts.PackageManagerHostTest#testSoundPool" />
+  <Entry include="armeabi-v7a GtsPermissionTestCases com.google.android.permission.gts.DefaultPermissionGrantPolicyTest#testDefaultGrantsWithRemoteExceptions" />
+</SubPlan>

@@ -8,7 +8,6 @@
 #include<QFile>
 #include<QMessageBox>
 #include<QProgressDialog>
-#include<entity/tool.h>
 #include<view/addtoolwidget.h>
 #include<util/executor.h>
 #include<QFileInfo>
@@ -20,7 +19,7 @@
 #include<QDebug>
 
 DownloadWidget::DownloadWidget(QWidget *parent) :
-    QWidget(parent),
+    PopWidget(parent),
     ui(new Ui::DownloadWidget)
 {
     ui->setupUi(this);
@@ -104,16 +103,17 @@ void DownloadWidget::onFilterChanged()
     setCursor(Qt::WaitCursor);
     NetworkUtil*net = new NetworkUtil;
     connect(net,&NetworkUtil::finished,this,&DownloadWidget::updateVersionBox);
-    QString url = QString("http://172.16.87.93:8080/GmsServer/download_list?type=%1")
-            .arg(ui->cbox_type->currentData().toString());
+    QString url = QString("http://").append(Config::getSetting(Config::SETTING_SERVER_IP))
+            .append(QString(":8080/GmsServer/download_list?type=%1")
+                    .arg(ui->cbox_type->currentData().toString()));
     qDebug()<<"[DownloadWidget::onFilterChanged]url:"<<url;
     net->get(url);
 }
 
 void DownloadWidget::downloadClicked()
 {
-    QString url = QString("http://172.16.87.93:8080/GmsServer/download_file?type=%1&fileName=%2")
-            .arg(ui->cbox_type->currentData().toString()).arg(ui->cbox_version->currentText());
+    QString url = QString("http://").append(Config::getSetting(Config::SETTING_SERVER_IP)).append(QString(":8080/GmsServer/download_file?type=%1&fileName=%2")
+            .arg(ui->cbox_type->currentData().toString()).arg(ui->cbox_version->currentText()));
     DownloadUtil*util = new DownloadUtil;
     connect(util,&DownloadUtil::downloadFinished,this,&DownloadWidget::dealDownload);
     util->download(url);

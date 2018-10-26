@@ -4,12 +4,12 @@
 #include <QWidget>
 #include<QDomNode>
 #include<QMap>
-
+#include<view/popwidget.h>
 namespace Ui {
 class AddSolutionWidget;
 }
 
-class AddSolutionWidget : public QWidget
+class AddSolutionWidget : public PopWidget
 {
     Q_OBJECT
 public slots:

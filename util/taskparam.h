@@ -9,6 +9,7 @@ class TaskParam
 private:
     QString platform;
     QString toolPath;
+    QString toolName;
     QString planName;
     QString taskName;
     QString testAction;
@@ -18,7 +19,7 @@ private:
     QString session;
     QSet<QString> device;
     QSet<QString> module;
-
+    QString toolVersion;
 public:
     TaskParam();
     QString getPlatform() const;
@@ -48,6 +49,10 @@ public:
     void setTestType(const QString &value);
     QString getCmdType() const;
     void setCmdType(const QString &value);
+    QString getToolVersion() const;
+    void setToolVersion(const QString &value);
+    QString getToolName() const;
+    void setToolName(const QString &value);
 };
 
 #endif // TASKPARAM_H

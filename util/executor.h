@@ -8,7 +8,7 @@ public:
     Executor();
     static void execInTerminal(QString cmd);
     static void execInBack(QString cmd,QStringList arg);
-    static void waitFinish(QString cmd,QStringList arg);
+    static QString waitFinish(QString cmd,QStringList arg = QStringList());
 };
 
 #endif // EXECUTOR_H

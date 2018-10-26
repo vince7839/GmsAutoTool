@@ -3,10 +3,11 @@
 <Test type="CTS">
     <Action name="all">
         <Command>run cts</Command>
+        <Command platform="8.1" version="r5">run cts-suite</Command>
     </Action>
     <Action name="plan">
         <Command>run cts --plan %1</Command>
-        <Command platform="O">run cts --subplan %1</Command>
+        <Command platform="7.0">run cts --subplan %1</Command>
     </Action>
     <Action name="retry">
         <Command>run cts -r %1</Command>
@@ -21,14 +22,13 @@
 
 <Test type="GTS">
     <Action name="all">
-        <Command>run gts</Command>
+        <Command>run gts-suite</Command>
     </Action>
     <Action name="plan">
-        <Command>run gts --plan %1</Command>
-        <Command platform="O">run gts --subplan %1</Command>
+        <Command>run gts --subplan %1</Command>
     </Action>
     <Action name="retry">
-        <Command>run gts -r %1</Command>
+        <Command>run retry -r %1</Command>
     </Action>
     <Action name="module">
         <Command>run gts -m %1</Command>
@@ -43,8 +43,7 @@
         <Command>run vts</Command>
     </Action>
     <Action name="plan">
-        <Command>run vts --plan %1</Command>
-        <Command platform="O">run vts --subplan %1</Command>
+        <Command>run vts --subplan %1</Command>
     </Action>
     <Action name="retry">
         <Command>run vts -r %1</Command>
@@ -60,11 +59,9 @@
 <Test type="GSI">
     <Action name="all">
         <Command>run cts-on-gsi</Command>
-        <Command platform="8.0">run cts-reference-aosp</Command>
     </Action>
     <Action name="plan">
         <Command>run cts-on-gsi --subplan %1</Command>
-        <Command platform="8.0">run cts-reference-aosp --subplan %1</Command>
     </Action>
     <Action name="retry">
         <Command>run cts-on-gsi -r %1</Command>
@@ -76,5 +73,4 @@
         <Command>run cts-on-gsi -m %1 -t %2</Command>
     </Action>
 </Test>
-
 </Config>

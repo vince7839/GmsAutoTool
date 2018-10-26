@@ -6,12 +6,13 @@
 #include<QVBoxLayout>
 #include<QPushButton>
 #include<QMap>
+#include<view/popwidget.h>
 
 namespace Ui {
 class SolutionWidget;
 }
 
-class SolutionWidget : public QWidget
+class SolutionWidget : public PopWidget
 {
     Q_OBJECT
 public slots:

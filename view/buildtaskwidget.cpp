@@ -23,23 +23,21 @@
 #include<util/config.h>
 
 BuildTaskWidget::BuildTaskWidget(QWidget *parent) :
-    QWidget(parent),
+    PopWidget(parent),
     ui(new Ui::BuildTaskWidget)
 {
     ui->setupUi(this);
-    //  ui->label_name->setVisible(false);
-    //  ui->lineEdit_name->setVisible(false);
-    initUI();
+     ui->label_name->setVisible(false);
+      ui->lineEdit_name->setVisible(false);
     connect(ui->cbox_type,&QComboBox::currentTextChanged,this,&BuildTaskWidget::onTypeChanged);
     connect(ui->cbox_tool,SIGNAL(currentTextChanged(QString)),this,SLOT(onToolChanged()));
     connect(ui->cbox_action,&QComboBox::currentTextChanged,this,&BuildTaskWidget::onActionChanged);
     connect(ui->btn_start,SIGNAL(clicked()),this,SLOT(startClicked()));
     connect(ui->btn_cancel,SIGNAL(clicked()),this,SLOT(close()));
+    initUI();
     setWindowModality(Qt::ApplicationModal);
     setWindowTitle(QString::fromUtf8("新建测试"));
-    updateTypeBox();
     updateTestName();
-
     mListener = new DeviceListener;
     connect(mListener,&DeviceListener::deviceChanged,this,&BuildTaskWidget::updateDeviceBox);
 }
@@ -68,6 +66,7 @@ void BuildTaskWidget::initUI()
     initModuleBox();
     initPlanBox();
     initQuickBox();
+    initTypeBox();
 }
 
 void BuildTaskWidget::initModuleBox()
@@ -143,14 +142,20 @@ void BuildTaskWidget::initQuickBox()
     label->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
     QComboBox* comBox = new QComboBox;
     comBox->setObjectName("quickType");
-    QStringList types = Config::getQuickTypes();
-    foreach(QString type,types){
-        comBox->addItem(Config::getQuickLabel(type),type);
-    }
     hLayout->addWidget(label);
     hLayout->addWidget(comBox);
     mQuickBox->setLayout(hLayout);
     ui->boxLayout->addWidget(mQuickBox);
+}
+
+void BuildTaskWidget::updateQuickBox()
+{
+    QComboBox* comBox = this->findChild<QComboBox*>("quickType");
+    comBox->clear();
+    QStringList types = Config::getQuickTypes(ui->cbox_type->currentData().toString());
+    foreach(QString type,types){
+        comBox->addItem(Config::getQuickLabel(type),type);
+    }
 }
 
 void BuildTaskWidget::initPlanBox()
@@ -199,8 +204,8 @@ void BuildTaskWidget::executeTask(TaskParam *taskParam)
     if(!prepare()){
         return;
     }
-    CmdBuilder* cmdBuilder = new CmdBuilder(taskParam);
-    QString taskCmd = cmdBuilder->buildTaskCmd()->create();
+    CmdBuilder* cmdBuilder = new CmdBuilder;
+    QString taskCmd = cmdBuilder->buildTaskCmd(taskParam)->create();
     QString cmd = cmdBuilder->buildShell()->create();
     Executor::execInTerminal(cmd);
     close();
@@ -270,6 +275,8 @@ void BuildTaskWidget::startClicked()
     taskParam->setTestType(ui->cbox_type->currentData().toString());
     taskParam->setPlatform(mToolList.at(ui->cbox_tool->currentIndex()).value("platform"));
     taskParam->setToolPath(toolPath);
+    taskParam->setToolName(mToolList.at(ui->cbox_tool->currentIndex()).value("name"));
+    taskParam->setToolVersion(mToolList.at(ui->cbox_tool->currentIndex()).value("version"));
     taskParam->setDevice(mSelectedDevice);
     taskParam->setTaskName(ui->lineEdit_name->text());
     QString action = ui->cbox_action->currentData().toString();
@@ -287,8 +294,6 @@ void BuildTaskWidget::startClicked()
         taskParam->setModule(mModuleSet);
         if(taskParam->isSingleModule()){
             cmdType = Config::CMD_MODULE;
-            QString planName = mModuleBox->findChild<QLineEdit*>("planNameEdit")->text();
-            taskParam->setPlanName(planName);
         } else {
             cmdType = Config::CMD_PLAN;
             QString planName = PlanUtil::createAutoPlan(ui->cbox_tool->currentData().toString(),mModuleSet);
@@ -307,15 +312,15 @@ void BuildTaskWidget::startClicked()
         QString quickType = mQuickBox->findChild<QComboBox*>("quickType")->currentData().toString();
         QString xmlPath;
         QString planName;
-        if(quickType == Config::QUICK_MMI){
-            xmlPath = ":/xml/xml/mmi_plan.xml";
-            planName = "mmi_plan";
-        }else if(quickType == Config::QUICK_DRV){
-            xmlPath = ":/xml/xml/drv_plan.xml";
-            planName = "drv_plan";
-        }else if(quickType == Config::QUICK_AUDIO){
-            xmlPath = ":/xml/xml/audio_plan.xml";
-            planName = "audio_plan";
+        if(quickType == Config::QUICK_MMI_CTS){
+            xmlPath = Config::getResourcePath(Config::MMI_CTS_PLAN);
+            planName = "mmi_cts_plan";
+        }else if(quickType == Config::QUICK_DRV_CTS){
+            xmlPath = Config::getResourcePath(Config::DRV_CTS_PLAN);
+            planName = "drv_cts_plan";
+        }else if(quickType == Config::QUICK_MMI_GTS){
+            xmlPath = Config::getResourcePath(Config::MMI_GTS_PLAN);
+            planName = "mmi_gts_plan";
         }
         PlanUtil::copyPlan(toolPath,xmlPath);
         taskParam->setPlanName(planName);
@@ -325,11 +330,11 @@ void BuildTaskWidget::startClicked()
     executeTask(taskParam);
 }
 
-void BuildTaskWidget::updateTypeBox()
+void BuildTaskWidget::initTypeBox()
 {
     QStringList types = Config::getTestTypes();
     foreach (QString type, types) {
-        qDebug()<<"[BuildTaskWidget::updateTypeBox]add type data:"<<type;
+        qDebug()<<"[BuildTaskWidget::initTypeBox]add type data:"<<type;
         ui->cbox_type->addItem(Config::getTypeLabel(type),type);
     }
 }
@@ -522,6 +527,7 @@ void BuildTaskWidget::onTypeChanged()
 {
     updateToolBox();
     updateActionBox();
+    updateQuickBox();
 }
 
 void BuildTaskWidget::onActionChanged()

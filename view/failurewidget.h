@@ -6,12 +6,12 @@
 #include <QMultiMap>
 #include<QTreeWidgetItem>
 #include<view/solutionwidget.h>
-
+#include<view/popwidget.h>
 namespace Ui {
 class FailureWidget;
 }
 
-class FailureWidget : public QWidget
+class FailureWidget : public PopWidget
 {
     Q_OBJECT
 private slots:

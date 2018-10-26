@@ -9,12 +9,12 @@
 #include <QSet>
 #include<util/taskparam.h>
 #include<util/devicelistener.h>
-
+#include<view/popwidget.h>
 namespace Ui {
 class BuildTaskWidget;
 }
 
-class BuildTaskWidget : public QWidget
+class BuildTaskWidget : public PopWidget
 {
     Q_OBJECT
 signals:
@@ -24,7 +24,7 @@ private slots:
     void enableStart();
     void updateToolBox();
     void startClicked();
-    void updateTypeBox();
+    void initTypeBox();
     void updateDeviceBox(QStringList devices);
     void updateTestName();
     void updateActionBox();
@@ -47,6 +47,7 @@ public:
     void initRetryBox();
     void initSingleBox();
     void initQuickBox();
+    void updateQuickBox();
     void initPlanBox();
     bool setCurrentTool(QString toolPath);
     void executeTask(TaskParam*taskParam);

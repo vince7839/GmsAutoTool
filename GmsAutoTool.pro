@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT     +=    core gui sql xml   network
+QT     +=   core gui sql xml  network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -61,10 +61,22 @@ SOURCES += \
     util/devicelistener.cpp \
     util/tasklistener.cpp \
     view/downloadwidget.cpp \
-    entity/tool.cpp \
     view/basewidget.cpp \
     util/extendutil.cpp \
-    util/downloadutil.cpp
+    util/downloadutil.cpp \
+    entity/proptest.cpp \
+    entity/packagetest.cpp \
+    view/buildspecwidget.cpp \
+    view/popwidget.cpp \
+    view/specwidget.cpp \
+    util/spectestthread.cpp \
+    util/specutil.cpp \
+    entity/defaulttest.cpp \
+    entity/cmdtest.cpp \
+    entity/equaltest.cpp \
+    entity/intenttest.cpp \
+    util/specbuilder.cpp \
+    entity/featuretest.cpp
 
 
 HEADERS += \
@@ -104,10 +116,23 @@ HEADERS += \
     util/devicelistener.h \
     util/tasklistener.h \
     view/downloadwidget.h \
-    entity/tool.h \
     view/basewidget.h \
     util/extendutil.h \
-    util/downloadutil.h
+    util/downloadutil.h \
+    entity/proptest.h \
+    entity/packagetest.h \
+    view/buildspecwidget.h \
+    view/popwidget.h \
+    view/specwidget.h \
+    entity/spectest.h \
+    util/spectestthread.h \
+    util/specutil.h \
+    entity/defaulttest.h \
+    entity/cmdtest.h \
+    entity/equaltest.h \
+    entity/intenttest.h \
+    util/specbuilder.h \
+    entity/featuretest.h
 
 
 FORMS += \
@@ -131,11 +156,13 @@ FORMS += \
     ui/buildtaskwidget.ui \
     ui/taskwidget.ui \
     ui/devicedialog.ui \
-    view/downloadwidget.ui
+    view/downloadwidget.ui \
+    view/buildspecwidget.ui \
+    view/specwidget.ui
 
 
 RESOURCES += \
-    icon.qrc
+    resource.qrc
 
 DISTFILES += \
     database/GmsAutoTool.db

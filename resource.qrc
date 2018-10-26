@@ -1,0 +1,22 @@
+<RCC>
+    <qresource prefix="/icon">
+        <file>resource/img/app_icon.png</file>
+        <file>resource/img/cts_icon.jpg</file>
+        <file>resource/img/gts_icon.jpg</file>
+        <file>resource/img/vts_icon.jpg</file>
+    </qresource>
+    <qresource prefix="/xml">
+        <file>resource/xml/audio_plan.xml</file>
+        <file>resource/xml/Config.xml</file>
+        <file>resource/xml/mmi_cts_plan.xml</file>
+        <file>resource/xml/mmi_gts_plan.xml</file>
+        <file>resource/xml/drv_cts_plan.xml</file>
+    </qresource>
+    <qresource prefix="/script">
+        <file>resource/script/start.py</file>
+    </qresource>
+    <qresource prefix="/plugin">
+        <file>resource/plugin/pexpect.zip</file>
+        <file>resource/plugin/tools.zip</file>
+    </qresource>
+</RCC>

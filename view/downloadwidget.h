@@ -3,11 +3,12 @@
 
 #include <QWidget>
 #include<QNetworkReply>
+#include<view/popwidget.h>
 namespace Ui {
 class DownloadWidget;
 }
 
-class DownloadWidget : public QWidget
+class DownloadWidget : public PopWidget
 {
     Q_OBJECT
 

@@ -2,12 +2,13 @@
 #define SCREENWIDGET_H
 
 #include <QWidget>
+#include<view/popwidget.h>
 
 namespace Ui {
 class ScreenWidget;
 }
 
-class ScreenWidget : public QWidget
+class ScreenWidget : public PopWidget
 {
     Q_OBJECT
 

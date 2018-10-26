@@ -29,6 +29,7 @@ public:
     };
 public slots:
     void configPC();
+    void configVTS();
     void copyMedia();
     void installAPK();
     void sendBroadcast();
@@ -37,6 +38,7 @@ public slots:
     void updateContent();
     void flashImg();
     void projectGms();
+    void specTest();
 public:
     explicit ExtendWidget(QWidget *parent = 0);
     ~ExtendWidget();
@@ -52,6 +54,8 @@ private:
     static const int BTN_ID_SHOW_WARNING;
     static const int BTN_ID_FLASH_IMG;
     static const int BTN_ID_PROJECT_GMS;
+    static const int BTN_ID_SPEC_TEST;
+    static const int BTN_ID_CONFIG_VTS;
 };
 
 #endif // EXTENDWIDGET_H

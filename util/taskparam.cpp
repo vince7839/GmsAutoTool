@@ -65,9 +65,29 @@ void TaskParam::setCmdType(const QString &value)
     cmdType = value;
 }
 
+QString TaskParam::getToolVersion() const
+{
+    return toolVersion;
+}
+
+void TaskParam::setToolVersion(const QString &value)
+{
+    toolVersion = value;
+}
+
+QString TaskParam::getToolName() const
+{
+    return toolName;
+}
+
+void TaskParam::setToolName(const QString &value)
+{
+    toolName = value;
+}
+
 TaskParam::TaskParam()
 {
-
+    
 }
 
 QSet<QString> TaskParam::getModule() const

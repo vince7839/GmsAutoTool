@@ -38,7 +38,6 @@ WarningWidget *WarningWidget::getInstance()
 {
     if(sInstance == NULL){
         sInstance = new WarningWidget();
-        qDebug()<<"hhh";
     }
     return sInstance;
 }
@@ -58,13 +57,13 @@ void WarningWidget::showWarning()
 void WarningWidget::updateTime()
 {
     mSec += 1;
-    int SECONDS_PER_HOUR = 60*60;
+    int SECONDS_PER_HOUR = 60 * 60;
     int hours = mSec/SECONDS_PER_HOUR;
     int minutes = (mSec - hours*SECONDS_PER_HOUR)/60;
     int seconds = mSec - hours*SECONDS_PER_HOUR - minutes*60;
-    QString hoursLabel = QString("%1%2").arg(hours < 10?"0":"").arg(hours);
-    QString minutesLabel = QString("%1%2").arg(minutes < 10?"0":"").arg(minutes);
-    QString secondsLabel = QString("%1%2").arg(seconds < 10?"0":"").arg(seconds);
+    QString hoursLabel = QString("%1%2").arg(hours < 10 ? "0" : "" ).arg(hours);
+    QString minutesLabel = QString("%1%2").arg(minutes < 10 ? "0" : "" ).arg(minutes);
+    QString secondsLabel = QString("%1%2").arg(seconds < 10 ? "0" : "" ).arg(seconds);
     QString time = QString("%1:%2:%3").arg(hoursLabel).arg(minutesLabel).arg(secondsLabel);
     ui->label_time->setText(time);
 }

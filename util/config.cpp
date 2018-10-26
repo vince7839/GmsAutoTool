@@ -26,8 +26,9 @@ const QString Config::CMD_RETRY = "retry";
 const QString Config::CMD_MODULE = "module";
 const QString Config::CMD_SINGLE = "single";
 const QString Config::CMD_PLAN = "plan";
-const QString Config::QUICK_MMI = "quick_mmi";
-const QString Config::QUICK_DRV = "quick_drv";
+const QString Config::QUICK_MMI_CTS = "quick_mmi_cts";
+const QString Config::QUICK_DRV_CTS = "quick_drv_cts";
+const QString Config::QUICK_MMI_GTS = "quick_mmi_gts";
 const QString Config::QUICK_AUDIO= "quick_audio";
 const QString Config::VERSION = "beta 1.0";
 const QString Config::SETTING_SCREEN_SHOT = "screen_shot";
@@ -56,7 +57,7 @@ QStringList Config::getTestActions(QString type)
 {
     QStringList actions;
     actions<<ACTION_ALL<<ACTION_RETRY<<ACTION_MODULE<<ACTION_SINGLE<<ACTION_PLAN<<ACTION_QUICK;
-    if(type != CTS){
+    if(type != CTS && type != GTS){
         actions.removeAll(ACTION_QUICK);
     }
     return actions;
@@ -130,17 +131,25 @@ QString Config::getUpdateUrl(int entity)
     return getServerUrl().append(suffix);
 }
 
-QStringList Config::getQuickTypes()
+QStringList Config::getQuickTypes(QString suite)
 {
-    QStringList types = QStringList()<<QUICK_MMI<<QUICK_DRV<<QUICK_AUDIO;
+    qDebug()<<"[Config::getQuickTypes]suite:"<<suite;
+    QStringList types;
+    if(suite == CTS){
+        types = QStringList()<<QUICK_MMI_CTS<<QUICK_DRV_CTS;
+    }else if(suite == GTS){
+        types = QStringList()<<QUICK_MMI_GTS;
+    }
     return types;
 }
 
 QString Config::getQuickLabel(QString type)
 {
     QMap<QString,QString> map;
-    map.insert(QUICK_MMI,QString::fromUtf8("MMI送测自检"));
-    map.insert(QUICK_DRV,QString::fromUtf8("驱动Camera自检"));
+    QMap<ResourceType,QString> m;
+    map.insert(QUICK_MMI_CTS,QString::fromUtf8("MMI易错自检(CTS)"));
+    map.insert(QUICK_MMI_GTS,QString::fromUtf8("MMI易错自检(GTS)"));
+    map.insert(QUICK_DRV_CTS,QString::fromUtf8("驱动Camera自检(CTS)"));
     map.insert(QUICK_AUDIO,QString::fromUtf8("音频自检"));
     return map.value(type);
 }
@@ -168,7 +177,7 @@ QString Config::getDefaultSetting(QString key)
     if(key == SETTING_DOWNLOAD_PATH){
         if(!QDir::current().exists("download")){
             qDebug()<<"[Config::getDownloadPath]mkdir download";
-           QDir::current().mkdir("download");
+            QDir::current().mkdir("download");
         }
         value = QDir::currentPath().append("/download");
     }else if(key == SETTING_RECV_PATH){
@@ -193,6 +202,22 @@ bool Config::isIp(QString text)
 QString Config::getScriptPath()
 {
     return "/tmp/GmsAutoTool/start.py";
+}
+
+QString Config::getResourcePath(Config::ResourceType type)
+{
+    switch(type){
+    case CONFIG_XML:
+        return ":/xml/resource/xml/Config.xml";
+    case MMI_CTS_PLAN:
+        return ":/xml/resource/xml/mmi_cts_plan.xml";
+    case MMI_GTS_PLAN:
+        return ":/xml/resource/xml/mmi_gts_plan.xml";
+    case DRV_CTS_PLAN:
+        return ":/xml/resource/xml/drv_cts_plan.xml";
+    default:
+        return "";
+    }
 }
 
 QString Config::getTypeLabel(QString type)

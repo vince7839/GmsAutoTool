@@ -13,13 +13,14 @@
 #include <QMessageBox>
 #include<QDesktopWidget>
 #include<util/networkutil.h>
-
+#include<util/executor.h>
+#include<util/specutil.h>
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    setWindowTitle(QString::fromUtf8("GmsAutoTool"));
+    setWindowTitle(QString::fromUtf8("GmsAutoTool-[2018.10.22]"));
     connect(ui->tabWidget,SIGNAL(currentChanged(int)),this,SLOT(updateTabContent(int)));
 
     mLinkLabel = new QLabel;
@@ -35,23 +36,19 @@ MainWindow::MainWindow(QWidget *parent) :
     settingsWidget = new SettingsWidget;
 
     ui->tabWidget->addTab(toolWidget,QString::fromUtf8("工具管理"));
-   // ui->tabWidget->addTab(testWidget,QString::fromUtf8("开始测试"));
+    //  ui->tabWidget->addTab(testWidget,QString::fromUtf8("开始测试"));
     ui->tabWidget->addTab(resultWidget,QString::fromUtf8("测试报告"));
-    ui->tabWidget->addTab(extendWidget,QString::fromUtf8("扩展工具"));
+    ui->tabWidget->addTab(extendWidget,QString::fromUtf8("扩展功能"));
     ui->tabWidget->addTab(onlineWidget,QString::fromUtf8("内网工具"));
     ui->tabWidget->addTab(settingsWidget,QString::fromUtf8("设置选项"));
     ui->tabWidget->tabBar()->setStyle(new TabStyle);
     int x = (QApplication::desktop()->width() - width()) /2;
     int y = (QApplication::desktop()->height() - height()) /2;
+    qDebug()<<this->width()<<this->height();
     move(x,y);
     initMenu();
     initLinks();
     startTimer(5000);
-
-    checkProcess = new QProcess;
-    QStringList arg = QStringList()<<"-v";
-    connect(checkProcess,&QProcess::readyRead,this,&MainWindow::onProcessOutput);
-    checkProcess->start("expect",arg);
 }
 
 MainWindow::~MainWindow()
@@ -72,7 +69,7 @@ void MainWindow::initMenu()
 void MainWindow::initLinks()
 {
     mLinkList.clear();
-  /*  QDomDocument doc;
+    /*  QDomDocument doc;
     doc.setContent(new QFile("config/Config.xml"));
    QDomNode linkNode =  doc.namedItem("Config").namedItem("Link");
    qDebug()<<"node size:"<<linkNode.childNodes().size();
@@ -99,7 +96,7 @@ void MainWindow::aboutQt()
 void MainWindow::aboutMine()
 {
     QMessageBox::information(this,QString::fromUtf8("关于本软件")
-    ,QString::fromUtf8("此软件用于CTS，GTS，VTS等工具的辅助测试，帮助测试者自动输入命令和建立Plan等操作，如果有建议，请向我反馈！liaowenxing@sagereal.com或者走过来找我。")
+                             ,QString::fromUtf8("此软件用于CTS，GTS，VTS等工具的辅助测试，帮助测试者自动输入命令和建立Plan等操作，如果有建议，请向我反馈！liaowenxing@sagereal.com或者走过来找我。")
                              ,QMessageBox::Yes);
 }
 
@@ -114,7 +111,7 @@ void MainWindow::updateLinkLabel()
     QString title = map.value("title");
     mLinkLabel->setToolTip(title);
     if(title.size() > 20)
-    {        
+    {
         title = title.left(20).append("...");
     }
     //qDebug()<<"[MainWindow]real url:"<<url;
@@ -124,24 +121,24 @@ void MainWindow::updateLinkLabel()
 
 void MainWindow::onRequestFinished(QNetworkReply *reply)
 {
-       QString src = QString::fromUtf8(reply->readAll());
-       src = src.simplified();
-       QRegExp rx("class=\"doc_node_title_min\".*href=\"(.+)\">(.+)<span");
-       rx.setMinimal(true);
-       int pos = 0;
-       while ((pos = rx.indexIn(src, pos)) != -1)
-       {
-           QString url = rx.cap(1);
-           QString title = rx.cap(2).simplified();
-           QMap<QString,QString> map;
-           map.insert("url",url);
-           map.insert("title",title);
-           mLinkList.append(map);
-         //  qDebug()<<QString("[MainWindow]get wcp:%1:%2").arg(title).arg(url);
-           pos += rx.matchedLength();
-       }
-       updateLinkLabel();
-       qDebug()<<"[MainWindow]links size:"<<mLinkList.size();
+    QString src = QString::fromUtf8(reply->readAll());
+    src = src.simplified();
+    QRegExp rx("class=\"doc_node_title_min\".*href=\"(.+)\">(.+)<span");
+    rx.setMinimal(true);
+    int pos = 0;
+    while ((pos = rx.indexIn(src, pos)) != -1)
+    {
+        QString url = rx.cap(1);
+        QString title = rx.cap(2).simplified();
+        QMap<QString,QString> map;
+        map.insert("url",url);
+        map.insert("title",title);
+        mLinkList.append(map);
+        //  qDebug()<<QString("[MainWindow]get wcp:%1:%2").arg(title).arg(url);
+        pos += rx.matchedLength();
+    }
+    updateLinkLabel();
+    qDebug()<<"[MainWindow]links size:"<<mLinkList.size();
 }
 
 void MainWindow::timerEvent(QTimerEvent *event)

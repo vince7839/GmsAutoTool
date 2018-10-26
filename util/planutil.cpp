@@ -39,8 +39,9 @@ void PlanUtil::execPlan(QString toolPath, QString planName)
     }else{
         QMap<QString,QString> map = list.first();
         QString type = map.value("type");
-        QString platform = Config::getCharPlatform(map.value("platform"));
-        QString planCmd = CmdBuilder::getActionCmd(type,platform,Config::ACTION_PLAN);
+        QString platform = map.value("platform");
+        QString version = map.value("version");
+        QString planCmd = CmdBuilder::getActionCmd(type,Config::ACTION_PLAN,platform,version);
         planCmd.arg(planName);
         QString bashCmd = QString("%1 %2;exec bash").arg(toolPath).arg(planCmd);
         qDebug()<<"[PlanUtil]plan cmd:"<<planCmd;
@@ -56,14 +57,22 @@ void PlanUtil::copyPlan(QString toolPath, QString xmlPath)
     qDebug()<<"[PlanUtil::copyPlan]xml:"<<xmlPath;
     QFileInfo originFile(xmlPath);
     if(!originFile.exists()){
-        qDebug()<<"[PlanUtil::copyPlan]origin file not exists";
+        qDebug()<<"[PlanUtil::copyPlan]xml not exists";
         return;
     }
-    QString fileName = QString("%1/%2").arg(getPlanDirPath(toolPath)).arg(originFile.fileName());
+    QString dirPath = getPlanDirPath(toolPath);
+    qDebug()<<"[PlanUtil::copyPlan]dir path:"<<dirPath;
+    QString fileName = QString("%1/%2").arg(dirPath).arg(originFile.fileName());
     qDebug()<<"[PlanUtil::copyPlan]new file name:"<<fileName;
-    QFile file(fileName);
-    if(file.exists()){
-        file.remove();
+    if(!QDir(dirPath).exists()){
+        QDir rootDir(QString("%1/../..").arg(toolPath));
+        rootDir.makeAbsolute();
+       qDebug()<<"[PlanUtil::copyPlan]dir not exists,then create:"<<rootDir.mkdir("subplans");
+    }else{
+        QFile file(fileName);
+        if(file.exists()){
+            file.remove();
+        }
     }
     QFile::copy(xmlPath,fileName);
 }

@@ -23,8 +23,9 @@ public:
     static const QString CMD_MODULE;
     static const QString CMD_SINGLE;
     static const QString CMD_PLAN;
-    static const QString QUICK_MMI;
-    static const QString QUICK_DRV;
+    static const QString QUICK_MMI_CTS;
+    static const QString QUICK_MMI_GTS;
+    static const QString QUICK_DRV_CTS;
     static const QString QUICK_AUDIO;
     static quint16 TCP_PORT;
     static quint16 UDP_PORT;
@@ -54,7 +55,7 @@ public:
     static QString getOptionLabel(QString option);
     static QString getServerUrl();
     static QString getUpdateUrl(int entity);
-    static QStringList getQuickTypes();
+    static QStringList getQuickTypes(QString suite);
     static QString getQuickLabel(QString type);
     static void saveSetting(QString key,QString value);
     static QString getSetting(QString key);
@@ -62,6 +63,13 @@ public:
 
     static bool isIp(QString text);
     static QString getScriptPath();
+    enum ResourceType{
+        CONFIG_XML,
+        MMI_CTS_PLAN,
+        MMI_GTS_PLAN,
+        DRV_CTS_PLAN,
+    };
+    static QString getResourcePath(ResourceType type);
 };
 
 #endif // CONFIG_H

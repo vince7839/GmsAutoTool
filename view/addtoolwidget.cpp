@@ -10,7 +10,7 @@
 #include<QProcess>
 
 AddToolWidget::AddToolWidget(QWidget *parent) :
-    QWidget(parent),
+    PopWidget(parent),
     ui(new Ui::AddToolWidget)
 {
     ui->setupUi(this);

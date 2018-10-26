@@ -5,7 +5,7 @@
 #include<QDebug>
 
 AddSolutionWidget::AddSolutionWidget(QWidget *parent) :
-    QWidget(parent),
+    PopWidget(parent),
     ui(new Ui::AddSolutionWidget)
 {
     ui->setupUi(this);

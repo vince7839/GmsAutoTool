@@ -5,7 +5,7 @@
 #include<util/socketutil.h>
 ScreenWidget* ScreenWidget::sInstance;
 ScreenWidget::ScreenWidget(QWidget *parent) :
-    QWidget(parent),
+    PopWidget(parent),
     ui(new Ui::ScreenWidget)
 {
     ui->setupUi(this);

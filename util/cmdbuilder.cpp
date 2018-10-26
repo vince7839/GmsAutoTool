@@ -6,38 +6,49 @@
 #include<QDebug>
 #include<util/config.h>
 #include<QFileInfo>
+#include<QXmlStreamReader>
 CmdBuilder::CmdBuilder()
 {
 
 }
 
-CmdBuilder::CmdBuilder(TaskParam *taskParam)
-{
-    this->taskParam = taskParam;
-}
-
 CmdBuilder* CmdBuilder::buildShell()
 {
-    QString tempName = QString("temp/%1").arg(QDateTime::currentMSecsSinceEpoch());
     QString scriptPath = Config::getScriptPath();
-//    cmd = QString("trap 'rm %4' SIGHUP SIGINT;(python %1 %2 '%3';rm %4)|tee -a %4;exec bash").arg(scriptPath).arg(taskParam->getToolPath())
-//            .arg(cmd).arg(tempName);
-    QFileInfo file(taskParam->getToolPath());
-    cmd = QString("cd %1;python %2 %3 '%4';exec bash").arg(file.absolutePath()).arg(scriptPath)
-            .arg(taskParam->getToolPath()).arg(cmd);
-    qDebug()<<"[CmdBuilder]buildShell:"<<cmd;
+    if(taskParam != NULL){
+        QFileInfo file(taskParam->getToolPath());
+        QString terminalTitle = QString("%1 - [GmsAutoTool %2]").arg(taskParam->getToolName()).arg(QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm"));
+        cmd = QString("cd %1;echo -en '\033]0;%5\a';python %2 %3 '%4';exec bash")
+                .arg(file.absolutePath()).arg(scriptPath).arg(taskParam->getToolPath()).arg(cmd).arg(terminalTitle);
+    }else{
+        qDebug()<<"[CmdBuilder::buildShell]taskParam null";
+    }
+    qDebug()<<"[CmdBuilder::buildShell]cmd:"<<cmd;
     return this;
-  /*  QFile file(tempName);
-       if(file.open(QIODevice::WriteOnly))
-       {
-          QTextStream stream(&file);
-          stream<<printInfo;
-          file.close();
-       }else{
-          QMessageBox::warning(this,QString::fromUtf8("错误"),QString::fromUtf8("无法创建临时文件！"));
-          return;
-       }
-       mFileWatcher->addPath(tempName);*/
+}
+
+CmdBuilder *CmdBuilder::buildProp(QString prop)
+{
+    cmd.append(QString(" shell getprop %1 ").arg(prop));
+    return this;
+}
+
+CmdBuilder *CmdBuilder::buildAdb(QString device)
+{
+    cmd = QString(" adb -s %1 ").arg(device);
+    return this;
+}
+
+CmdBuilder *CmdBuilder::buildFeature()
+{
+    cmd.append(" shell pm list features ");
+    return this;
+}
+
+CmdBuilder *CmdBuilder::buildPackage()
+{
+    cmd.append(" shell pm list packages ");
+    return this;
 }
 
 QString CmdBuilder::create()
@@ -46,15 +57,24 @@ QString CmdBuilder::create()
     return cmd;
 }
 
-CmdBuilder* CmdBuilder::buildTaskCmd()
+void CmdBuilder::test()
 {
+    QList<Cmd*> list = actionCmds("CTS","all");
+    qDebug()<<"test size:"<<list.size();
+    for(int i = 0;i<list.size();i++){
+        qDebug()<<"test:"<<list.at(i)->getCmd();
+    }
+}
+
+CmdBuilder* CmdBuilder::buildTaskCmd(TaskParam* taskParam)
+{
+    this->taskParam = taskParam;
     QString platform = taskParam->getPlatform();
     QSet<QString> device = taskParam->getDevice();
-   // QString printInfo = QString("[GmsAutoTool]test name:%1\n").arg(taskParam->getTaskName());
     QString cmdType = taskParam->getCmdType();
     QString testType = taskParam->getTestType();
-
-    QString actionCmd = getActionCmd(testType,platform,cmdType);
+    QString toolVersion = taskParam->getToolVersion();
+    QString actionCmd = getActionCmd(testType,cmdType,platform,toolVersion);
     if(cmdType == Config::CMD_ALL){
 
     }else if(cmdType == Config::CMD_RETRY){
@@ -62,60 +82,75 @@ CmdBuilder* CmdBuilder::buildTaskCmd()
     }else if(cmdType == Config::CMD_MODULE){
         actionCmd = actionCmd.arg(taskParam->getSingleModule());
     }else if(cmdType == Config::CMD_SINGLE){
-       actionCmd =  actionCmd.arg(taskParam->getSingleModule()).arg(taskParam->getItem());
+        actionCmd =  actionCmd.arg(taskParam->getSingleModule()).arg(taskParam->getItem());
     }else if(cmdType == Config::CMD_PLAN){
         actionCmd = actionCmd.arg(taskParam->getPlanName());
     }
 
-    QString devicePrefix = " --shards %1 ";
+    QString devicePrefix = " --shard-count %1 ";
     QString deviceConfig = device.size() > 1 ? devicePrefix.arg(device.size()) : "";
     foreach(QString deviceId,device)
     {
-         deviceConfig =  deviceConfig.append(QString(" -s %1 ").arg(deviceId));
-     }
+        deviceConfig =  deviceConfig.append(QString(" -s %1 ").arg(deviceId));
+    }
     actionCmd = actionCmd.append(deviceConfig);
     qDebug()<<"[CmdBuilder]action cmd:"<<actionCmd;
     cmd = actionCmd;
     return this;
 }
 
-QString CmdBuilder::getActionCmd(QString type, QString platform, QString action)
+QList<CmdBuilder::Cmd *> CmdBuilder::actionCmds(QString type, QString action)
 {
-    QDomNode cmdNode;
-    QString overrideXml = "config/Config.xml";
-    QString internalXml = ":/xml/resource/xml/Config.xml";
-    if(QFile::exists(overrideXml)){
-        cmdNode =  getNodeFromXml(type,platform,action,overrideXml);
+    QList<Cmd*> list;
+    QDomDocument doc;
+    doc.setContent(new QFile(Config::getResourcePath(Config::CONFIG_XML)));
+    QDomNode rootNode = doc.namedItem("Config");
+    for(int i = 0;i < rootNode.childNodes().size() ; i++){
+        QDomNode testNode = rootNode.childNodes().at(i);
+        if(testNode.nodeName() == "Test" && testNode.attributes().namedItem("type").nodeValue() == type){
+            for(int j = 0;j < testNode.childNodes().size() ; j++){
+                QDomNode actionNode = testNode.childNodes().at(j);
+                if(actionNode.attributes().namedItem("name").nodeValue() == action){
+                    for(int k = 0;k<actionNode.childNodes().size();k++){
+                        QDomNode cmdNode = actionNode.childNodes().at(k);
+                        Cmd* cmd = new Cmd(cmdNode.toElement().text()
+                                           ,cmdNode.attributes().namedItem("platform").nodeValue()
+                                           ,cmdNode.attributes().namedItem("version").nodeValue());
+                        list.append(cmd);
+                    }
+                }
+            }
+        }
     }
-    if(cmdNode.isNull()){
-        cmdNode = getNodeFromXml(type,platform,action,internalXml);
-    }
-    qDebug()<<"[CmdBuilder::getActionCmd]final cmd:"<<cmdNode.toElement().text();
-    return cmdNode.toElement().text();
+    return sortCmds(list);
 }
 
-QDomNode CmdBuilder::getNodeFromXml(QString type,QString platform,QString action,QString xml)
+QList<CmdBuilder::Cmd *> CmdBuilder::sortCmds(QList<CmdBuilder::Cmd *> list)
 {
-    QDomDocument doc;
-    doc.setContent(new QFile(xml));
-    QMap<QString,QString> map,map1,map2;
-    map.insert("type",type);
-    QDomNode testNode = XmlUtil::getChildNode(doc.namedItem("Config"),"Test",map);
-    map1.insert("name",action);
-    QDomNode actionNode = XmlUtil::getChildNode(testNode,"Action",map1);
-    map2.insert("platform",platform);
-    QDomNode cmdNode = XmlUtil::getChildNode(actionNode,"Command",map2);
-    if(cmdNode.isNull())
+    int ROUND_COUNT = list.size() - 1;
+    for(int i=0;i<ROUND_COUNT;i++)
     {
-        QMap<QString,QString> map3;
-        map3.insert("platform",Config::getCharPlatform(platform));
-        cmdNode =  XmlUtil::getChildNode(actionNode,"Command",map3);
+        for(int j=0;j<ROUND_COUNT-i;j++)
+        {
+            Cmd* prev = list.at(j);
+            Cmd* next = list.at(j + 1);
+            if(prev->beforeThan(next->getPlatform(),next->getVersion())){
+                list.swap(j,j + 1);
+            }
+        }
     }
-    if(cmdNode.isNull())
-    {
-        cmdNode = XmlUtil::getChildNode(actionNode,"Command");//default cmd
+    return list;
+}
+
+QString CmdBuilder::getActionCmd(QString type, QString action, QString platform, QString version)
+{
+    QList<Cmd*> list = actionCmds(type,action);
+    qDebug()<<"[CmdBuilder::getActionCmd]"<<type<<action<<platform<<version<<"action cmds size:"<<list.size();
+    for(int i = 0;i < list.size();i++){
+        Cmd* cmd = list.at(i);
+        if(cmd->beforeThan(platform,version)){
+            return cmd->getCmd();
+        }
     }
-    qDebug()<<QString("[CmdBuilder::getNodeFromXml]get cmd  from <%1> for <type %2><platform %3><action %4>:%5")
-                        .arg(xml).arg(type).arg(platform).arg(action).arg(cmdNode.toElement().text());
-    return cmdNode;
+    return "";
 }

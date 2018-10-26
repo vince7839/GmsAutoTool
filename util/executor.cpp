@@ -20,9 +20,19 @@ void Executor::execInBack(QString cmd, QStringList arg)
 
 }
 
-void Executor::waitFinish(QString cmd, QStringList arg)
+QString Executor::waitFinish(QString cmd, QStringList arg)
 {
+    qDebug()<<"[Executor::waitFinish]cmd:"<<cmd;
+    QString output;
     QProcess*p = new QProcess;
-    p->start(cmd,arg);
-    p->waitForFinished();
+    if(arg.isEmpty()){
+       p->start(cmd);
+    }else{
+        p->start(cmd,arg);
+    }
+    if(p->waitForFinished(60000)){
+        output = p->readAll();
+    }
+   // qDebug()<<"Executor::waitFinish:"<<output;
+    return output;
 }

@@ -13,10 +13,13 @@ ExtendUtil::ExtendUtil()
 void ExtendUtil::installApk(QString path)
 {
     DeviceDialog*dialog = new DeviceDialog;
-    QString device = dialog->selectDevice();
-    qDebug()<<"[ExtendUtil::installApk]device:"<<device;
-    if(!device.isEmpty()){
-        Executor::execInTerminal(QString("adb -s %1 install %2").arg(device).arg(path));
+    QStringList devices = dialog->selectMultiDevice();
+    if(!devices.isEmpty()){
+        QString cmd;
+        foreach(QString s,devices){
+            cmd.append(QString("adb -s %1 install %2;").arg(s).arg(path));
+        }
+        Executor::execInTerminal(cmd.append(QString::fromUtf8("echo '操作完成。'")));
     }
 }
 
@@ -51,56 +54,38 @@ void ExtendUtil::copyMedia(QString zipPath)
 }
 
 void ExtendUtil::configPC()
-{
-    bool adbExists = false;
-    bool aaptExists = false;
-    bool fastbootExists = false;
-    QProcess* p = new QProcess;
-    p->start("adb version");
-    if(p->waitForFinished()){
-        QString output = p->readAll();
-        qDebug()<<"[ExtendUtil::configPC]test adb:"<<output;
-        adbExists = output.startsWith("Android Debug Bridge version");
-    }
-    p->start("aapt version");
-    if(p->waitForFinished()){
-        QString output = p->readAll();
-        qDebug()<<"[ExtendUtil::configPC]test aapt:"<<output;
-        aaptExists = output.startsWith("Android Asset Packaging Tool");
-    }
-
-    p->start("fastboot --version");
-    if(p->waitForFinished()){
-        QString output = p->readAll();
-        qDebug()<<"[ExtendUtil::configPC]test fastboot:"<<output;
-        fastbootExists = output.contains("version");
-    }
+{    
+    bool adbExists =  Executor::waitFinish("adb version").startsWith("Android Debug Bridge version");
+    bool aaptExists = Executor::waitFinish("aapt version").startsWith("Android Asset Packaging Tool");
+    bool fastbootExists = Executor::waitFinish("fastboot --version").contains("version");
     qDebug()<<QString("[ExtendWidget]adb:%1 aapt:%2 fastboot:%3")
-              .arg(adbExists).arg(aaptExists).arg(fastbootExists);
+                                                       .arg(adbExists).arg(aaptExists).arg(fastbootExists);
     if(adbExists && aaptExists && fastbootExists)
     {
         QMessageBox::information(0,QString::fromUtf8("提示"),QString::fromUtf8("您已配置过系统环境,无需重新配置"));
         return;
     }
-    QString cmd;
+    if(!QDir("/tmp/GmsAutoTool").exists()){
+        QDir("/tmp").mkdir("GmsAutoTool");
+    }
+    QString zipPath = "/tmp/GmsAutoTool/tools.zip";
+    QFile::copy(":/plugin/resource/plugin/tools.zip",zipPath);
+    QString cmd = QString("echo '正在解压...';unzip -q -o %1 -d %2;").arg(zipPath).arg(QDir::currentPath());
     if(!adbExists){
-        QString destPath = QDir::currentPath().append("/plugin/adb");
-        QFile::copy(":/plugin/resource/plugin/adb",destPath);
-        cmd.append(QString::fromUtf8("sudo chmod +x %1 && sudo ln -s %1 %2 && echo 'adb配置完成...';").arg(destPath).arg("/usr/bin/adb"));
+        QString destPath = QDir::currentPath().append("/tools/adb");
+        cmd.append(QString::fromUtf8("sudo rm -f /usr/bin/adb;sudo chmod +x %1 && sudo ln -s %1 /usr/bin/adb && echo 'adb配置完成...';").arg(destPath));
     }else{
         cmd.append(QString::fromUtf8("echo 'adb无需配置，跳过...';"));
     }
     if(!aaptExists){
-        QString destPath = QDir::currentPath().append("/plugin/aapt");
-        QFile::copy(":/plugin/resource/plugin/aapt",destPath);
-        cmd.append(QString("sudo chmod +x %1 && sudo ln -s %1 %2 && echo 'aapt配置完成...';").arg(destPath).arg("/usr/bin/aapt"));
+        QString destPath = QDir::currentPath().append("/tools/aapt");
+        cmd.append(QString("sudo rm -f /usr/bin/aapt;sudo chmod +x %1 && sudo ln -s %1 /usr/bin/aapt && echo 'aapt配置完成...';").arg(destPath));
     }else{
         cmd.append("echo 'aapt无需配置，跳过...';");
     }
     if(!fastbootExists){
-        QString destPath = QDir::currentPath().append("/plugin/fastboot");
-        QFile::copy(":/plugin/resource/plugin/fastboot",destPath);
-        cmd.append(QString("sudo chmod +x %1 && sudo ln -s %1 %2 && echo 'fastboot配置完成...';").arg(destPath).arg("/usr/bin/fastboot"));
+        QString destPath = QDir::currentPath().append("/tools/fastboot");
+        cmd.append(QString("sudo rm -f /usr/bin/fastboot;sudo chmod +x %1 && sudo ln -s %1 /usr/bin/fastboot && echo 'fastboot配置完成...';").arg(destPath));
     }else{
         cmd.append("echo 'fastboot无需配置，跳过...';");
     }
@@ -120,7 +105,7 @@ void ExtendUtil::copyMedia()
     QString mediaPath = "/tmp/android-cts-media/";
     QString destPath = QString("%1/%2").arg(mediaPath).arg(file.fileName());
     QString cmd = QString("echo '删除%1...';rm -rf  %1;echo '创建%1...';mkdir -p %1;"
-                                            "echo '开始拷贝到%1...';cp -r %2 %3;echo '完成!!!'...;exec bash")
-                              .arg(mediaPath).arg(path).arg(destPath);
-     Executor::execInTerminal(cmd);
+                          "echo '开始拷贝到%1...';cp -r %2 %3;echo '完成!!!'...;exec bash")
+            .arg(mediaPath).arg(path).arg(destPath);
+    Executor::execInTerminal(cmd);
 }

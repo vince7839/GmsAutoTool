@@ -2,12 +2,13 @@
 #define ADDTOOLWIDGET_H
 
 #include <QWidget>
+#include<view/popwidget.h>
 
 namespace Ui {
 class AddToolWidget;
 }
 
-class AddToolWidget : public QWidget
+class AddToolWidget : public PopWidget
 {
     Q_OBJECT
 signals:

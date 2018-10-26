@@ -13,6 +13,8 @@
 #include<QProcess>
 #include<view/projectwidget.h>
 #include<util/extendutil.h>
+#include<view/buildspecwidget.h>
+#include<util/executor.h>
 
 const int ExtendWidget::BTN_ID_CONFIG_PC = 0;
 const int ExtendWidget::BTN_ID_COPY_MEDIA = 1;
@@ -21,10 +23,20 @@ const int ExtendWidget::BTN_ID_SEND_BROADCAST = 3;
 const int ExtendWidget::BTN_ID_SHOW_WARNING = 4;
 const int ExtendWidget::BTN_ID_FLASH_IMG = 5;
 const int ExtendWidget::BTN_ID_PROJECT_GMS = 6;
+const int ExtendWidget::BTN_ID_SPEC_TEST = 7;
+const int ExtendWidget::BTN_ID_CONFIG_VTS = 8;
 
 void ExtendWidget::configPC()
 {
     ExtendUtil::configPC();
+}
+
+void ExtendWidget::configVTS()
+{
+    QString cmd = "sudo apt-get install python-dev && sudo apt-get install python-protobuf "
+                  "&& sudo apt-get install protobuf-compiler && sudo apt-get install python-virtualenv"
+                  "&& sudo apt-get install python-pip && echo '配置完成！！！'";
+    Executor::execInTerminal(cmd);
 }
 
 void ExtendWidget::copyMedia()
@@ -79,6 +91,12 @@ void ExtendWidget::clickedHandle()
     case BTN_ID_PROJECT_GMS:
         projectGms();
         break;
+    case BTN_ID_SPEC_TEST:
+        specTest();
+        break;
+    case BTN_ID_CONFIG_VTS:
+        configVTS();
+        break;
     }
 }
 
@@ -104,6 +122,12 @@ void ExtendWidget::projectGms()
     p->show();
 }
 
+void ExtendWidget::specTest()
+{
+    BuildSpecWidget* w = new BuildSpecWidget(this);
+    w->show();
+}
+
 ExtendWidget::ExtendWidget(QWidget *parent) :
     BaseWidget(parent),
     ui(new Ui::ExtendWidget)
@@ -112,12 +136,16 @@ ExtendWidget::ExtendWidget(QWidget *parent) :
     mScrollLayout = new QVBoxLayout;
 
     QList<Module> modules;
+    modules.append(Module(QString::fromUtf8("规范排查"),QString::fromUtf8("一些基础属性设置的检测")
+                               ,QString::fromUtf8("开始测试"),BTN_ID_SPEC_TEST));
     modules.append(Module(QString::fromUtf8("一键配置"),QString::fromUtf8("一键配置电脑CTS环境")
                                ,QString::fromUtf8("开始配置"),BTN_ID_CONFIG_PC));
     modules.append(Module(QString::fromUtf8("导入media文件"),QString::fromUtf8("导入media文件到/tmp文件夹")
                                ,QString::fromUtf8("选择文件"),BTN_ID_COPY_MEDIA));
     modules.append(Module(QString::fromUtf8("刷入Google镜像"),QString::fromUtf8("GSI测试所需的镜像文件")
                                ,QString::fromUtf8("选择镜像"),BTN_ID_FLASH_IMG));
+    modules.append(Module(QString::fromUtf8("VTS环境配置"),QString::fromUtf8("联网安装VTS测试所需的依赖包")
+                               ,QString::fromUtf8("开始配置"),BTN_ID_CONFIG_VTS));
  /*   modules.append(ModelData(QString::fromUtf8("GMS状态查询"),QString::fromUtf8("项目的GMS进度")
                                ,QString::fromUtf8("开始查询"),BTN_ID_PROJECT_GMS));*/
     modules.append(Module(QString::fromUtf8("安装APK"),QString::fromUtf8("将电脑中的APK安装到手机")

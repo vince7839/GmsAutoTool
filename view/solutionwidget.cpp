@@ -139,7 +139,7 @@ void SolutionWidget::parseXml(QDomNode node)
 }
 
 SolutionWidget::SolutionWidget(QWidget *parent) :
-    QWidget(parent),
+    PopWidget(parent),
     ui(new Ui::SolutionWidget)
 {
     ui->setupUi(this);
