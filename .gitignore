@@ -7,4 +7,5 @@ ui_*
 moc_*
 qrc_icon.cpp
 qrc_resource.cpp
+GmsAutoTool.pro.*
 

@@ -22,5 +22,4 @@ void PopWidget::moveToCenter()
     int x = centerX - this->width()/2;
     int y = centerY - this->height()/2;
     this->move(x,y);
-    qDebug()<<x<<y;
 }
